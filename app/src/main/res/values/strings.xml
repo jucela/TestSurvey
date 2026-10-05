@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">AppPrueba</string>
+    <string name="encuesta_titulo">Encuesta de Educación 2026 · Capítulo 300</string>
+    <string name="btn_anterior">Anterior</string>
+    <string name="btn_siguiente">Siguiente</string>
+    <string name="btn_reiniciar">Reiniciar encuesta</string>
+    <string name="btn_salir">Salir</string>
+    <string name="btn_iniciar">Iniciar encuesta</string>
+    <string name="encuesta_fin_titulo">Encuesta finalizada</string>
+    <string name="encuesta_fin_detalle">Las respuestas quedaron guardadas en el dispositivo.</string>
+    <string name="campo_texto">Escriba aquí</string>
+    <string name="campo_codigo">Código</string>
+    <string name="seleccion_placeholder">-- Seleccione --</string>
+    <string name="error_requerido">Seleccione una opción para continuar</string>
+    <string name="dialogo_codigo_titulo">Buscar y agregar</string>
+    <string name="dialogo_codigo_hint">Código o valor</string>
+    <string name="dialogo_aceptar">Aceptar</string>
+    <string name="dialogo_cancelar">Cancelar</string>
+    <string name="progreso_formato">%1$d / %2$d</string>
+</resources>
