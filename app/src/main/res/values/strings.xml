@@ -17,4 +17,9 @@
     <string name="dialogo_aceptar">Aceptar</string>
     <string name="dialogo_cancelar">Cancelar</string>
     <string name="progreso_formato">%1$d / %2$d</string>
+    <string name="login_titulo">Iniciar sesión</string>
+    <string name="campo_usuario">Usuario</string>
+    <string name="campo_contrasena">Contraseña</string>
+    <string name="btn_iniciar_sesion">Iniciar sesión</string>
+    <string name="btn_cerrar_sesion">Cerrar sesión</string>
 </resources>
