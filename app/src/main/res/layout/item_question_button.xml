@@ -4,15 +4,16 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingStart="12dp"
-    android:paddingTop="8dp"
-    android:paddingEnd="12dp"
-    android:paddingBottom="8dp">
+    android:paddingHorizontal="16dp"
+    android:paddingVertical="8dp">
 
     <Button
         android:id="@+id/btnAccion"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:minHeight="48dp"
         android:textSize="13sp"
+        android:backgroundTint="@color/primary"
+        android:textColor="@color/onPrimary"
         tools:text="Buscar Carrera" />
 </LinearLayout>

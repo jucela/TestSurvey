@@ -7,4 +7,18 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Design System color mapping -->
+    <color name="primary">#FF6200EE</color>
+    <color name="primaryDark">#FF3700B3</color>
+    <color name="primaryLight">#FFBB86FC</color>
+    <color name="secondary">#FF03DAC5</color>
+    <color name="secondaryDark">#FF018786</color>
+    <color name="error">#C62828</color>
+    <color name="success">#6D4C00</color>
+    <color name="onPrimary">#FFFFFFFF</color>
+    <color name="onSecondary">#000000</color>
+    <color name="onBackground">#000000</color>
+    <color name="onError">#FFFFFFFF</color>
+    <color name="onSuccess">#FFFFFFFF</color>
 </resources>
