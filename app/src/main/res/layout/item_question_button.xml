@@ -1,19 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    style="@style/CardAppPrueba"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:paddingHorizontal="16dp"
-    android:paddingVertical="8dp">
+    android:layout_marginEnd="@dimen/dp_4"
+    android:layout_marginStart="@dimen/dp_4"
+    android:layout_marginTop="@dimen/dp_2"
+    android:layout_marginBottom="@dimen/dp_2">
 
-    <Button
-        android:id="@+id/btnAccion"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:minHeight="48dp"
-        android:textSize="13sp"
-        android:backgroundTint="@color/primary"
-        android:textColor="@color/onPrimary"
-        tools:text="Buscar Carrera" />
-</LinearLayout>
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/dp_16"
+        android:paddingVertical="@dimen/dp_8">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAccion"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="@dimen/dp_48"
+            tools:text="Buscar Carrera" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

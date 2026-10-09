@@ -18,8 +18,19 @@
     <string name="dialogo_cancelar">Cancelar</string>
     <string name="progreso_formato">%1$d / %2$d</string>
     <string name="login_titulo">Iniciar sesión</string>
+    <string name="title_survey">ENAHO</string>
+    <string name="title_survey_detail">Encuesta Nacional de Hogares 2026</string>
+    <string name="login_de_hogares">de Hogares 2026</string>
+    <string name="login_card_titulo">Ingreso de Usuario</string>
+    <string name="login_version">Versión v1.0.0</string>
+    <string name="login_footer">Instituto de Nacional de Estadística e Informática © 2026. Todos los derechos reservados.</string>
+    <string name="login_cd_logo">Logo institucional</string>
+    <string name="login_cd_usuario">Icono de usuario</string>
+    <string name="login_cd_contrasena">Icono de contraseña</string>
+    <string name="login_cd_validacion">Validación</string>
+    <string name="login_cd_info">Información de la aplicación</string>
     <string name="campo_usuario">Usuario</string>
     <string name="campo_contrasena">Contraseña</string>
-    <string name="btn_iniciar_sesion">Iniciar sesión</string>
+    <string name="btn_iniciar_sesion">Aceptar</string>
     <string name="btn_cerrar_sesion">Cerrar sesión</string>
 </resources>

@@ -1,162 +1,226 @@
-# Design System - TestSurvey
+# SPEC: Design System — Evolución a Material Design 3
 
-**RF-001**: Definir paleta de colores global consistente para toda la aplicación
-**RF-002**: Establecer sistema de tipografía responsivo para smartphones y tablets
-**RF-003**: Estandarizar componentes UI reutilizables (botones, inputs, selects, checkboxes, radio buttons)
-**RF-004**: Definir espaciado y diseño base consistente (8dp/4dp scale)
-**RF-005**: Establecer estados visuales y accesibilidad para todos los componentes
+**Estado:** Aprobada <!-- Borrador | En revisión | Aprobada -->
 
-## 1. Propósito y Alcance
+<!-- PARA LA PERSONA
+Copia esta plantilla como SPEC.md en una carpeta de la funcionalidad.
+Pide al agente que la complete contigo usando MOBILE_GUIDELINES.md.
+SPEC.md define qué debe cumplirse; PLAN.md desarrolla cómo implementarlo;
+TASKS.md organiza los pasos de ejecución.
+-->
 
-Objetivo: Proporcionar un conjunto de directrices visuales y componentes reutilizables que garanticen consistencia en todas las pantallas de encuesta actuales y futuras, manteniendo compatibilidad con la arquitectura Clean Architecture y MVVM existente.
+<!-- PARA EL AGENTE
+- Lee las instrucciones del proyecto y MOBILE_GUIDELINES.md. Inspecciona el
+  repositorio para comprobar el comportamiento actual. Si falta la guía, pide su ubicación.
+- Completa esta spec con la persona: investiga lo comprobable y consulta las
+  decisiones pendientes. Haz pocas preguntas por vez y actualiza las respuestas.
+- No inventes requisitos ni exclusiones. Distingue propuestas de decisiones
+  confirmadas y marca como PENDIENTE lo que aún no esté resuelto.
+- Aplica las consideraciones mobile relevantes sin ampliar el alcance automáticamente.
+- No incluyas diseño de clases, tablas, componentes, archivos o algoritmos:
+  esos detalles pertenecen a PLAN.md. Sí registra restricciones explícitas del pedido.
+- Mantén el documento breve y proporcional a la funcionalidad. Conserva los comentarios.
+- Un documento completo no está aprobado automáticamente. Solicita aprobación
+  antes de marcarlo como Aprobada. No implementes durante esta etapa.
+-->
 
-## 2. Paleta de Colores
+## Qué construimos y para quién
 
-### Colores Base (existente)
-- `primary`: #FF6200EE (purple_500) - acciones principales, headers
-- `primaryDark`: #FF3700B3 (purple_700) - states pressed, borders
-- `primaryLight`: #FFBB86FC (purple_200) - fondos sutiles, headers inativo
-- `secondary`: #FF03DAC5 (teal_200) - accents, highlights
-- `secondaryDark`: #FF018786 (teal_700) - states pressed secondary
-- `background`: #FFFFFFFF (white) - fondos de pantalla
-- `surface`: #FFFFFFFF - componentes con fondo propio
-- `error`: #C62828 - validaciones, estados error
-- `success`: #6D4C00 - respuestas correctas completadas
-- `onPrimary`: #FFFFFFFF - texto sobre primary
-- `onSecondary`: #000000 - texto sobre secondary
-- `onBackground`: #000000 - texto sobre backgrounds
-- `onError`: #FFFFFFFF - texto sobre error
-- `onSuccess`: #FFFFFFFF - texto sobre success
+Evolucionar el Design System existente para adoptar **Material Design 3 como base
+visual global** de la app Android, conservando la arquitectura, el comportamiento
+funcional y la identidad de marca ya aprobada. La persona que utiliza la app verá
+una interfaz coherente en las pantallas existentes (login, principal y encuesta) y
+futuras, con componentes Material 3, claro/oscuro según el sistema y adaptación a
+teléfonos y tabletas. La persona desarrolladora contará con `DESIGN_SYSTEM.md` como
+referencia oficial vigente de reglas, tokens y componentes reutilizables.
 
-### Uso por componente
-- **AppBar/Toolbar**: primary + onPrimary
-- **Fondos de pantalla**: background
-- **Cards/Containers**: surface
-- **Estados de error**: error + onError
-- **Estados de éxito**: success + onSuccess
+## Situación actual
 
-## 3. Tipografía
+- Existe un Design System previo aprobado (SPEC v1.0 con `RF-001..005`,
+  `PLAN.md` Aprobado y `TASKS.md` completadas) implementado en XML: mapeo de
+  colores de marca, escala de espaciado 4/8/12/16/24dp, atributos de estados y
+  drawables con bordes manuales (checkbox, radio, edittext).
+- El tema es `Theme.AppCompat.DayNight.NoActionBar` sin paleta Material 3 ni
+  variante oscura (`values-night` no existe). No hay recursos `values-sw600dp`
+  ni `values-land`.
+- Los widgets son `android.widget.*` (Button, EditText, CheckBox, RadioButton,
+  Spinner, TextView). La dependencia `com.google.android.material:material:1.12.0`
+  está declarada pero sin uso en layouts ni código: la interfaz se ve estilo AppCompat.
+- El diálogo de búsqueda se crea con `android.app.AlertDialog` y los avisos con
+  `Toast`, sin estilo del DS. Varios colores están fijos en los layouts
+  (`teal_700`, `#FFEBEE`, `#C62828`, `#777777`) en vez de tokens.
+- Se conservan sin cambios: arquitectura Clean Architecture/MVVM, datos de
+  catálogos markdown, persistencia Room/DataStore, navegación `SurveyGraph`,
+  IDs de preguntas y comportamiento funcional de encuesta y login.
 
-| Uso | Familia | Tamaño | Peso | Línea de base |
-|-----|---------|--------|------|---------------|
-| Título principal | Roboto | 24sp | Bold | 32sp |
-| Título de sección | Roboto | 20sp | Medium | 28sp |
-| Label de formulario | Roboto | 16sp | Medium | 24sp |
-| Texto de pregunta | Roboto | 16sp | Regular | 24sp |
-| Texto de ayuda/hint | Roboto | 14sp | Regular | 20sp |
-| Texto pequeño/caption | Roboto | 12sp | Regular | 16sp |
+## Dentro del alcance
 
-## 4. Componentes UI Estandarizados
+- **RF-01 · Base visual M3 global:** migrar la app a un tema `Theme.Material3
+  .DayNight` como base visual única (sin Jetpack Compose), con clases Material en
+  los componentes existentes y con el **dynamic color deshabilitado** para
+  preservar la identidad de marca.
+- **RF-02 · Paleta de colores:** definir la paleta de roles Material 3 en claro y
+  oscuro, reutilizando los valores de marca ya aprobados (purple = primary,
+  teal = secondary) y reemplazando los colores fijos actuales por tokens.
+- **RF-03 · Tipografía:** documentar y aplicar la escala tipográfica Material 3
+  por caso de uso (títulos, preguntas, labels, hints, captions), responsiva a
+  densidad y tamaño de texto del sistema (hasta 200% sin romper el layout).
+- **RF-04 · Componentes reutilizables:** definir y aplicar los componentes M3 en
+  todas las pantallas: botones, campos de texto priorizando **Outlined Text
+  Fields**, casillas de verificación, radio buttons, listas desplegables,
+  tarjetas, diálogos y mensajes, con estados normal/focused/pressed/disabled/
+  error/success.
+- **RF-05 · Espaciado, formas y elevación:** mantener la escala de espaciado
+  existente (4/8/12/16/24dp), definir el sistema de esquinas (shape) y elevación
+  M3 y aplicarlos de forma consistente sin valores mágicos nuevos.
+- **RF-06 · Estados y accesibilidad:** garantizar contraste AA (4.5:1 texto
+  normal, 3:1 grande), áreas táctiles mínimas de 48dp, orden de foco lógico,
+  etiquetas en los campos y estados de error/éxito no comunicados solo por color.
+- **RF-07 · Adaptación a pantallas:** adaptar la interfaz a smartphones y
+  tabletas, orientaciones portrait/landscape y áreas del sistema, con layouts
+  específicos para tabletas (ancho ≥600dp) y orientación horizontal.
+- **RF-08 · Referencia oficial:** crear `docs/DESIGN_SYSTEM.md` como documento
+  vigente de las reglas visuales aprobadas (tokens, tipografía, componentes,
+  estados, adaptación y reutilización), sin duplicar `AGENTS.md` ni las reglas
+  generales del proyecto.
 
-### 4.1 Button
-- Altura mínima: 48dp
-- Radio: 48dp × 48dp área táctil
-- Padding horizontal: 16dp
-- Padding vertical: 8dp
-- Border: 1dp solid currentColor cuando enfocado
-- Estados: normal, pressed, focused, disabled
-- Tipografía: Botón principal en primary, secundario en secondary
+La evolución conserva y amplía el Design System previo (`RF-001..005`): los
+colores, el espaciado, los estados y la accesibilidad ya aprobados se mantienen y
+se reexpresan como tokens Material 3.
 
-### 4.2 CheckBox
-- Tamaño: 24dp × 24dp
-- Borde: 2dp solid currentColor
-- Estados: unchecked, checked, indeterminate, disabled
-- Color checked: primary
+## Fuera de alcance
 
-### 4.3 RadioButton
-- Tamaño círculo: 20dp
-- RadioGroup: spacing horizontal 8dp
-- Estados: selected, unselected, disabled
-- Color seleccionado: primary
+- **Jetpack Compose:** la interfaz usa XML y vistas tradicionales de Android.
+- Nuevas funcionalidades, pantallas o rediseño funcional de la encuesta.
+- Cambios en datos, catálogos markdown, persistencia, navegación (`SurveyGraph`)
+  o lógica de negocio.
+- Dependencias nuevas o actualización de versiones (`material:1.12.0` existente
+  se reutiliza).
+- **Dynamic color (Material You):** se mantiene deshabilitado por identidad de marca.
+- Rebranding: no se cambia la paleta de marca (purple/teal), logotipos ni nombres.
 
-### 4.5 Spinner
-- Dropdown background: white
-- Item selector: background primary Light
-- Texto item: onBackground
-- Padding: 8dp horizontal, 4dp vertical
+## Flujo de usuario
 
-### 4.4 EditText / TextInput
-- Altura: 48dp mínimo
-- Border: 1dp solid #B0B0B0 (estado normal)
-- Focused border: 2dp solid primary
-- Error state border: 2dp solid error
-- Padding: 8dp horizontal, 12dp vertical
-- Hint text color: #777777
-- Text color: onBackground
+1. La persona abre la app y ve la pantalla de login con el tema Material 3
+   (claro u oscuro según el sistema), campos de texto outlined y botón M3.
+2. Inicia sesión correctamente y llega a la pantalla principal con botones M3.
+3. Inicia la encuesta: las preguntas se muestran con componentes M3
+   (radio/checkbox/texto/spinner/tarjetas); el diálogo de búsqueda de código y
+   los avisos siguen el mismo sistema visual.
+4. En tableta (ancho ≥600dp) el listado de preguntas se adapta (hasta 2 columnas);
+   en teléfono permanece en una columna; portrait y landscape mantienen la
+   usabilidad y el estado.
+5. Resultado: interfaz consistente en todas las pantallas, orientaciones y modos,
+   sin cambios en el comportamiento funcional existente.
 
-### 4.5 TextView (estadios)
-- Normal: onBackground
-- Enfocado: no change (solo interactivos tienen border)
-- Error: texto error + background error light
+## Datos y reglas de negocio
 
-## 5. Espaciado y Layout
+- No hay cambios en los datos de la encuesta ni en su persistencia.
+- Los tokens visuales (colores, tipografía, espaciado, esquinas, elevación y
+  estados) quedan definidos en `DESIGN_SYSTEM.md` y se materializan en recursos
+  XML (`values`, `values-night`, `values-sw600dp`, `values-land`).
+- Regla de marca: la paleta M3 deriva de los valores de marca aprobados
+  (purple/teal); no se introducen paletas nuevas ni colores fijos fuera de tokens.
+- Regla de consistencia: ninguna pantalla introduce estilos globales alternativos;
+  todo componente reutilizable nuevo debe documentarse en `DESIGN_SYSTEM.md`.
 
-- **Escala base**: 4dp (xs), 8dp (sm), 12dp (md), 16dp (lg), 24dp (xl)
-- **Margen/padding consistente**: 16dp como unidad base principal
-- **Espacio entre items de lista**: 12dp
-- **Margen de pantalla**: 16dp en todos los lados
-- **Altura de tarjeta/caja**: auto con min 48dp contenido
+## Comportamiento mobile y casos alternativos
 
-## 6. Estados Visuales Definidos
+| Situación | Comportamiento esperado |
+| --- | --- |
+| Carga o acción en curso | Los indicadores de carga (login, encuesta) conservan su comportamiento y se muestran con el sistema visual M3 definido. |
+| Sin datos | La pantalla final de encuesta y los estados vacíos se muestran con los estilos y componentes M3 aprobados, sin cambiar su flujo. |
+| Entrada inválida | Los campos de texto (login y preguntas de texto) muestran estado de error M3 con mensaje legible; los avisos no dependen solo del color. |
+| Error o espera excesiva | Los mensajes de error (login, encuesta) usan los colores y tipografía del DS; el comportamiento actual se conserva. |
+| Sin conexión o conexión interrumpida | No aplica cambio: la app es offline y no realiza operaciones de red; el tema no altera ese comportamiento. |
+| Cancelar o volver atrás | La navegación actual no cambia; los diálogos cancelables conservan su comportamiento con el estilo M3. |
+| Pasar a segundo plano y regresar | Al regresar, la pantalla conserva su estado y vuelve a mostrarse con el tema M3 correcto según el modo del sistema. |
+| Recrear la pantalla | Los formularios en edición conservan su estado (mecanismo existente) y se re-renderizan sin perder el sistema visual (incluida la rotación). |
+| Reabrir después de terminarse el proceso | La app reabre con el tema M3 correcto (claro u oscuro) sin fallos; el estado de sesión y respuestas se conserva por los mecanismos existentes. |
+| Otros puntos aplicables de la guía | Tamaño de texto del sistema hasta 200% sin cortar contenido; áreas táctiles ≥48dp; foco de teclado y lector de pantalla ordenados; adaptación a sw600dp y landscape. |
 
-### Estados por componente:
-1. **Normal** - estado por defecto
-2. **Focused** - teclado activo o foco mouse
-3. **Pressed** - toque/click activo
-4. **Disabled** - componente inhabilitado (opacity 0.5)
-5. **Error** -validación fallida (fondo error light, borde error)
-6. **Success** - validación exitosa (fondo success light)
+**Puntos de la guía no aplicables y motivo:**
+- Conectividad/red y trabajo en segundo plano: la app es 100% offline y sin
+  operaciones de red; no hay comportamiento nuevo que definir.
+- Permisos y capacidades: no se solicitan permisos nuevos; los existentes no cambian.
+- Idiomas y formatos: sin cambios de textos de negocio ni formatos (solo se
+  mantiene el español existente; la tipografía debe soportar la longitud de los
+  textos).
 
-### Contraste mínimo:
-- AA: 4.5:1 para texto normal, 3:1 para grande (18pt+ o 14pt bold)
-- AAA: 7:1 para texto normal, 4.5:1 para grande
+## Restricciones del pedido
 
-## 7. Adaptación Responsiva
+- Interfaz en **XML con vistas tradicionales**; **no usar Jetpack Compose**.
+- **Material Design 3 como base visual global**; sin un segundo Design System.
+- Priorizar **Outlined Text Fields** en los campos de texto.
+- Conservar el **comportamiento funcional actual**; no rediseñar funcionalidades
+  ajenas al Design System.
+- No actualizar dependencias ni reemplazar componentes sin justificar el impacto
+  y obtener aprobación; reutilizar `material:1.12.0` ya declarada.
+- Conservar la **identidad de marca** (purple primary / teal secondary) y
+  **deshabilitar dynamic color**.
+- Accesibilidad AA y adaptación a teléfonos, tabletas, orientaciones y tamaños
+  de texto.
+- `DESIGN_SYSTEM.md` como referencia oficial, sin duplicar `AGENTS.md` ni las
+  reglas generales; ubicado según las convenciones del proyecto (raíz de `docs/`).
 
-### Smartphones (portrait/landscape)
-- Columnas únicas en formularios
-- Altura táctil mínima 48dp todos los elementos
-- Scroll vertical fluido
-- Botones principales alineados bottom
+## Criterios de aceptación
 
-### Tablets (portrait/landscape)
-- Hasta 2 columnas en listas de preguntas
-- Áreas táctil preservadas (mínimo 48dp)
-- Layout adaptativo usando sameComponentLayoutData
+- **CA-01 · RF-01:** Dado el APK con el tema M3 aplicado, cuando se abren las
+  pantallas login, principal y encuesta en teléfono y tableta en modo claro y
+  oscuro, entonces la interfaz sigue `Theme.Material3` con clases Material sin
+  excepciones de estilo y el build no presenta errores.
+- **CA-02 · RF-02:** Dado el tema claro y oscuro, cuando se revisan los recursos
+  de color, entonces los roles M3 (primary, onPrimary, containers, secondary,
+  surface, error, onSurface, variantes) existen en `values` y `values-night`,
+  derivan de la marca aprobada y reemplazan los colores fijos actuales
+  (`teal_700`, `#FFEBEE`, `#C62828`, `#777777`) por tokens.
+- **CA-03 · RF-03:** Dado el sistema de tipos M3 documentado, cuando se revisan
+  los layouts, entonces los textos usan la escala definida (títulos, preguntas,
+  labels, hints, captions) con tamaño ≥12sp, pesos correctos y contraste AA; el
+  texto del sistema hasta 200% no rompe el layout.
+- **CA-04 · RF-04:** Dado los layouts de login, principal y preguntas, cuando se
+  inspeccionan sus widgets, entonces los campos de texto usan Outlined Text
+  Fields, botones/checkbox/radio son Material, y spinner, tarjetas, diálogo
+  (`MaterialAlertDialog`) y mensajes siguen el DS, con los estados
+  normal/focused/pressed/disabled/error/success visibles.
+- **CA-05 · RF-05:** Dado los tokens del DS, cuando se revisan recursos y
+  layouts, entonces el espaciado usa la escala 4/8/12/16/24dp y las esquinas y
+  elevación siguen el sistema M3 definido, sin valores mágicos nuevos.
+- **CA-06 · RF-06:** Dado el contraste AA y las áreas táctiles definidas, cuando
+  se recorren los controles con teclado/lector de pantalla y se provocan estados
+  de error/éxito, entonces el área táctil mínima es 48dp, el foco y las
+  etiquetas son correctos y los estados error/éxito no se comunican solo por color.
+- **CA-07 · RF-07:** Dado un dispositivo con ancho ≥600dp y otro menor, en
+  portrait y landscape, cuando se navega la encuesta y se rota la pantalla,
+  entonces las preguntas se adaptan (2 columnas en tableta, 1 en teléfono), no
+  hay contenido cortado ni controles inaccesibles y el estado se conserva.
+- **CA-08 · RF-08:** Dado `docs/DESIGN_SYSTEM.md` creado, cuando se revisa su
+  contenido y las pantallas, entonces documenta tokens, tipografía, componentes,
+  estados, adaptación y reglas de reutilización sin duplicar `AGENTS.md`, y las
+  pantallas existentes son coherentes con él.
 
-### Orientaciones
-- Portrait: formulario vertical, altura completa
-- Landscape: compactación lógica, no rotación forzada de inputs
+## Cómo se comprueba el comportamiento
 
-## 8. Accesibilidad (AA mínimo)
+| Criterio | Condiciones y pasos | Resultado esperado |
+| --- | --- | --- |
+| CA-01 | Build + recorrido visual en teléfono y tableta, claro y oscuro. | Tema y clases Material 3 aplicados en todas las pantallas; `assembleDebug` y `lintDebug` sin errores. |
+| CA-02 | Revisar `colors.xml`, `values-night` y grep de colores fijos en layouts. | Roles M3 definidos en ambos modos; sin hex nuevos fuera de tokens. |
+| CA-03 | Revisar estilos de texto en todos los layouts; ajustar tamaño de texto del sistema al 200%. | Escala M3 aplicada y legible; sin cortes ni solapamientos. |
+| CA-04 | Inspeccionar widgets y provocar estados (foco, deshabilitado, error). | Campos outlined y componentes Material en uso; estados visibles. |
+| CA-05 | Revisar `dimens`/shape/elevación y layouts. | Escala y tokens aplicados; sin valores mágicos nuevos. |
+| CA-06 | Recorrido con teclado y lector; provocar error/éxito en login y preguntas. | Áreas ≥48dp, foco/etiquetas correctos, estados no solo por color. |
+| CA-07 | Encuesta completa en teléfono y tableta, portrait/landscape, con rotación. | Adaptación correcta y estado conservado; sin contenido cortado. |
+| CA-08 | Revisión de `docs/DESIGN_SYSTEM.md` y coherencia con las pantallas. | Documento completo, sin duplicaciones, y pantallas coherentes. |
 
-- **Contraste**: 4.5:1 normal, 3:1 grande
-- **Tamaño táctil**: mínimo 48dp × 48dp
-- **Orden de foco**: lógico, siguiendo estructura visual
-- **Etiquetas**: todos los inputs tienen label asociado
-- **Text alternativo**: íconos descriptivos
-- **Rotulados**: hints descriptivos para inputs
-- **Redimensionamiento**: texto hasta 200% sin rotura de layout
+## Decisiones pendientes
 
-## 9. Convenios con Arquitectura Existente
+- Ninguna. Decidido y aprobado el 2026-10-09: (1) conversión de componentes a
+  widgets Material 3 (incluidos Outlined Text Fields), (2) temas claro y oscuro,
+  (3) migración de esta SPEC al formato oficial de `SPEC_TEMPLATE.md`,
+  (4) `DESIGN_SYSTEM.md` en la raíz de `docs/`, (5) dynamic color deshabilitado.
 
-- **Colores mapping**: existing colors.xml values reutilizados con nuevos nombres lógicos
-- **Componentes**: CheckBox, RadioGroup, Spinner, EditText, Button ya definidos en catálogos markdown
-- **Estados**: estilos de error/ éxito ya en uso, expandir consistencia
-- **Themes**: Theme.AppCompat.DayNight.NoActionBar mantenido, colores actualizados
-
-## 10. Decisiones Pendientes
-
-1. **Nombres de colores**: ¿Mantener nombres existente (purple/teal) o nuevo sistema (primary/secondary)?
-2. **Familia tipográfica**: Roboto confirmed, pero peso weights completos definidos?
-3. **Breakpoints**: sm/ms/lg definidos numéricamente o por nombre (portrait/landscape)?
-4. **Efectos shadow**: elevation values definidos o sistema sin shadow?
-5. **Componentes complejos**: DatePicker, TimePicker, Switch adicionales necesarios?
-
-## 11. RF/Criteria Relacionadas
-
-- **RF-001** → Paleta de colores global (aceptación: colores definidos y mapping a resources)
-- **RF-002** → Sistema tipográfico (aceptación: tamaños y weights por caso de uso)
-- **RF-003** → Componentes reutilizables (aceptación: especificaciones por tipo de pregunta)
-- **RF-004** → Espaciado base (aceptación: valores consistentes en layouts)
-- **RF-005** → Estados y accesibilidad (aceptación: contraste definido y estados documentados)
+<!-- ANTES DE SOLICITAR APROBACIÓN
+Comprueba que el alcance está acordado, los flujos son coherentes, los puntos
+mobile relevantes están cubiertos y cada requisito tiene criterios comprobables.
+Resuelve las dudas y los marcadores pendientes. Mantén el diseño técnico en PLAN.md.
+-->

@@ -1,46 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    style="@style/CardAppPrueba"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:paddingHorizontal="8dp"
-    android:paddingVertical="4dp">
+    android:layout_marginEnd="@dimen/dp_4"
+    android:layout_marginStart="@dimen/dp_4"
+    android:layout_marginTop="@dimen/dp_2"
+    android:layout_marginBottom="@dimen/dp_2">
 
-    <TextView
-        android:id="@+id/tvTitulo"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="16sp"
-        tools:text="Nivel de Estudios" />
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/dp_16"
+        android:paddingVertical="@dimen/dp_12">
 
-    <TextView
-        android:id="@+id/tvSubtitulo"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:textColor="#777777"
-        android:textSize="14sp"
-        tools:text=" "
-        tools:visibility="visible" />
+        <TextView
+            android:id="@+id/tvTitulo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.AppPrueba.Titulo"
+            tools:text="Nivel de Estudios" />
 
-    <Spinner
-        android:id="@+id/spOpciones"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:minHeight="48dp"
-        android:background="@android:color/white"
-        android:popupBackground="@android:color/white"
-        android:dropDownHorizontalOffset="8dp"
-        android:textColor="@color/onBackground" />
+        <TextView
+            android:id="@+id/tvSubtitulo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_4"
+            android:textAppearance="@style/TextAppearance.AppPrueba.Subtitulo"
+            tools:text=" "
+            tools:visibility="visible" />
 
-    <TextView
-        android:id="@+id/tvError"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColor="@color/error"
-        android:textSize="12sp"
-        android:visibility="gone"
-        tools:text="Seleccione una opción"
-        tools:visibility="visible" />
-</LinearLayout>
+        <Spinner
+            android:id="@+id/spOpciones"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_4"
+            android:background="?attr/colorSurfaceContainer"
+            android:minHeight="@dimen/dp_48"
+            android:paddingStart="@dimen/dp_12"
+            android:paddingEnd="@dimen/dp_12"
+            android:popupBackground="?attr/colorSurfaceContainerHigh"
+            android:textColor="?attr/colorOnSurface" />
+
+        <TextView
+            android:id="@+id/tvError"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.AppPrueba.Error"
+            android:visibility="gone"
+            tools:text="Seleccione una opción"
+            tools:visibility="visible" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

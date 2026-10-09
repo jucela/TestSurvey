@@ -16,7 +16,8 @@
             android:name=".presentation.activities.LoginActivity"
             android:exported="true"
             android:label="@string/login_titulo"
-            android:theme="@style/Theme.AppPrueba">
+            android:theme="@style/Theme.AppPrueba.Login"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

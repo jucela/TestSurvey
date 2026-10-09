@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ============================================================
+         Design System · Material 3 (dark)
+         Sobre-escribe por nombre los roles del mismo token claro.
+         Los nombres no listados conservan su valor claro.
+         ============================================================ -->
+
+    <color name="primary">#FFBB86FC</color>
+    <color name="onPrimary">#FF21005D</color>
+    <color name="primaryContainer">#FF3700B3</color>
+    <color name="onPrimaryContainer">#FFEADDFF</color>
+
+    <color name="roleSecondary">#FF03DAC5</color>
+    <color name="roleOnSecondary">#FF003F3B</color>
+    <color name="secondaryContainer">#FF018786</color>
+    <color name="onSecondaryContainer">#FFA7F0E9</color>
+
+    <color name="tertiary">#FFE7BB5C</color>
+    <color name="onTertiary">#FF221A00</color>
+    <color name="tertiaryContainer">#FF4D3500</color>
+    <color name="onTertiaryContainer">#FFFFE0A1</color>
+
+    <color name="error">#FFF2B8B5</color>
+    <color name="onError">#FF601410</color>
+    <color name="errorContainer">#FF8C1D18</color>
+    <color name="onErrorContainer">#FFF9DEDC</color>
+
+    <color name="surface">#FF1C1B1F</color>
+    <color name="onSurface">#FFE6E1E5</color>
+    <color name="surfaceVariant">#FF49454F</color>
+    <color name="onSurfaceVariant">#FFCAC2D0</color>
+    <color name="outline">#FF938F99</color>
+    <color name="outlineVariant">#FF49454F</color>
+
+    <color name="surfaceContainerLowest">#FF000000</color>
+    <color name="surfaceContainerLow">#FF242227</color>
+    <color name="surfaceContainer">#FF211F26</color>
+    <color name="surfaceContainerHigh">#FF2B2930</color>
+    <color name="surfaceContainerHighest">#FF36343B</color>
+
+    <!-- Pantalla Login (misma paleta azul del mockup en modo oscuro) -->
+    <color name="login_background">#FF0F1A2B</color>
+    <color name="login_card">#FF1C1B1F</color>
+    <color name="login_field_bg">#FF2B3240</color>
+    <color name="login_field_hint">#FFB9C4D6</color>
+    <color name="login_text_primary">#FFC7D7F0</color>
+    <color name="login_button">#FF5580C0</color>
+    <color name="login_on_button">#FF0B1630</color>
+    <color name="login_chip_bg">#FF2B3240</color>
+    <color name="login_chip_text">#FFC7D7F0</color>
+    <color name="login_icon">#FF8FAEEC</color>
+    <color name="login_validacion">#FF4CAF6A</color>
+</resources>

@@ -1,13 +1,16 @@
 package gob.inei.appprueba.presentation.activities
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import gob.inei.appprueba.R
@@ -34,7 +37,18 @@ class SurveyActivity : AppCompatActivity() {
         adapter = QuestionAdapter { questionId, valor, textoLibre ->
             viewModel.onAnswer(questionId, valor, textoLibre)
         }
-        binding.rvPreguntas.layoutManager = LinearLayoutManager(this)
+        val columnas = resources.getInteger(R.integer.preguntas_columnas)
+        binding.rvPreguntas.layoutManager =
+            if (columnas > 1) {
+                GridLayoutManager(this, columnas).apply {
+                    spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+                        override fun getSpanSize(position: Int): Int =
+                            if (itemCount == 1) columnas else 1
+                    }
+                }
+            } else {
+                LinearLayoutManager(this)
+            }
         binding.rvPreguntas.adapter = adapter
 
         binding.btnSiguiente.setOnClickListener { viewModel.next() }
@@ -68,8 +82,16 @@ class SurveyActivity : AppCompatActivity() {
         adapter.submit(state.rows, state.answers, state.filasInvalidas)
 
         if (state.filasInvalidas.isNotEmpty() && state.filasInvalidas != lastInvalid) {
-            Toast.makeText(this, R.string.error_requerido, Toast.LENGTH_SHORT).show()
+            mostrarAviso(getString(R.string.error_requerido))
         }
         lastInvalid = state.filasInvalidas
+    }
+
+    private fun mostrarAviso(mensaje: String) {
+        val toast = Toast.makeText(this, mensaje, Toast.LENGTH_SHORT)
+        val view = LayoutInflater.from(this).inflate(R.layout.toast_aviso, binding.root, false)
+        (view as TextView).text = mensaje
+        toast.view = view
+        toast.show()
     }
 }

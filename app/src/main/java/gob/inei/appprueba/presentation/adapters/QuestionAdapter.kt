@@ -1,6 +1,5 @@
 package gob.inei.appprueba.presentation.adapters
 
-import android.app.AlertDialog
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
@@ -12,11 +11,15 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.LinearLayout
-import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.Spinner
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.checkbox.MaterialCheckBox
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.radiobutton.MaterialRadioButton
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import gob.inei.appprueba.R
 import gob.inei.appprueba.domain.entities.Alternative
 import gob.inei.appprueba.domain.entities.Answer
@@ -137,7 +140,7 @@ class QuestionAdapter(
             bindLabel(row)
             group.removeAllViews()
             row.alternatives.forEachIndexed { index, alternative ->
-                val radio = RadioButton(itemView.context).apply {
+                val radio = MaterialRadioButton(itemView.context).apply {
                     id = View.generateViewId()
                     text = alternative.texto
                     tag = alternative.numeracion
@@ -159,7 +162,7 @@ class QuestionAdapter(
             bindLabel(row)
             container.removeAllViews()
             row.alternatives.forEach { alternative ->
-                val check = CheckBox(itemView.context).apply {
+                val check = MaterialCheckBox(itemView.context).apply {
                     text = alternative.texto
                     tag = alternative.numeracion
                     isChecked = alternative.numeracion in codes
@@ -242,26 +245,31 @@ class QuestionAdapter(
             }
         }
 
-        private fun createDependiente(alternative: Alternative): EditText {
-            return EditText(itemView.context).apply {
+        private fun createDependiente(alternative: Alternative): TextInputLayout {
+            return TextInputLayout(
+                itemView.context,
+                null,
+                com.google.android.material.R.attr.textInputOutlinedStyle
+            ).apply {
                 hint = alternative.texto
                 tag = alternative.numeracion
-                inputType = android.text.InputType.TYPE_CLASS_TEXT
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
                 )
                 visibility = View.GONE
-                addTextChangedListener(object : TextWatcher {
-                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
-                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
-                    override fun afterTextChanged(s: Editable?) {
-                        if (binding) return
-                        val codigo = tag as? String ?: return
-                        dependentTexts[codigo] = text.toString()
-                        emitir()
-                    }
-                })
+                TextInputEditText(this@Holder.itemView.context).apply {
+                    this.inputType = android.text.InputType.TYPE_CLASS_TEXT
+                    addTextChangedListener(object : TextWatcher {
+                        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+                        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
+                        override fun afterTextChanged(s: Editable?) {
+                            if (binding) return
+                            dependentTexts[alternative.numeracion] = text.toString()
+                            emitir()
+                        }
+                    })
+                }
             }
         }
 
@@ -282,9 +290,12 @@ class QuestionAdapter(
                 val codigo = view.tag as? String ?: continue
                 val seleccionado = codigo in codes
                 view.visibility = if (seleccionado) View.VISIBLE else View.GONE
-                if (view is EditText) {
-                    val texto = dependentTexts[codigo].orEmpty()
-                    if (view.text.toString() != texto) view.setText(texto)
+                if (view is TextInputLayout) {
+                    val edit: EditText? = view.editText
+                    if (edit != null) {
+                        val texto = dependentTexts[codigo].orEmpty()
+                        if (edit.text.toString() != texto) edit.setText(texto)
+                    }
                 }
             }
         }
@@ -330,17 +341,24 @@ class QuestionAdapter(
             val current = row ?: return
             val targetId = codeTargetId ?: current.question.id
             val context = itemView.context
-            val input = EditText(context).apply {
-                hint = context.getString(R.string.dialogo_codigo_hint)
-                inputType = android.text.InputType.TYPE_CLASS_TEXT
-                setText(answers[targetId]?.valor.orEmpty())
-                setSelection(text.length)
+            val inputLayout = TextInputLayout(
+                context,
+                null,
+                com.google.android.material.R.attr.textInputOutlinedStyle
+            ).apply {
+                this.hint = context.getString(R.string.dialogo_codigo_hint)
             }
-            AlertDialog.Builder(context)
+            val input = TextInputEditText(context).apply {
+                this.inputType = android.text.InputType.TYPE_CLASS_TEXT
+                setText(answers[targetId]?.valor.orEmpty())
+                setSelection(text?.length ?: 0)
+            }
+            inputLayout.addView(input)
+            MaterialAlertDialogBuilder(context)
                 .setTitle(R.string.dialogo_codigo_titulo)
-                .setView(input)
+                .setView(inputLayout)
                 .setPositiveButton(R.string.dialogo_aceptar) { _, _ ->
-                    onAnswer(targetId, input.text.toString().trim(), null)
+                    onAnswer(targetId, input.text?.toString()?.trim().orEmpty(), null)
                 }
                 .setNegativeButton(R.string.dialogo_cancelar, null)
                 .show()

@@ -10,6 +10,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import dagger.hilt.android.AndroidEntryPoint
+import gob.inei.appprueba.R
 import gob.inei.appprueba.databinding.ActivityLoginBinding
 import gob.inei.appprueba.presentation.viewmodel.LoginUiState
 import gob.inei.appprueba.presentation.viewmodel.LoginViewModel
@@ -25,6 +26,7 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        limitarAnchoSiEsTablet()
 
         binding.etUsuario.doAfterTextChanged {
             val texto = it?.toString().orEmpty()
@@ -59,6 +61,26 @@ class LoginActivity : AppCompatActivity() {
             navego = true
             startActivity(Intent(this, MainActivity::class.java))
             finish()
+        }
+    }
+
+    private fun limitarAnchoSiEsTablet() {
+        val content = binding.loginContent
+        val metrics = resources.displayMetrics
+        val widthDp = (metrics.widthPixels / metrics.density).toInt()
+        if (widthDp >= 600) {
+            val maxWidth = resources.getDimensionPixelSize(R.dimen.login_max_width)
+            val lp = content.layoutParams
+            if (lp != null) {
+                lp.width = maxWidth
+                content.layoutParams = lp
+            } else {
+                val newLp = android.widget.LinearLayout.LayoutParams(
+                    maxWidth,
+                    android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+                content.layoutParams = newLp
+            }
         }
     }
 }

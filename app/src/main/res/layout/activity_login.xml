@@ -1,79 +1,197 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:fitsSystemWindows="true"
+    android:scrollbars="none"
+    tools:context=".presentation.activities.LoginActivity">
+
+    <LinearLayout
+        android:id="@+id/loginContent"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".presentation.activities.LoginActivity"
-        android:fitsSystemWindows="true"
-        android:orientation="vertical">
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center_horizontal|center_vertical"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/dp_24"
+        android:paddingTop="@dimen/dp_32"
+        android:paddingEnd="@dimen/dp_24"
+        android:paddingBottom="@dimen/dp_24">
+
+        <!-- Tarjeta superior: logo institucional y nombre de la encuesta -->
+        <com.google.android.material.card.MaterialCardView
+            style="@style/CardAppPruebaLogin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:padding="@dimen/dp_20">
+
+                <ImageView
+                    android:layout_width="@dimen/login_logo_size"
+                    android:layout_height="@dimen/login_logo_size"
+                    android:contentDescription="@string/login_cd_logo"
+                    android:src="@drawable/logo_enaho" />
 
                 <TextView
-                    android:id="@+id/tvTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/teal_700"
-                    android:gravity="center"
-                    android:padding="16dp"
-                    android:text="@string/login_titulo"
-                    android:textColor="@color/white"
-                    android:textSize="20sp" />
+                    android:layout_marginTop="@dimen/dp_16"
+                    android:text="@string/title_survey"
+                    android:textAlignment="center"
+                    android:textAppearance="@style/TextAppearance.AppPrueba.LoginTitulo" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/title_survey_detail"
+                    android:textAlignment="center"
+                    android:textAppearance="@style/TextAppearance.AppPrueba.LoginSubtitulo" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Tarjeta de Login -->
+        <com.google.android.material.card.MaterialCardView
+            style="@style/CardAppPruebaLogin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_16">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/dp_24">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/login_card_titulo"
+                    android:textAlignment="center"
+                    android:textAppearance="@style/TextAppearance.AppPrueba.LoginCardTitulo" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilUsuario"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/dp_24"
+                    android:hint="@string/campo_usuario"
+                    app:endIconMode="custom"
+                    app:endIconTint="@color/login_validacion"
+                    app:startIconContentDescription="@string/login_cd_usuario"
+                    app:startIconDrawable="@drawable/ic_user">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etUsuario"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:imeOptions="actionNext"
+                        android:importantForAutofill="no"
+                        android:inputType="text"
+                        tools:text="investigador" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/dp_16"
+                    android:hint="@string/campo_contrasena"
+                    app:endIconMode="password_toggle"
+                    app:startIconContentDescription="@string/login_cd_contrasena"
+                    app:startIconDrawable="@drawable/ic_lock">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etPassword"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:imeOptions="actionDone"
+                        android:importantForAutofill="no"
+                        android:inputType="textPassword"
+                        tools:text="******" />
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <TextView
                     android:id="@+id/tvError"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginEnd="16dp"
-                    android:background="#FFEBEE"
-                    android:padding="12dp"
-                    android:textColor="#C62828"
-                    android:textSize="14sp"
+                    android:layout_marginTop="@dimen/dp_12"
+                    android:background="?attr/colorErrorContainer"
+                    android:padding="@dimen/dp_12"
+                    android:textAppearance="@style/TextAppearance.AppPrueba.Mensaje"
+                    android:textColor="?attr/colorOnErrorContainer"
                     android:visibility="gone"
                     tools:text="Usuario o contraseña incorrectos"
                     tools:visibility="visible" />
 
-                <EditText
-                    android:id="@+id/etUsuario"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="24dp"
-                    android:layout_marginEnd="16dp"
-                    android:hint="@string/campo_usuario"
-                    android:inputType="text"
-                    android:importantForAutofill="no"
-                    tools:text="investigador" />
-
-                <EditText
-                    android:id="@+id/etPassword"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="16dp"
-                    android:hint="@string/campo_contrasena"
-                    android:inputType="textPassword"
-                    android:importantForAutofill="no"
-                    tools:text="******" />
-
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnIniciarSesion"
+                    style="@style/AppPrueba.Login.Button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="24dp"
-                    android:layout_marginEnd="16dp"
-                    android:text="@string/btn_iniciar_sesion" />
+                    android:layout_marginTop="@dimen/dp_24"
+                    android:text="@string/btn_iniciar_sesion"
+                    app:icon="@drawable/ic_login_arrow"
+                    app:iconGravity="textStart"
+                    app:iconPadding="@dimen/dp_8" />
 
                 <ProgressBar
                     android:id="@+id/progressCargando"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="@dimen/dp_16"
                     android:visibility="gone"
                     tools:visibility="visible" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
+        <!-- Chip de información de versión -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_16"
+            app:cardBackgroundColor="@color/login_chip_bg"
+            app:cardCornerRadius="@dimen/dp_20"
+            app:cardElevation="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingStart="@dimen/dp_16"
+                android:paddingTop="@dimen/dp_12"
+                android:paddingEnd="@dimen/dp_16"
+                android:paddingBottom="@dimen/dp_12"
+                tools:ignore="UseCompoundDrawables">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/dp_8"
+                    android:layout_weight="1"
+                    android:text="@string/login_version"
+                    android:textAlignment="center"
+                    android:textAppearance="@style/TextAppearance.AppPrueba.LoginVersion"
+                    app:drawableStartCompat="@drawable/ic_info" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Pie de pantalla -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_24"
+            android:text="@string/login_footer"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppPrueba.LoginFooter" />
     </LinearLayout>
+</ScrollView>

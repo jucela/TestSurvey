@@ -1,9 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.AppPrueba" parent="Theme.AppCompat.DayNight.NoActionBar">
-        <!-- Primary brand color. -->
+    <!-- Material Design 3 como base visual global. Dynamic color
+         desactivado por identidad de marca (tema no DynamicColors.*) -->
+    <style name="Theme.AppPrueba" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Roles M3 (claro/oscuro via resources night) -->
         <item name="colorPrimary">@color/primary</item>
-        <item name="colorPrimaryDark">@color/primaryDark</item>
-        <item name="colorAccent">@color/white</item>
+        <item name="colorOnPrimary">@color/onPrimary</item>
+        <item name="colorPrimaryContainer">@color/primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/onPrimaryContainer</item>
+
+        <item name="colorSecondary">@color/roleSecondary</item>
+        <item name="colorOnSecondary">@color/roleOnSecondary</item>
+        <item name="colorSecondaryContainer">@color/secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/onSecondaryContainer</item>
+
+        <item name="colorTertiary">@color/tertiary</item>
+        <item name="colorOnTertiary">@color/onTertiary</item>
+        <item name="colorTertiaryContainer">@color/tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/onTertiaryContainer</item>
+
+        <item name="colorError">@color/error</item>
+        <item name="colorOnError">@color/onError</item>
+        <item name="colorErrorContainer">@color/errorContainer</item>
+        <item name="colorOnErrorContainer">@color/onErrorContainer</item>
+
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/onSurface</item>
+        <item name="colorSurfaceVariant">@color/surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/onSurfaceVariant</item>
+        <item name="colorOutline">@color/outline</item>
+        <item name="colorOutlineVariant">@color/outlineVariant</item>
+
+        <item name="colorSurfaceContainerLowest">@color/surfaceContainerLowest</item>
+        <item name="colorSurfaceContainerLow">@color/surfaceContainerLow</item>
+        <item name="colorSurfaceContainer">@color/surfaceContainer</item>
+        <item name="colorSurfaceContainerHigh">@color/surfaceContainerHigh</item>
+        <item name="colorSurfaceContainerHighest">@color/surfaceContainerHighest</item>
+
+        <!-- Acentos framework (ProgressBar) -->
+        <item name="colorAccent">@color/primary</item>
     </style>
 </resources>

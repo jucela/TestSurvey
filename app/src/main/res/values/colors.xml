@@ -1,24 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <!-- ============================================================
+         Design System · Material 3 (light)
+         Paleta derivada de la marca aprobada: seed purple/teal.
+         Ver docs/DESIGN_SYSTEM.md para el mapeo tonal.
+         ============================================================ -->
 
-    <!-- Design System color mapping -->
+    <!-- Rol principal (marca) -->
     <color name="primary">#FF6200EE</color>
-    <color name="primaryDark">#FF3700B3</color>
-    <color name="primaryLight">#FFBB86FC</color>
-    <color name="secondary">#FF03DAC5</color>
-    <color name="secondaryDark">#FF018786</color>
-    <color name="error">#C62828</color>
-    <color name="success">#6D4C00</color>
     <color name="onPrimary">#FFFFFFFF</color>
-    <color name="onSecondary">#000000</color>
-    <color name="onBackground">#000000</color>
+
+    <!-- Estados semánticos -->
+    <color name="error">#C62828</color>
     <color name="onError">#FFFFFFFF</color>
-    <color name="onSuccess">#FFFFFFFF</color>
+
+    <!-- Roles M3 (light) -->
+    <color name="roleSecondary">#FF018786</color>
+    <color name="roleOnSecondary">#FFFFFFFF</color>
+    <color name="primaryContainer">#FFEADDFF</color>
+    <color name="onPrimaryContainer">#FF21005D</color>
+    <color name="secondaryContainer">#FF03DAC5</color>
+    <color name="onSecondaryContainer">#FF003F3B</color>
+    <color name="tertiary">#FF6D4C00</color>
+    <color name="onTertiary">#FFFFFFFF</color>
+    <color name="tertiaryContainer">#FFFFE0A1</color>
+    <color name="onTertiaryContainer">#FF241800</color>
+    <color name="errorContainer">#FFFFDAD6</color>
+    <color name="onErrorContainer">#FF410002</color>
+
+    <!-- ============================================================
+         Pantalla Login · paleta azul del mockup (docs/design/)
+         Tokens propios de la pantalla de entrada; no alteran el DS
+         global purple/teal. Documentados en DESIGN_SYSTEM.md.
+         ============================================================ -->
+    <color name="login_background">#FFEAF2FB</color>
+    <color name="login_card">#FFFFFFFF</color>
+    <color name="login_field_bg">#FFD9E8F7</color>
+    <color name="login_field_hint">#FF54627F</color>
+    <color name="login_text_primary">#FF0B2E59</color>
+    <color name="login_button">#FF1B3B6F</color>
+    <color name="login_on_button">#FFFFFFFF</color>
+    <color name="login_chip_bg">#FFD6E6F5</color>
+    <color name="login_chip_text">#FF3A4C6B</color>
+    <color name="login_icon">#FF2A5FA3</color>
+    <color name="login_validacion">#FF1E8E3E</color>
+
+    <!-- Superficies -->
+    <color name="surface">#FFFFFBFE</color>
+    <color name="onSurface">#FF000000</color>
+    <color name="surfaceVariant">#FFE7E0EC</color>
+    <color name="onSurfaceVariant">#FF49454F</color>
+    <color name="outline">#FF79747E</color>
+    <color name="outlineVariant">#FFCAC4D0</color>
+    <color name="surfaceContainerLowest">#FFFFFFFF</color>
+    <color name="surfaceContainerLow">#FFF7F2FA</color>
+    <color name="surfaceContainer">#FFF3EDF7</color>
+    <color name="surfaceContainerHigh">#FFECE6F0</color>
+    <color name="surfaceContainerHighest">#FFE6E0E9</color>
 </resources>

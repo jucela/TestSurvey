@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ============================================================
+         Design System · Estilos M3 (tipografía, barras, tarjetas)
+         ============================================================ -->
+
+    <!-- Tipografía: escala M3 por caso de uso -->
+    <style name="TextAppearance.AppPrueba.TopBar" parent="TextAppearance.Material3.TitleLarge" />
+
+    <style name="TextAppearance.AppPrueba.Numeracion" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
+    </style>
+
+    <style name="TextAppearance.AppPrueba.Titulo" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.AppPrueba.Subtitulo" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+    </style>
+
+    <style name="TextAppearance.AppPrueba.Mensaje" parent="TextAppearance.Material3.BodyMedium" />
+
+    <style name="TextAppearance.AppPrueba.Error" parent="TextAppearance.Material3.LabelMedium">
+        <item name="android:textColor">?attr/colorError</item>
+    </style>
+
+    <!-- Barra superior de pantalla (banda de marca) -->
+    <style name="TopBarAppPrueba">
+        <item name="android:background">?attr/colorPrimary</item>
+        <item name="android:textColor">?attr/colorOnPrimary</item>
+        <item name="android:paddingStart">@dimen/dp_16</item>
+        <item name="android:paddingEnd">@dimen/dp_16</item>
+        <item name="android:paddingTop">@dimen/dp_12</item>
+        <item name="android:paddingBottom">@dimen/dp_12</item>
+    </style>
+
+    <!-- Tarjeta de pregunta (superficie elevada M3) -->
+    <style name="CardAppPrueba" parent="Widget.Material3.CardView.Elevated">
+        <item name="cardCornerRadius">@dimen/dp_12</item>
+        <item name="cardElevation">@dimen/dp_1</item>
+        <item name="cardBackgroundColor">?attr/colorSurfaceContainerLow</item>
+    </style>
+
+    <!-- ============================================================
+         Pantalla Login (ver docs/design/SPEC_UI_LOGIN.md)
+         ============================================================ -->
+
+    <!-- Tipografía de la pantalla de entrada -->
+    <style name="TextAppearance.AppPrueba.LoginTitulo" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textColor">@color/login_text_primary</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="TextAppearance.AppPrueba.LoginSubtitulo" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:textColor">@color/login_text_primary</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="TextAppearance.AppPrueba.LoginCardTitulo" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:textColor">@color/login_text_primary</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="TextAppearance.AppPrueba.LoginVersion" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">@color/login_chip_text</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="TextAppearance.AppPrueba.LoginFooter" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <!-- Tarjeta de cabecera/login de la pantalla de entrada -->
+    <style name="CardAppPruebaLogin" parent="Widget.Material3.CardView.Elevated">
+        <item name="cardCornerRadius">@dimen/dp_16</item>
+        <item name="cardElevation">@dimen/dp_2</item>
+        <item name="cardBackgroundColor">@color/login_card</item>
+    </style>
+
+    <!-- Tema de Login: identico al global pero con el fondo azul del mockup
+         (evita pintura duplicada tema+fondo y respeta modo oscuro por token). -->
+    <style name="Theme.AppPrueba.Login" parent="Theme.AppPrueba">
+        <item name="android:windowBackground">@color/login_background</item>
+    </style>
+
+    <!-- Campo de texto del Login (fondo azul claro, redondeado, sin borde) -->
+    <style name="AppPrueba.Login.Field" parent="Widget.Material3.TextInputLayout.FilledBox">
+        <item name="boxBackgroundColor">@color/login_field_bg</item>
+        <item name="boxCornerRadiusTopStart">@dimen/dp_16</item>
+        <item name="boxCornerRadiusTopEnd">@dimen/dp_16</item>
+        <item name="boxCornerRadiusBottomStart">@dimen/dp_16</item>
+        <item name="boxCornerRadiusBottomEnd">@dimen/dp_16</item>
+        <item name="hintTextColor">@color/login_field_hint</item>
+        <item name="startIconTint">@color/login_icon</item>
+        <item name="endIconTint">@color/login_icon</item>
+    </style>
+
+    <!-- Botón principal del Login (azul oscuro, redondeado) -->
+    <style name="AppPrueba.Login.Button" parent="Widget.Material3.Button">
+        <item name="backgroundTint">@color/login_button</item>
+        <item name="android:textColor">@color/login_on_button</item>
+        <item name="android:minHeight">@dimen/dp_56</item>
+        <item name="cornerRadius">@dimen/dp_12</item>
+        <item name="iconTint">@color/login_on_button</item>
+    </style>
+</resources>
