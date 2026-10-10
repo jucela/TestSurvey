@@ -33,4 +33,13 @@
     <string name="campo_contrasena">Contraseña</string>
     <string name="btn_iniciar_sesion">Aceptar</string>
     <string name="btn_cerrar_sesion">Cerrar sesión</string>
+    <string name="main_menu_cd">Abrir menú de navegación</string>
+    <string name="main_drawer_usuario_cd">Icono de usuario</string>
+    <string name="main_cargo">Encuestador</string>
+    <string name="menu_informacion">Información</string>
+    <string name="menu_marco">Marco</string>
+    <string name="menu_cobertura">Cobertura</string>
+    <string name="menu_exportacion">Exportación</string>
+    <string name="menu_cargar_muestra">Cargar muestra</string>
+    <string name="section_placeholder_detalle">Esta sección estará disponible en una próxima versión.</string>
 </resources>

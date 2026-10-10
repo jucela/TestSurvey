@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/colorPrimaryContainer"
+    android:orientation="vertical"
+    android:padding="@dimen/dp_24">
+
+    <FrameLayout
+        android:layout_width="@dimen/drawer_header_avatar_size"
+        android:layout_height="@dimen/drawer_header_avatar_size"
+        android:background="@drawable/bg_drawer_avatar">
+
+        <ImageView
+            android:layout_width="@dimen/dp_32"
+            android:layout_height="@dimen/dp_32"
+            android:layout_gravity="center"
+            android:contentDescription="@string/main_drawer_usuario_cd"
+            android:src="@drawable/ic_user"
+            app:tint="?attr/colorOnPrimary" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/tvDrawerUsuario"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_12"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textAppearance="?attr/textAppearanceTitleMedium"
+        android:textColor="?attr/colorOnPrimaryContainer"
+        tools:text="jperez" />
+
+    <TextView
+        android:id="@+id/tvDrawerCargo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_2"
+        android:text="@string/main_cargo"
+        android:textAppearance="?attr/textAppearanceBodyMedium"
+        android:textColor="?attr/colorOnPrimaryContainer" />
+</LinearLayout>

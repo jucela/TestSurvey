@@ -5,13 +5,21 @@ All paths in this document are relative to the repository root.
 
 ## Required reading
 
-Before planning, reviewing, or modifying this project, read
-[docs/GENERIC_RULES.md](docs/GENERIC_RULES.md) in full and apply it alongside
-this file. The link is an explicit reading requirement; do not assume your
-tool automatically imports linked Markdown files.
+Before planning, reviewing, or modifying this project, read the following
+documents in full and apply them alongside this file:
+1. [docs/GENERIC_RULES.md](docs/GENERIC_RULES.md)
+2. [docs/design/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md)
 
-GENERIC_RULES.md contains reusable working rules. This file adds the
-AppPrueba's Android conventions and spec-driven workflow. For repository
+These links are explicit reading requirements; do not assume the tool
+automatically imports linked Markdown files.
+
+`GENERIC_RULES.md` contains reusable working rules.
+`DESIGN_SYSTEM.md` is the official and current visual reference for the
+application. It defines the visual system and UI conventions, including
+design tokens, colors, typography, spacing, components, states, responsive
+behavior, accessibility, and rules for visual component reuse.
+
+This file adds the AppPrueba's Android conventions and spec-driven workflow. For repository
 conventions, project-specific rules refine the generic defaults. Neither
 file overrides the user's explicit instructions or the agent's
 higher-priority instructions. If documents conflict in a way that affects

@@ -36,6 +36,13 @@
             android:exported="false"
             android:label="@string/encuesta_titulo"
             android:theme="@style/Theme.AppPrueba" />
+
+        <activity
+            android:name=".presentation.activities.SectionPlaceholderActivity"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:parentActivityName=".presentation.activities.MainActivity"
+            android:theme="@style/Theme.AppPrueba" />
     </application>
 
 </manifest>

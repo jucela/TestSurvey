@@ -13,4 +13,6 @@
     <dimen name="dp_56">56dp</dimen>
     <dimen name="login_max_width">320dp</dimen>
     <dimen name="login_logo_size">64dp</dimen>
+    <dimen name="drawer_width">280dp</dimen>
+    <dimen name="drawer_header_avatar_size">56dp</dimen>
 </resources>
