@@ -1,5 +1,6 @@
 package gob.inei.appprueba.data.databases
 
+import gob.inei.appprueba.data.databases.dao.OdeiMesRow
 import gob.inei.appprueba.data.databases.entities.AlternativeEntity
 import gob.inei.appprueba.data.databases.entities.AnswerEntity
 import gob.inei.appprueba.data.databases.entities.FlowRuleEntity
@@ -7,6 +8,7 @@ import gob.inei.appprueba.data.databases.entities.QuestionEntity
 import gob.inei.appprueba.domain.entities.Alternative
 import gob.inei.appprueba.domain.entities.Answer
 import gob.inei.appprueba.domain.entities.FlowRule
+import gob.inei.appprueba.domain.entities.OdeiMeses
 import gob.inei.appprueba.domain.entities.Question
 
 fun QuestionEntity.toDomain() = Question(
@@ -88,3 +90,20 @@ fun Answer.toEntity(actualizado: Long = System.currentTimeMillis()) = AnswerEnti
     textoLibre = textoLibre,
     actualizado = actualizado
 )
+
+/**
+ * Agrupa las combinaciones cargadas de viviendas (ODEI, nombre, mes) en la lista
+ * de tarjetas informativas (RF-27): una entrada por ODEI con sus meses distintos
+ * y en orden ascendente, mostrando solo meses con datos.
+ */
+fun List<OdeiMesRow>.toOdeiMeses(): List<OdeiMeses> = this
+    .filter { it.mes != null }
+    .groupBy { it.odei }
+    .toSortedMap()
+    .map { (odei, filas) ->
+        OdeiMeses(
+            odei = odei,
+            nombreOdei = filas.firstNotNullOfOrNull { it.nombreOdei } ?: odei,
+            meses = filas.mapNotNull { it.mes }.distinct().sorted()
+        )
+    }

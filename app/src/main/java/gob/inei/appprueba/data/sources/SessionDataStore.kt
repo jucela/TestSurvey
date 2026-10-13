@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.map
 
 internal val Context.sesionDataStore by preferencesDataStore(name = "sesion")
 
-/** Estado de sesión y preferencias de login, según RF-05. */
+/** Estado de sesión y preferencias de login, según RF-05 y RF-09. */
 class SessionDataStore @Inject constructor(
     private val dataStore: DataStore<Preferences>
 ) {
@@ -36,8 +36,23 @@ class SessionDataStore @Inject constructor(
         dataStore.edit { it[CLAVE_ULTIMO_USUARIO] = usuario }
     }
 
+    fun observeTipoAcceso(): Flow<String?> =
+        dataStore.data.map { it[CLAVE_TIPO_ACCESO] }
+
+    suspend fun getTipoAcceso(): String? =
+        dataStore.data.first()[CLAVE_TIPO_ACCESO]
+
+    suspend fun setTipoAcceso(tipo: String) {
+        dataStore.edit { it[CLAVE_TIPO_ACCESO] = tipo }
+    }
+
+    suspend fun limpiarTipoAcceso() {
+        dataStore.edit { it.remove(CLAVE_TIPO_ACCESO) }
+    }
+
     companion object {
         private val CLAVE_SESION_ACTIVA = booleanPreferencesKey("sesion_activa")
         private val CLAVE_ULTIMO_USUARIO = stringPreferencesKey("ultimo_usuario")
+        private val CLAVE_TIPO_ACCESO = stringPreferencesKey("tipo_acceso")
     }
 }

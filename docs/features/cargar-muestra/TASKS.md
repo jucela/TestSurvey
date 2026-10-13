@@ -1,0 +1,323 @@
+# TASKS: Cargar muestra (personal y viviendas)
+
+Tareas derivadas de `docs/features/cargar-muestra/PLAN.md` (Aprobado, 2026-10-12),
+que evoluciona la carga de personal (v1, ya implementada) para añadir la carga de
+muestras de viviendas. El orden respeta las dependencias técnicas; cada tarea se
+valida antes de marcarla. Las tareas de v1 se conservan como historial al final.
+
+Leyenda de estado: `[ ]` pendiente · `[~]` en curso · `[x]` completada (con
+evidencia) · `[!]` bloqueada.
+
+---
+
+## T-301: Configurar año del aplicativo y assets de entidades
+- **Objective:** Exponer `BuildConfig.ANIO_APLICATIVO = 2026` (RF-17/DP-12) e incluir `docs/entities` como directorio de assets para que el seeder lea los SQL sin duplicarlos (RF-20).
+- **Scope:** `app/build.gradle.kts`; `app/src/main/java/gob/inei/appprueba/data/sources/AnioAplicativoProvider.kt`.
+- **Dependencies:** Ninguna.
+- **Spec criteria:** RF-17, RF-20; DP-12, DP-13.
+- **Validation method:** `.\gradlew.bat :app:assembleDebug` genera `BuildConfig.ANIO_APLICATIVO`; el APK incluye los `.sql` de `docs/entities` como assets (inspección de `assets/`).
+
+## T-302: Crear entidades Room de maestras
+- **Objective:** Crear `PeriodoEntity` (PERIODO), `DptoEntity` (DPTO), `ProvEntity` (PROV), `DistritoEntity` (DISTRITO), `OdeiEntity` (ODEI) y `PaisEntity` (PAIS) con PK, FK, índices únicos y `@ColumnInfo` en mayúsculas según el SQL (incluido índice único en `ODEI.CODODEI`).
+- **Scope:** `app/src/main/java/gob/inei/appprueba/data/databases/entities/`.
+- **Dependencies:** T-301.
+- **Spec criteria:** RF-18, RF-20.
+- **Validation method:** `.\gradlew.bat :app:assembleDebug`; esquema cotejado con `ODEI_DPTO_PROV_DISTRITO_PAIS.sql`.
+
+## T-303: Crear entidades Room de viviendas y de fecha de carga
+- **Objective:** Crear `ConglomeradoEntity`, `ViviendaMarcoEntity` (con `id` autogenerado y UNIQUE de negocio), `ViviendaReemplazoEntity`, `PersonaPanelEntity`, `Cap100PanelEntity` y `CargaMuestraEntity`, con PK/FK/índices del SQL; `ESTRATOSOC` no se mapea (DC-5) y las columnas no aportadas por el XML quedan nulables.
+- **Scope:** `app/src/main/java/gob/inei/appprueba/data/databases/entities/`.
+- **Dependencies:** T-302 (FK a ODEI y PERIODO).
+- **Spec criteria:** RF-19, RF-21..RF-24, RF-26; DC-5..DC-9/DP-15.
+- **Validation method:** `.\gradlew.bat :app:assembleDebug`; esquema cotejado con `CONGLOMERADO_MARCO_REEMPLAZO_PERSONA_CAP100.sql`.
+
+## T-304: Crear DAOs de maestras, viviendas y fecha de carga
+- **Objective:** DAOs con inserciones y borrados por combinación (`DELETE ... WHERE CONGLOME IN (SELECT CONGLOME FROM CAMPO_CONGLOMERADO WHERE ANHO=:a AND MES=:m AND ODEI=:o)`), `count`, consultas de estado (personal/viviendas) y `upsert`/consulta de `CARGA_MUESTRA`.
+- **Scope:** `app/src/main/java/gob/inei/appprueba/data/databases/dao/`.
+- **Dependencies:** T-302, T-303.
+- **Spec criteria:** RF-18, RF-20, RF-21..RF-24, RF-26, RF-27.
+- **Validation method:** `.\gradlew.bat :app:assembleDebug`; consultas compiladas por Room sin errores.
+
+## T-305: Migrar la base a v5, sembrar maestras y cablear DAOs
+- **Objective:** Subir `EncuestaDatabase` a `version = 5`, añadir las once entidades, `MIGRATION_4_5` (creación aditiva + siembra de maestras) y callback `onCreate`; implementar `MaestrasSeeder` que ejecuta los `INSERT` de los SQL de `docs/entities` de forma idempotente; registrar los DAOs nuevos en `DatabaseModule`.
+- **Scope:** `data/databases/EncuestaDatabase.kt`, `data/sources/MaestrasSeeder.kt`, `di/DatabaseModule.kt`.
+- **Dependencies:** T-302, T-303, T-304.
+- **Spec criteria:** RF-20; DP-13, DP-14; CA-18.
+- **Validation method:** `MuestraMigrationTest` (androidTest) v4→v5 valida el esquema (`5.json`) y que las maestras quedan pobladas sin duplicados; `.\gradlew.bat :app:assembleDebug`.
+
+## T-306: Modelos de dominio y parser de nombre de archivo
+- **Objective:** Definir `TipoMuestra`, `MuestraNombre`, `ResultadoArchivo`, `EstadoArchivo`, `EstadoMuestraPersonal`, `EstadoMuestraViviendas`/`OdeiMeses`; ampliar `TipoError`; crear `MuestraNombreParser` (detección por nombre y validación de año/fecha de personal/ODEI/mes).
+- **Scope:** `app/src/main/java/gob/inei/appprueba/domain/entities/`, `domain/naming/`.
+- **Dependencies:** T-301.
+- **Spec criteria:** RF-15, RF-16; CA-13, CA-14.
+- **Validation method:** Test JVM `MuestraNombreParserTest` (personal válido, viviendas válido, tipo desconocido, fecha/ODEI/mes inválidos) en verde.
+
+## T-307: Resolver el nombre del archivo seleccionado (SAF)
+- **Objective:** Obtener `DISPLAY_NAME` de cada `Uri` vía `ContentResolver`/`OpenableColumns`, sin permisos de almacenamiento.
+- **Scope:** `data/sources/NombreArchivoResolver.kt`.
+- **Dependencies:** T-306.
+- **Spec criteria:** RF-14, RF-15.
+- **Validation method:** Revisión de código + prueba manual de que el nombre mostrado coincide con el archivo elegido.
+
+## T-308: Generalizar MuestraZipReader (extensión y contraseña opcionales)
+- **Objective:** `extraerContenido(zip, password: String?, extensionEsperada, dirTemporal)`; personal: `.xml` + contraseña; viviendas: `.cfg` sin contraseña; mantener seguridad, límites y borrado de temporales.
+- **Scope:** `data/sources/MuestraZipReader.kt` + tests JVM.
+- **Dependencies:** T-301.
+- **Spec criteria:** RF-03, RF-04, RF-05, RF-12; CA-03, CA-04.
+- **Validation method:** `MuestraZipReaderTest` ampliado (ZIP `.cfg` sin contraseña, `.xml` con contraseña, sin entrada esperada, cifrado no soportado) en verde.
+
+## T-309: Parametrizar PersonalXmlParser y crear ViviendaXmlParser
+- **Objective:** Generalizar `PersonalXmlParser` para recibir el año (raíz `ENAHO$anio`) y crear `ViviendaXmlParser` (raíz, cinco secciones, `cantidad`, campos obligatorios, tipos, relaciones; recorte de espacios y `P112A`→`P112a`).
+- **Scope:** `data/sources/PersonalXmlParser.kt`, `data/sources/ViviendaXmlParser.kt` + tests JVM y fixtures.
+- **Dependencies:** T-306.
+- **Spec criteria:** RF-06, RF-17, RF-19; CA-05, CA-15, CA-17.
+- **Validation method:** `PersonalXmlParserTest` (regresión) y `ViviendaXmlParserTest` (secciones/cantidad/campos + muestra real `.cfg`) en verde.
+
+## T-310: Implementar MuestraRepositoryImpl (personal + viviendas) y contrato
+- **Objective:** Ampliar `MuestraRepository`/`MuestraRepositoryImpl`: `cargar(uri)` (detección → validaciones → carga), `nombresDe(uris)`, `observarMuestraPersonal()`, `observarMuestraViviendas()`; carga personal (con validación de `ODEI`/`PERFIL`/`CARGO`) y viviendas (transacción por combinación, `ABORT`), registro en `CARGA_MUESTRA` y `@Binds`.
+- **Scope:** `domain/repositories/MuestraRepository.kt`, `data/repositories/MuestraRepositoryImpl.kt`, `data/databases/Mappers.kt`, `di/RepositoryModule.kt`.
+- **Dependencies:** T-304, T-305, T-306, T-308, T-309.
+- **Spec criteria:** RF-07, RF-08, RF-10, RF-18, RF-19, RF-21..RF-26; CA-16, CA-19..CA-24.
+- **Validation method:** `.\gradlew.bat :app:assembleDebug`; integración Room in-memory para coexistencia/reemplazo/rollback (T-317).
+
+## T-311: Casos de uso de carga, nombres y observación
+- **Objective:** Actualizar `CargarMuestraUseCase` y crear `ResolverNombresUseCase` y `ObservarMuestrasUseCase` sobre el contrato ampliado.
+- **Scope:** `app/src/main/java/gob/inei/appprueba/domain/usecases/`.
+- **Dependencies:** T-310.
+- **Spec criteria:** RF-14..RF-27.
+- **Validation method:** `.\gradlew.bat :app:assembleDebug` y `.\gradlew.bat :app:testDebugUnitTest`.
+
+## T-312: Estado de UI y ViewModel con multi-archivo y tarjetas
+- **Objective:** Rediseñar `CargaMuestraUiState` (lista de archivos con estado + estado de las dos tarjetas) y `CargaMuestraViewModel` (resolver nombres, procesar secuencialmente, sin doble ejecución, combinar flujos de tarjetas).
+- **Scope:** `presentation/viewmodel/CargaMuestraUiState.kt`, `presentation/viewmodel/CargaMuestraViewModel.kt`.
+- **Dependencies:** T-311.
+- **Spec criteria:** RF-11, RF-14, RF-25, RF-27; CA-12, CA-23.
+- **Validation method:** `CargaMuestraViewModelTest` actualizado en verde; revisión de supervivencia a recreación.
+
+## T-313: Layout y strings (multi-selección, lista por archivo, tarjetas)
+- **Objective:** Actualizar `activity_cargar_muestra.xml` con la lista por archivo y las **dos** tarjetas informativas (`CardView` del Design System) y añadir los textos/errores en `strings.xml`.
+- **Scope:** `res/layout/activity_cargar_muestra.xml`, `res/values/strings.xml`.
+- **Dependencies:** T-312.
+- **Spec criteria:** RF-02, RF-11, RF-13, RF-25, RF-27; CA-11, CA-25.
+- **Validation method:** `.\gradlew.bat :app:lintDebug` sin hallazgos nuevos; revisión de textos sin duplicados.
+
+## T-314: Actualizar CargarMuestraActivity (OpenMultipleDocuments y render)
+- **Objective:** Cambiar a `ActivityResultContracts.OpenMultipleDocuments`, conectar al ViewModel ampliado y renderizar la lista por archivo y las tarjetas; mantener el único botón y el acceso desde el drawer.
+- **Scope:** `presentation/activities/CargarMuestraActivity.kt`.
+- **Dependencies:** T-312, T-313.
+- **Spec criteria:** RF-01, RF-14, RF-15, RF-25, RF-27; CA-01, CA-02, CA-12.
+- **Validation method:** `.\gradlew.bat :app:assembleDebug`; manual en emulador (selección múltiple, estados por archivo, tarjetas sin iniciar cargas).
+
+## T-315: Actualizar pruebas existentes al nuevo contrato
+- **Objective:** Ajustar `FakeMuestraRepository`, `CargaMuestraViewModelTest` y `CargarMuestraEspressoTest` (y `MuestraDaoTest`) al contrato/estado ampliados, conservando la cobertura de personal.
+- **Scope:** `app/src/test/java/gob/inei/appprueba/**`, `app/src/androidTest/java/gob/inei/appprueba/presentation/activities/CargarMuestraEspressoTest.kt`.
+- **Dependencies:** T-310, T-312, T-314.
+- **Spec criteria:** CA-06, CA-07, CA-08, CA-09 (regresión).
+- **Validation method:** `.\gradlew.bat :app:testDebugUnitTest` y `.\gradlew.bat :app:connectedDebugAndroidTest` en verde.
+
+## T-316: Pruebas unitarias nuevas (parser de nombre, XML de viviendas, reader)
+- **Objective:** Cubrir detección/validación de nombre, parseo `.cfg` (incluida la muestra real) y lectura `.cfg` sin contraseña / `.xml` con contraseña.
+- **Scope:** `app/src/test/java/gob/inei/appprueba/data/sources/**` (y fixtures).
+- **Dependencies:** T-306, T-308, T-309.
+- **Spec criteria:** CA-13, CA-14, CA-15, CA-17.
+- **Validation method:** `.\gradlew.bat :app:testDebugUnitTest` con todos los casos en verde.
+
+## T-317: Pruebas instrumentadas nuevas (migración v5, seeder, coexistencia, fecha)
+- **Objective:** Cubrir siembra idempotente de maestras, coexistencia de combinaciones, reemplazo de una sola combinación, rollback ante fallo y persistencia de la fecha de última carga.
+- **Scope:** `app/src/androidTest/java/gob/inei/appprueba/data/databases/**`.
+- **Dependencies:** T-305, T-310.
+- **Spec criteria:** CA-16, CA-18, CA-19, CA-20, CA-21, CA-22, CA-24.
+- **Validation method:** `.\gradlew.bat :app:connectedDebugAndroidTest` (dispositivo/emulador) en verde.
+
+## T-318: Verificación integral (build, tests, lint)
+- **Objective:** Ejecutar la batería completa y confirmar regresiones nulas.
+- **Scope:** Proyecto completo.
+- **Dependencies:** T-301..T-317.
+- **Spec criteria:** CA-01..CA-25.
+- **Validation method:**
+  - `.\gradlew.bat :app:assembleDebug` → BUILD SUCCESSFUL
+  - `.\gradlew.bat :app:testDebugUnitTest` → todos en verde
+  - `.\gradlew.bat :app:lintDebug` → BUILD SUCCESSFUL
+  - `.\gradlew.bat :app:connectedDebugAndroidTest` → pruebas Room/migración/UI (requiere dispositivo/emulador)
+  - Manual: multi-selección, tarjetas, rotación, teléfono/tablet, texto 200 %
+
+## T-319: Documentar evidencia en TASKS.md
+- **Objective:** Registrar estado por tarea, archivos creados/modificados, resultados y pendientes no verificados.
+- **Scope:** `docs/features/cargar-muestra/TASKS.md`.
+- **Dependencies:** T-301..T-318.
+- **Spec criteria:** CA-01..CA-25.
+- **Validation method:** TASKS.md completo con evidencia y bloqueos declarados.
+
+<!--
+**Notas de ejecución:**
+- Orden: configuración → Room/schema → parsers/reader → domain/repo → presentación → verificación.
+- Cada tarea se valida individualmente antes de marcarla; ante fallo, se detiene y se documenta el bloqueo.
+- Las pruebas instrumentadas requieren emulador/dispositivo y pueden quedar como pendiente declarado.
+- No marcar como terminada una tarea sin ejecutar su validación. No commitear sin pedido explícito.
+-->
+
+## Estado de implementación (v2)
+
+Implementación autorizada por el usuario ("Implementar todo"). Progreso por tarea:
+
+- **T-301 — Completada.** `BuildConfig.ANIO_APLICATIVO=2026`; `docs/entities` expuesto como assets; `AnioAplicativoProvider`. Evidencia: `assembleDebug` SUCCESS.
+- **T-302 — Completada.** Entidades `DPTO/PROV/DISTRITO/ODEI/PAIS/PERIODO`. Evidencia: `assembleDebug`; esquema `5.json` cotejado con `ODEI_DPTO_PROV_DISTRITO_PAIS.sql`.
+- **T-303 — Completada.** Entidades `CAMPO_CONGLOMERADO/CAMPO_VIVIENDA_MARCO/CAMPO_VIVIENDA_REEMPLAZO/PERSONA_PANEL/CAP100PANEL/CARGA_MUESTRA`. Evidencia: `assembleDebug`; esquema `5.json` cotejado.
+- **T-304 — Completada.** DAOs de maestras, viviendas y `CARGA_MUESTRA`. Evidencia: `assembleDebug`; consultas compiladas por Room.
+- **T-305 — Completada.** `EncuestaDatabase` v5 + `migracion4a5(seeder)` + callback `onCreate`; `MaestrasSeeder` idempotente (chunk 200 filas, `INSERT OR IGNORE`); DAOs registrados en `DatabaseModule`. Evidencia: `MuestraMigrationTest` v4→v5 en tablet TB311XU **3/3 en verde** (esquema validado contra `5.json`, seis maestras pobladas, seeder idempotente, tablas de viviendas vacías).
+- **T-306 — Completada.** Modelos `TipoMuestra`, `MuestraNombre`, `EstadoArchivo`, `ResultadoArchivo`, `EstadoMuestraPersonal`/`EstadoMuestraViviendas`/`OdeiMeses`; `TipoError` ampliado (7 motivos); `domain/naming/MuestraNombreParser`. Evidencia: `MuestraNombreParserTest` **9/9 en verde** (personal/viviendas válidos, tipo desconocido, fecha/ODEI/mes inválidos, otro año).
+- **T-307 — Completada.** `data/sources/NombreArchivoResolver` (`@Singleton`, `@ApplicationContext`) resuelve el nombre visible vía `ContentResolver`/`OpenableColumns.DISPLAY_NAME` y devuelve `null` si no puede. Evidencia: `compileDebugKotlin` SUCCESS (validación por revisión de código; SAF real cubierto en T-314/T-317).
+- **T-308 — Completada.** `MuestraZipReader` generalizado: `extraerContenido(zip, contraseña opcional, extensión esperada, dir)` + wrapper `extraerXml`; `validarCifrado` admite contraseña nula; `tipoContenidoAusente` distingue XML de CFG (`ARCHIVO_INVALIDO`). Evidencia: `MuestraZipReaderTest` en verde (CFG sin contraseña, CFG ausente, ZIP cifrado sin contraseña).
+- **T-309 — Completada.** `PersonalXmlParser.parse(input, anio)` valida la raíz `ENAHO{año}` (año distinto → `DISCREPANCIA_NOMBRE_CONTENIDO`); overload sin año usa `ANIO_APLICATIVO`. Nuevos `MuestraViviendas` y `ViviendaXmlParser` (5 secciones, `cantidad`, campos obligatorios, tipos, relaciones, recorte, `P112A`→`P112a`, `ESTRATOSOC` ignorado). Evidencia: `PersonalXmlParserTest` **19/19**, `ViviendaXmlParserTest` **11/11**, `RealSampleVerifyTest` **1/1** en verde; la muestra oficial se parsea con conteos 20/173/1641/167/45 y combinación 2026/ODEI 11/mes 08.
+- **T-310 — Completada.** `MuestraRepository`/`MuestraRepositoryImpl` con `cargar(uri)` (detección → validaciones de año/ODEI/mes y referencia de contenido → carga transaccional), `nombresDe(uris)`, `observarMuestraPersonal()`/`observarMuestraViviendas()`; personal reemplaza CARGO/PERFIL/PERSONAL y registra `CARGA_MUESTRA`; viviendas borra la combinación + hijos en orden FK, inserta en orden FK, `ABORT` y marca `REEMPLAZADO`/`CARGADO`. `MuestraNombreParser` recibió `@Inject constructor()`. `Mappers.toOdeiMeses()`. Evidencia: `assembleDebug` SUCCESS; `compileDebugKotlin` SUCCESS.
+- **T-311 — Completada.** `CargarMuestraUseCase` adaptado; nuevos `ResolverNombresUseCase` y `ObservarMuestrasUseCase`. Evidencia: `assembleDebug` + `testDebugUnitTest` SUCCESS.
+- **T-312 — Completada.** `CargaMuestraUiState` (`ArchivoCargaUi` + estado de las dos tarjetas) y `CargaMuestraViewModel` (resolver nombres, procesar secuencialmente, guardas anti doble ejecución, `combine` + `stateIn(Eagerly)`). Evidencia: `CargaMuestraViewModelTest` **6/6** en verde (`testDebugUnitTest`).
+- **T-313 — Completada.** `activity_cargar_muestra.xml` (lista por archivo + dos `CardView` + grupo de proceso), `item_carga_archivo.xml` y `CargaArchivoAdapter`; strings nuevos de archivos/tarjetas/estados/errores. Evidencia: `lintDebug` **0 errores** (33 avisos; 2 nuevos son `NotifyDataSetChanged`, patrón ya presente en `QuestionAdapter`, y UnusedResources preexistentes).
+- **T-314 — Completada.** `CargarMuestraActivity` con `ActivityResultContracts.OpenMultipleDocuments` (MIME zip), render de lista por archivo, tarjetas y `Reintentar`/limpiar. Evidencia: `assembleDebug` SUCCESS; Espresso `CargarMuestraEspressoTest` **3/3** en verde en dispositivo (CA-01, CA-02, CA-09 adaptado a lista por archivo).
+- **T-315 — Completada.** `FakeMuestraRepository`, `CargaMuestraViewModelTest` y `CargarMuestraEspressoTest` adaptados al contrato ampliado. Evidencia: `testDebugUnitTest` **104 pruebas / 0 fallos**; `connectedDebugAndroidTest` **29/29** (incl. `CargarMuestraEspressoTest` CA-01/CA-02/CA-09 **3/3**).
+- **T-316 — Completada.** Cobertura de parser de nombre, `.cfg` de viviendas (incluida la muestra real) y `MuestraZipReader` (CFG sin contraseña / XML con contraseña). Evidencia: `testDebugUnitTest` en verde (incluye `MuestraNombreParserTest`, `ViviendaXmlParserTest`, `RealSampleVerifyTest`, `MuestraZipReaderTest`).
+- **T-317 — Completada.** Nuevo `MuestraViviendasDaoTest` (androidTest): coexistencia de dos combinaciones, reemplazo de una sola, rollback por FK inválida y registro/actualización de la fecha de última carga; más la migración/seeder existentes. Evidencia: `connectedDebugAndroidTest` (TB311XU) **10/10 en verde** en los tres `*DaoTest`/migración.
+- **T-318 — Completada (batería; manuales pendientes).** `assembleDebug` SUCCESS; `testDebugUnitTest` **104 pruebas / 0 fallos**; `lintDebug` **0 errores** (33 avisos); `connectedDebugAndroidTest` **29/29 en verde** en TB311XU (Room/migración 10, Espresso cargar-muestra 3, login-personal 4, Auth 11, contexto 1). Comprobaciones **manuales no ejecutadas** (requieren interacción humana con ZIP real): multi-selección con carga real de personal + viviendas, rotación durante/después de la carga, teléfono/tablet y texto al 200 %.
+- **T-319 — Completada.** Estado por tarea, evidencia y pendientes declarados registrados en este documento (v2: T-301..T-319). Bloqueos: ninguno pendiente; únicamente las comprobaciones manuales de T-318 quedan declaradas como no ejecutadas.
+- **TF-1 — Completada (mejora incremental, PROMPT_FORMATO_TARJETA).** El ítem del `RecyclerView` (`item_carga_archivo.xml`) ahora es un `MaterialCardView` con `@style/CardAppPrueba` (DS: radio 12dp, elevación 1dp, `surfaceContainerLow`) y el contenido con padding `dp_16`; se conservan ids, textos, estados y comportamiento. `CargaArchivoAdapter` tiñe la tarjeta según `EstadoArchivo`: `CARGADO`/`REEMPLAZADO` → verde pastel (`successContainer`, token nuevo claro `#C8E6C9` / oscuro `#223D28`), `RECHAZADO`/`ERROR` → rojo pastel (`errorContainer` existente), resto → neutro; el estado se sigue informando por texto (accesibilidad). Sin cambios en lógica de carga/persistencia/reemplazo. Archivos: `values/colors.xml`, `values-night/colors.xml`, `item_carga_archivo.xml`, `CargaArchivoAdapter.kt`, `CargarMuestraEspressoTest` (aserto de color de la tarjeta rechazada), `docs/DESIGN_SYSTEM.md` (token documentado). Evidencia: `assembleDebug` SUCCESS; `testDebugUnitTest` **104/0**; `lintDebug` **0 errores** (36 avisos, todos preexistentes o del patrón `NotifyDataSetChanged`); `connectedDebugAndroidTest` **29/29** en TB311XU (CA-09 verifica color `errorContainer` en tarjeta rechazada). Pendiente manual: comprobar visualmente verde pastel con carga real (personal y viviendas), rojo pastel en rechazo/error, teléfono/tableta, rotación y texto al 200 %.
+
+---
+
+## Historial — versión 1 (personal, completada)
+
+> Contenido previo (T-201..T-217), conservado como referencia. Corresponde a la
+> primera versión de "Cargar muestra" (solo personal), ya implementada y verificada.
+
+Tareas derivadas de `docs/features/cargar-muestra/PLAN.md` (v1, Aprobado 2026-10-10).
+
+### T-201: Corregir esquema SQL y fijar semillas DP-3
+- **Objective:** Corregir la coma faltante antes de `CONSTRAINT "PK_PERSONAL"` (DC-1) y dejar las semillas de `CARGO`/`PERFIL` ampliadas según DP-3 (`CARGO 23` = "ASISTENTE DE CONSISTENCIA"; `PERFIL 08` = "ASISTENTE DE CAMPO 1"; `PERFIL 11` = "ASISTENTE DE CAMPO 2").
+- **Scope:** `docs/entities/PERSONAL_PERFIL_CARGO.sql` (corrección + semillas).
+- **Dependencies:** Ninguna.
+- **Spec criteria:** RF-07, RF-09; DC-1/DP-3/DP-4.
+- **Validation method:** Revisión del `CREATE TABLE "PERSONAL"` con sintaxis válida y de las filas `INSERT` de `CARGO`/`PERFIL`.
+
+### T-202: Configurar zip4j, buildConfig y contraseña interna
+- **Objective:** Declarar `net.lingala.zip4j:zip4j` (2.11.6), habilitar `buildConfig = true` y exponer `ZIP_PASSWORD` desde `local.properties`.
+- **Scope:** `gradle/libs.versions.toml`, `app/build.gradle.kts`.
+- **Dependencies:** Ninguna.
+- **Spec criteria:** RF-04, RF-05.
+- **Validation method:** `.\gradlew.bat :app:assembleDebug` genera `BuildConfig.ZIP_PASSWORD`.
+
+### T-203: Crear entidades Room PERSONAL/CARGO/PERFIL
+- **Objective:** Crear `PersonalEntity`, `CargoEntity` y `PerfilEntity` con PK, FK, `indices` y `@ColumnInfo` en mayúsculas.
+- **Scope:** `data/databases/entities/`.
+- **Dependencies:** T-201.
+- **Spec criteria:** RF-07, RF-08, RF-09; DC-2/DC-3.
+- **Validation method:** `.\gradlew.bat :app:assembleDebug`; esquema en `3.json`.
+
+### T-204: Crear DAOs de muestra
+- **Objective:** `PersonalDao`, `CargoDao`, `PerfilDao` con `insertAll` (REPLACE), `deleteAll` y `count`.
+- **Scope:** `data/databases/dao/`.
+- **Dependencies:** T-203.
+- **Spec criteria:** RF-08, RF-09, RF-10.
+- **Validation method:** `.\gradlew.bat :app:assembleDebug`.
+
+### T-205: Migrar la base de datos a v3 y cablear los DAOs
+- **Objective:** `EncuestaDatabase` v3 + `MIGRATION_2_3`; DAOs en `DatabaseModule`.
+- **Scope:** `EncuestaDatabase.kt`, `di/DatabaseModule.kt`.
+- **Dependencies:** T-203, T-204.
+- **Spec criteria:** RF-07, RF-09.
+- **Validation method:** `MuestraMigrationTest` (2→3) + build.
+
+### T-206: Crear modelos de dominio y contrato del repositorio
+- **Objective:** `Personal`, `Cargo`, `Perfil`, `CargaMuestraResult` (`TipoError`) y `MuestraRepository`.
+- **Scope:** `domain/`.
+- **Dependencies:** Ninguna.
+- **Spec criteria:** RF-06, RF-11.
+- **Validation method:** build; `domain` sin dependencias de `data`/Android.
+
+### T-207: Implementar el parser XML con validaciones
+- **Objective:** `PersonalXmlParser` (`iso-8859-1`, estructura/campos/`cantidad`, fechas DP-8).
+- **Scope:** `data/sources/PersonalXmlParser.kt` + tests.
+- **Dependencies:** T-206.
+- **Spec criteria:** RF-06; DP-8.
+- **Validation method:** `.\gradlew.bat :app:testDebugUnitTest`.
+
+### T-208: Implementar el lector ZIP seguro
+- **Objective:** `MuestraZipReader` (copia temporal, zip4j + contraseña, extracción del XML, borrado en `finally`).
+- **Scope:** `data/sources/MuestraZipReader.kt` + tests.
+- **Dependencies:** T-202, T-206.
+- **Spec criteria:** RF-03, RF-04, RF-05, RF-12.
+- **Validation method:** `.\gradlew.bat :app:testDebugUnitTest`.
+
+### T-209: Implementar MuestraRepositoryImpl transaccional
+- **Objective:** Reemplazo atómico y `@Binds`.
+- **Scope:** `data/repositories/MuestraRepositoryImpl.kt`, `di/RepositoryModule.kt`.
+- **Dependencies:** T-204, T-205, T-206.
+- **Spec criteria:** RF-08, RF-09, RF-10.
+- **Validation method:** test instrumentado Room in-memory.
+
+### T-210: Implementar CargarMuestraUseCase
+- **Objective:** Orquestar zip→parseo→validación→carga.
+- **Scope:** `domain/usecases/CargarMuestraUseCase.kt`.
+- **Dependencies:** T-207, T-208, T-209.
+- **Spec criteria:** RF-03…RF-10, RF-12.
+- **Validation method:** build + `testDebugUnitTest`.
+
+### T-211: Crear estado y ViewModel de la pantalla
+- **Objective:** `CargaMuestraUiState` y `CargaMuestraViewModel` con protección de doble envío.
+- **Scope:** `presentation/viewmodel/`.
+- **Dependencies:** T-206, T-210.
+- **Spec criteria:** RF-11.
+- **Validation method:** build.
+
+### T-212: Crear layout y strings de la pantalla
+- **Objective:** `activity_cargar_muestra.xml` + strings.
+- **Scope:** `res/layout/activity_cargar_muestra.xml`, `res/values/strings.xml`.
+- **Dependencies:** T-211.
+- **Spec criteria:** RF-02, RF-11, RF-13.
+- **Validation method:** `.\gradlew.bat :app:lintDebug`.
+
+### T-213: Crear CargarMuestraActivity y enrutar desde el drawer
+- **Objective:** Activity con SAF `OpenDocument`, render de estados y enrutado.
+- **Scope:** `presentation/activities/CargarMuestraActivity.kt`, `AndroidManifest.xml`, `MainActivity.kt`.
+- **Dependencies:** T-211, T-212.
+- **Spec criteria:** RF-01, RF-02, RF-05, RF-11, RF-13.
+- **Validation method:** build + manual.
+
+### T-214: Verificación integral (build, tests, lint)
+- **Objective:** Batería completa y regresiones nulas.
+- **Scope:** Proyecto completo.
+- **Dependencies:** T-201…T-213.
+- **Spec criteria:** CA-01…CA-11.
+- **Validation method:** assembleDebug / testDebugUnitTest / lintDebug / connectedDebugAndroidTest.
+
+### T-217: Pruebas Espresso de UI (CA-01, CA-02, CA-09)
+- **Objective:** Automatizar CA-01/CA-02/CA-09 + infraestructura Hilt instrumentada.
+- **Scope:** `androidTest/.../CargarMuestraEspressoTest.kt`, `HiltTestRunner.kt`, catálogo y `build.gradle.kts`.
+- **Dependencies:** T-211, T-213.
+- **Spec criteria:** CA-01, CA-02, CA-09.
+- **Validation method:** `.\gradlew.bat :app:connectedDebugAndroidTest`.
+
+### T-216: Normalizar fechas tolerantes de la muestra (DP-8)
+- **Objective:** Aceptar `dd/MM`, `MM/dd` (día > 12) y seriales de Excel; normalizar a `dd/MM/aaaa`.
+- **Scope:** `data/sources/PersonalXmlParser.kt`, tests, `SPEC.md`/`PLAN.md` v1.
+- **Dependencies:** T-207.
+- **Spec criteria:** RF-06; CA-05; DP-8.
+- **Validation method:** `.\gradlew.bat :app:testDebugUnitTest` + `RealSampleVerifyTest`.
+
+### T-215: Documentar evidencia en TASKS.md
+- **Objective:** Registrar estado/evidencia de v1.
+- **Scope:** `TASKS.md`.
+- **Dependencies:** T-201…T-217.
+- **Spec criteria:** CA-01…CA-11.
+- **Validation method:** TASKS.md completo.
+
+### Estado de implementación (v1) — completado 2026-10-10
+
+- **T-201..T-205 — Completadas.** Semillas DP-3; zip4j + `ZIP_PASSWORD`; entidades/DAOs `PERSONAL/CARGO/PERFIL`; `EncuestaDatabase` v3 + `MIGRATION_2_3`; esquema `3.json` cotejado; `MuestraMigrationTest` validado en dispositivo.
+- **T-206..T-210 — Completadas.** Dominio, parser (17 casos), reader (7 casos: incluye `CONTRASENA_INVALIDA`), repositorio transaccional, caso de uso.
+- **T-211..T-213 — Completadas.** ViewModel/estado, layout/strings, Activity + enrutado.
+- **T-216 — Completada.** Normalización tolerante de fechas (8 `FECHAALTA` en `MM/dd` y 9 seriales de Excel en la muestra real).
+- **T-214 — Verificación integral:** `assembleDebug` SUCCESS; `testDebugUnitTest` **81 pruebas, 0 fallos** (incl. `RealSampleVerifyTest`, 226 registros); `lintDebug` **0 errores** (31 avisos preexistentes); `connectedDebugAndroidTest` en tablet **TB311XU** **14 pruebas, 0 fallos**.
+- **T-217 — Completada.** Espresso CA-01/CA-02/CA-09 + infra Hilt instrumentada.
+- **T-215 — Completada.**
+
+### Pendientes declarados de v1 (no bloquean v2)
+- Ruta de **éxito con ZIP real** (resumen `Exito(n)`), CA-11 (bloqueo de doble envío), rotación/tablet/teléfono/texto 200 %: **comprobación manual no ejecutada** (requiere interacción humana; `CargarMuestraActivity` es `exported=false`).

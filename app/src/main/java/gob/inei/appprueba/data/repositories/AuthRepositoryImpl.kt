@@ -1,21 +1,21 @@
 package gob.inei.appprueba.data.repositories
 
-import gob.inei.appprueba.data.databases.dao.UserDao
-import gob.inei.appprueba.data.databases.entities.UserEntity
-import gob.inei.appprueba.data.sources.PasswordHasher
+import gob.inei.appprueba.data.databases.dao.PersonalDao
 import gob.inei.appprueba.data.sources.SessionDataStore
+import gob.inei.appprueba.domain.entities.DatosSesion
 import gob.inei.appprueba.domain.entities.LoginResult
+import gob.inei.appprueba.domain.entities.TipoAcceso
 import gob.inei.appprueba.domain.repositories.AuthRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
 @Singleton
 class AuthRepositoryImpl @Inject constructor(
-    private val userDao: UserDao,
-    private val passwordHasher: PasswordHasher,
+    private val personalDao: PersonalDao,
     private val sessionDataStore: SessionDataStore
 ) : AuthRepository {
 
@@ -25,22 +25,31 @@ class AuthRepositoryImpl @Inject constructor(
             if (normalizado.isEmpty() || contrasena.isEmpty()) {
                 return@withContext LoginResult.CredencialesInvalidas
             }
-            val user = userDao.getByUsuario(normalizado)
+            if (normalizado == USUARIO_SIS && contrasena == CLAVE_SIS) {
+                abrirSesion(normalizado, TipoAcceso.SIS)
+                return@withContext LoginResult.Success
+            }
+            if (personalDao.count() == 0) {
+                return@withContext LoginResult.CredencialesInvalidas
+            }
+            val credencial = personalDao.buscarCredencial(normalizado)
                 ?: return@withContext LoginResult.CredencialesInvalidas
-            val coincide = passwordHasher.verify(
-                contrasena = contrasena,
-                salHex = user.sal,
-                hashHex = user.hash,
-                iteraciones = user.iteraciones
-            )
-            if (!coincide) return@withContext LoginResult.CredencialesInvalidas
-            sessionDataStore.setUltimoUsuario(normalizado)
-            sessionDataStore.setSesionActiva(true)
+            if (!credencial.activo || credencial.clave != contrasena) {
+                return@withContext LoginResult.CredencialesInvalidas
+            }
+            abrirSesion(normalizado, TipoAcceso.PERSONAL)
             LoginResult.Success
         }
 
+    private suspend fun abrirSesion(usuario: String, tipo: TipoAcceso) {
+        sessionDataStore.setTipoAcceso(tipo.name)
+        sessionDataStore.setUltimoUsuario(usuario)
+        sessionDataStore.setSesionActiva(true)
+    }
+
     override suspend fun logout() {
         sessionDataStore.setSesionActiva(false)
+        sessionDataStore.limpiarTipoAcceso()
     }
 
     override fun observeSesionActiva(): Flow<Boolean> =
@@ -49,23 +58,35 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun getUltimoUsuario(): String? =
         sessionDataStore.getUltimoUsuario()
 
-    override suspend fun seedUsuarioPorDefecto() {
-        if (userDao.count() > 0) return
-        val generado = passwordHasher.hash(CONTRASENA_POR_DEFECTO)
-        userDao.insert(
-            UserEntity(
-                usuario = USUARIO_POR_DEFECTO,
-                hash = generado.hash,
-                sal = generado.sal,
-                iteraciones = generado.iteraciones,
-                creadoEn = System.currentTimeMillis()
-            )
-        )
-    }
+    override fun observeTipoAcceso(): Flow<TipoAcceso?> =
+        sessionDataStore.observeTipoAcceso().map(::parseTipo)
+
+    override suspend fun getTipoAcceso(): TipoAcceso? =
+        parseTipo(sessionDataStore.getTipoAcceso())
+
+    override suspend fun obtenerDatosSesion(): DatosSesion? =
+        when (getTipoAcceso()) {
+            TipoAcceso.SIS -> DatosSesion(nombre = ETIQUETA_SIS, cargo = ETIQUETA_SIS)
+            TipoAcceso.PERSONAL -> {
+                val usuario = sessionDataStore.getUltimoUsuario() ?: return null
+                val credencial = personalDao.buscarCredencial(usuario) ?: return null
+                DatosSesion(
+                    nombre = listOf(credencial.nombre, credencial.apePaterno, credencial.apeMaterno)
+                        .filter { it.isNotBlank() }
+                        .joinToString(" "),
+                    cargo = credencial.nomCargo.orEmpty()
+                )
+            }
+            null -> null
+        }
+
+    private fun parseTipo(valor: String?): TipoAcceso? =
+        valor?.let { runCatching { TipoAcceso.valueOf(it) }.getOrNull() }
 
     companion object {
-        // Provisional hasta que se definan las credenciales oficiales (TASKS.md).
-        const val USUARIO_POR_DEFECTO = "admin"
-        const val CONTRASENA_POR_DEFECTO = "cambiar1234"
+        // Credenciales fijas de arranque; no se buscan en PERSONAL (RF-02).
+        const val USUARIO_SIS = "SIS"
+        const val CLAVE_SIS = "123"
+        const val ETIQUETA_SIS = "SIS"
     }
 }

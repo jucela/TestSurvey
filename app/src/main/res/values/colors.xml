@@ -27,6 +27,7 @@
     <color name="onTertiaryContainer">#FF241800</color>
     <color name="errorContainer">#FFFFDAD6</color>
     <color name="onErrorContainer">#FF410002</color>
+    <color name="successContainer">#FFC8E6C9</color>
 
     <!-- ============================================================
          Pantalla Login · paleta azul del mockup (docs/design/)

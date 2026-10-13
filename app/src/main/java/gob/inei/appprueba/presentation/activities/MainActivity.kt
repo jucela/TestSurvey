@@ -10,9 +10,12 @@ import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import gob.inei.appprueba.R
 import gob.inei.appprueba.databinding.ActivityMainBinding
+import gob.inei.appprueba.domain.entities.TipoAcceso
 import gob.inei.appprueba.domain.usecases.GetUltimoUsuarioUseCase
 import gob.inei.appprueba.domain.usecases.LogoutUseCase
 import gob.inei.appprueba.domain.usecases.ObserveSesionUseCase
+import gob.inei.appprueba.domain.usecases.ObserveTipoAccesoUseCase
+import gob.inei.appprueba.domain.usecases.ObtenerDatosSesionUseCase
 import javax.inject.Inject
 import kotlinx.coroutines.launch
 
@@ -23,6 +26,8 @@ class MainActivity : AppCompatActivity() {
     @Inject lateinit var observeSesion: ObserveSesionUseCase
     @Inject lateinit var logout: LogoutUseCase
     @Inject lateinit var getUltimoUsuario: GetUltimoUsuarioUseCase
+    @Inject lateinit var observeTipoAcceso: ObserveTipoAccesoUseCase
+    @Inject lateinit var obtenerDatosSesion: ObtenerDatosSesionUseCase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,8 +55,10 @@ class MainActivity : AppCompatActivity() {
                 irALogin()
                 return@launch
             }
-            mostrarUsuario()
-            binding.btnIniciar.isEnabled = true
+            val tipo = observeTipoAcceso.actual()
+            mostrarDatosSesion(tipo)
+            aplicarRestricciones(tipo)
+            binding.btnIniciar.isEnabled = tipo != TipoAcceso.SIS
             binding.btnCerrarSesion.isEnabled = true
         }
     }
@@ -68,8 +75,13 @@ class MainActivity : AppCompatActivity() {
         toggle.syncState()
 
         binding.navigationView.setNavigationItemSelectedListener { item ->
+            val destino = if (item.itemId == R.id.action_cargar_muestra) {
+                CargarMuestraActivity::class.java
+            } else {
+                SectionPlaceholderActivity::class.java
+            }
             startActivity(
-                Intent(this, SectionPlaceholderActivity::class.java)
+                Intent(this, destino)
                     .putExtra(SectionPlaceholderActivity.EXTRA_TITULO, item.title?.toString().orEmpty())
             )
             binding.drawerLayout.closeDrawer(GravityCompat.START)
@@ -77,12 +89,28 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private suspend fun mostrarUsuario() {
-        val usuario = getUltimoUsuario()
-        if (!usuario.isNullOrBlank()) {
-            val header = binding.navigationView.getHeaderView(0)
-            header.findViewById<TextView>(R.id.tvDrawerUsuario).text = usuario
+    private suspend fun mostrarDatosSesion(tipo: TipoAcceso?) {
+        val header = binding.navigationView.getHeaderView(0)
+        val tvUsuario = header.findViewById<TextView>(R.id.tvDrawerUsuario)
+        val tvCargo = header.findViewById<TextView>(R.id.tvDrawerCargo)
+        val datos = obtenerDatosSesion()
+        if (datos != null) {
+            tvUsuario.text = datos.nombre
+            tvCargo.text = datos.cargo
+        } else {
+            val usuario = getUltimoUsuario()
+            tvUsuario.text = usuario.orEmpty()
+            tvCargo.text = ""
         }
+    }
+
+    /** Restringe el menú lateral y la encuesta para la sesión de arranque `SIS` (RF-03). */
+    private fun aplicarRestricciones(tipo: TipoAcceso?) {
+        if (tipo != TipoAcceso.SIS) return
+        val menu = binding.navigationView.menu
+        menu.findItem(R.id.action_marco)?.isEnabled = false
+        menu.findItem(R.id.action_cobertura)?.isEnabled = false
+        menu.findItem(R.id.action_exportacion)?.isEnabled = false
     }
 
     private fun irALogin() {

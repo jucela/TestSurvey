@@ -1,6 +1,8 @@
 package gob.inei.appprueba.domain.repositories
 
+import gob.inei.appprueba.domain.entities.DatosSesion
 import gob.inei.appprueba.domain.entities.LoginResult
+import gob.inei.appprueba.domain.entities.TipoAcceso
 import kotlinx.coroutines.flow.Flow
 
 interface AuthRepository {
@@ -8,5 +10,7 @@ interface AuthRepository {
     suspend fun logout()
     fun observeSesionActiva(): Flow<Boolean>
     suspend fun getUltimoUsuario(): String?
-    suspend fun seedUsuarioPorDefecto()
+    fun observeTipoAcceso(): Flow<TipoAcceso?>
+    suspend fun getTipoAcceso(): TipoAcceso?
+    suspend fun obtenerDatosSesion(): DatosSesion?
 }

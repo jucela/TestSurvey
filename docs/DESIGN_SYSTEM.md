@@ -40,6 +40,7 @@ Roles Material 3 definidos en `values/colors.xml` (claro) y `values-night/colors
 | `onError` | `#FFFFFF` | `#601410` |
 | `errorContainer` | `#FFDAD6` | `#8C1D18` |
 | `onErrorContainer` | `#410002` | `#F9DEDC` |
+| `successContainer` | `#C8E6C9` | `#223D28` |
 | `surface` | `#FFFBFE` | `#1C1B1F` |
 | `onSurface` | `#000000` | `#E6E1E5` |
 | `surfaceVariant` | `#E7E0EC` | `#49454F` |
@@ -57,6 +58,12 @@ primarias; `colorSecondary` en controles secundarios; `colorTertiary` para
 acentos de marca en estados de éxito/semánticos; `color*Container`/`colorOn*`
 para superficies de marca y avisos; `colorSurface*` para fondos y tarjetas;
 `colorError*` solo para errores.
+
+Estado de resultado en las tarjetas por archivo de **Cargar muestra**
+(`CardAppPrueba`): tinte `successContainer` (verde pastel) en éxito y
+`errorContainer` (rojo pastel) en rechazo/error; los estados en curso usan el
+fondo neutro `surfaceContainerLow`. El estado siempre se informa además por
+texto (accesibilidad); los textos conservan los colores de rol del tema.
 
 ## Tipografía
 

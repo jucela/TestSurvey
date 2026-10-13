@@ -25,6 +25,7 @@
     <color name="onError">#FF601410</color>
     <color name="errorContainer">#FF8C1D18</color>
     <color name="onErrorContainer">#FFF9DEDC</color>
+    <color name="successContainer">#FF223D28</color>
 
     <color name="surface">#FF1C1B1F</color>
     <color name="onSurface">#FFE6E1E5</color>

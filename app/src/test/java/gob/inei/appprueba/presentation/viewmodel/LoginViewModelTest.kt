@@ -5,7 +5,6 @@ import gob.inei.appprueba.domain.FakeAuthRepository
 import gob.inei.appprueba.domain.usecases.GetUltimoUsuarioUseCase
 import gob.inei.appprueba.domain.usecases.LoginUseCase
 import gob.inei.appprueba.domain.usecases.ObserveSesionUseCase
-import gob.inei.appprueba.domain.usecases.SeedUsuarioPorDefectoUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -43,15 +42,14 @@ class LoginViewModelTest {
         login = LoginUseCase(repo),
         observeSesion = ObserveSesionUseCase(repo),
         getUltimoUsuario = GetUltimoUsuarioUseCase(repo),
-        seedUsuarioPorDefecto = SeedUsuarioPorDefectoUseCase(repo),
         savedStateHandle = handle
     )
 
     @Test
-    fun `el init siembra el usuario por defecto sin sesion activa`() = runTest {
+    fun `el init no siembra usuarios y queda listo sin sesion activa`() = runTest {
         val repo = FakeAuthRepository()
         val vm = crear(repo)
-        assertEquals(1, repo.seedLlamadas)
+        assertTrue(repo.usuarios.isEmpty())
         assertFalse(vm.state.value.logueado)
         assertFalse(vm.state.value.cargando)
         assertNull(vm.state.value.error)
@@ -102,17 +100,17 @@ class LoginViewModelTest {
         vm.onPasswordChange("mala")
         vm.onSubmit()
         advanceUntilIdle()
-        assertEquals("Usuario o contraseña incorrectos", vm.state.value.error)
+        assertEquals("usuario y contraseña no existe", vm.state.value.error)
         assertFalse(vm.state.value.logueado)
         assertFalse(repo.sesion.value)
     }
 
     @Test
     fun `credenciales correctas inician sesion`() = runTest {
-        val repo = FakeAuthRepository().apply { usuarios["admin"] = "cambiar1234" }
+        val repo = FakeAuthRepository().apply { usuarios["admin"] = "clave1234" }
         val vm = crear(repo)
         vm.onUsuarioChange(" admin ")
-        vm.onPasswordChange("cambiar1234")
+        vm.onPasswordChange("clave1234")
         vm.onSubmit()
         advanceUntilIdle()
         assertTrue(vm.state.value.logueado)
@@ -123,14 +121,26 @@ class LoginViewModelTest {
     }
 
     @Test
+    fun `el acceso SIS inicia sesion`() = runTest {
+        val repo = FakeAuthRepository()
+        val vm = crear(repo)
+        vm.onUsuarioChange("SIS")
+        vm.onPasswordChange("123")
+        vm.onSubmit()
+        advanceUntilIdle()
+        assertTrue(vm.state.value.logueado)
+        assertTrue(repo.sesion.value)
+    }
+
+    @Test
     fun `el doble envio solo produce una llamada de login`() = runTest {
         val repo = FakeAuthRepository().apply {
-            usuarios["admin"] = "cambiar1234"
+            usuarios["admin"] = "clave1234"
             loginRetrasado = true
-        } 
+        }
         val vm = crear(repo)
         vm.onUsuarioChange("admin")
-        vm.onPasswordChange("cambiar1234")
+        vm.onPasswordChange("clave1234")
         vm.onSubmit()
         vm.onSubmit()
         advanceUntilIdle()

@@ -8,7 +8,6 @@ import gob.inei.appprueba.domain.entities.LoginResult
 import gob.inei.appprueba.domain.usecases.GetUltimoUsuarioUseCase
 import gob.inei.appprueba.domain.usecases.LoginUseCase
 import gob.inei.appprueba.domain.usecases.ObserveSesionUseCase
-import gob.inei.appprueba.domain.usecases.SeedUsuarioPorDefectoUseCase
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -30,7 +29,6 @@ class LoginViewModel @Inject constructor(
     private val login: LoginUseCase,
     private val observeSesion: ObserveSesionUseCase,
     private val getUltimoUsuario: GetUltimoUsuarioUseCase,
-    private val seedUsuarioPorDefecto: SeedUsuarioPorDefectoUseCase,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -40,7 +38,6 @@ class LoginViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             try {
-                seedUsuarioPorDefecto()
                 if (observeSesion.isActiva()) {
                     _state.update { it.copy(cargando = false, logueado = true) }
                 } else {
@@ -81,7 +78,7 @@ class LoginViewModel @Inject constructor(
                 is LoginResult.Success ->
                     _state.update { it.copy(cargando = false, logueado = true) }
                 is LoginResult.CredencialesInvalidas ->
-                    _state.update { it.copy(cargando = false, error = "Usuario o contraseña incorrectos") }
+                    _state.update { it.copy(cargando = false, error = "usuario y contraseña no existe") }
             }
         }
     }

@@ -5,10 +5,12 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import gob.inei.appprueba.data.repositories.AuthRepositoryImpl
+import gob.inei.appprueba.data.repositories.MuestraRepositoryImpl
 import gob.inei.appprueba.data.repositories.SurveyRepositoryImpl
 import gob.inei.appprueba.data.sources.RawCatalogDataSource
 import gob.inei.appprueba.data.sources.ResRawCatalogDataSource
 import gob.inei.appprueba.domain.repositories.AuthRepository
+import gob.inei.appprueba.domain.repositories.MuestraRepository
 import gob.inei.appprueba.domain.repositories.SurveyRepository
 import javax.inject.Singleton
 
@@ -23,6 +25,10 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindAuthRepository(impl: AuthRepositoryImpl): AuthRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindMuestraRepository(impl: MuestraRepositoryImpl): MuestraRepository
 
     @Binds
     @Singleton
