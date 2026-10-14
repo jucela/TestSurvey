@@ -54,7 +54,19 @@ enum class TipoError {
     DISCREPANCIA_NOMBRE_CONTENIDO,
 
     /** El `.cfg` de viviendas no cumple la estructura esperada (RF-19). */
-    ESTRUCTURA_VIVIENDAS_INVALIDA
+    ESTRUCTURA_VIVIENDAS_INVALIDA,
+
+    /** No hay conexión de red o el servidor FTP no respondió (RF-32/RF-33). */
+    SIN_CONEXION,
+
+    /** El archivo/carpeta remoto no existe en el servidor FTP (RF-32/RF-33). */
+    ARCHIVO_REMOTO_AUSENTE,
+
+    /** Faltan host/usuario/contraseña FTP en la configuración del build (RF-34). */
+    CONFIGURACION_FTP,
+
+    /** Falló la descarga del ZIP remoto (red/escritura) (RF-35). */
+    ERROR_DESCARGA
 }
 
 /** Excepción interna de la carga que transporta el [TipoError]. */

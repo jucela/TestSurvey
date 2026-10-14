@@ -8,10 +8,10 @@ import javax.inject.Singleton
 
 /**
  * Siembra las tablas maestras (`DPTO`, `PROV`, `DISTRITO`, `ODEI`, `PAIS`,
- * `PERIODO`) a partir de los `INSERT` de los SQL de `docs/entities` expuestos
- * como assets (RF-20, DP-13/DP-14). La fuente de verdad es el propio SQL; no se
- * duplican los datos. Es idempotente (`INSERT OR IGNORE`) y sólo ejecuta los
- * `INSERT`, dejando la DDL a Room.
+ * `PERIODO`, `MES`) a partir de los `INSERT` de los SQL de `docs/entities`
+ * expuestos como assets (RF-20, RF-30, DP-13/DP-14/DP-20). La fuente de verdad
+ * es el propio SQL; no se duplican los datos. Es idempotente (`INSERT OR IGNORE`)
+ * y sólo ejecuta los `INSERT`, dejando la DDL a Room.
  */
 @Singleton
 class MaestrasSeeder @Inject constructor(
@@ -22,6 +22,14 @@ class MaestrasSeeder @Inject constructor(
         ARCHIVOS.forEach { archivo ->
             ejecutar(db, leerAsset(archivo))
         }
+    }
+
+    /**
+     * Siembra únicamente `MES` (RF-30). Se separa de [sembrar] porque la tabla
+     * `MES` no existe en el esquema v4→v5 y sólo debe ejecutarse desde v6.
+     */
+    fun sembrarMes(db: SupportSQLiteDatabase) {
+        ejecutar(db, leerAsset(ARCHIVO_MES))
     }
 
     private fun leerAsset(nombre: String): String =
@@ -88,5 +96,7 @@ class MaestrasSeeder @Inject constructor(
             "ODEI_DPTO_PROV_DISTRITO_PAIS.sql",
             "CONGLOMERADO_MARCO_REEMPLAZO_PERSONA_CAP100.sql"
         )
+
+        private const val ARCHIVO_MES = "MES.sql"
     }
 }

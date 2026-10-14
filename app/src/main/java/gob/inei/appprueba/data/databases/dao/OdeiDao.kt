@@ -20,4 +20,7 @@ interface OdeiDao {
 
     @Query("SELECT NOMODEI FROM ODEI WHERE CODODEI = :codOdei LIMIT 1")
     suspend fun nombreDe(codOdei: String): String?
+
+    @Query("SELECT * FROM ODEI ORDER BY CODODEI")
+    suspend fun listar(): List<OdeiEntity>
 }

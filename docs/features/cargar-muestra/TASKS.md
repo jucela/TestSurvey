@@ -181,6 +181,120 @@ Implementación autorizada por el usuario ("Implementar todo"). Progreso por tar
 - **T-319 — Completada.** Estado por tarea, evidencia y pendientes declarados registrados en este documento (v2: T-301..T-319). Bloqueos: ninguno pendiente; únicamente las comprobaciones manuales de T-318 quedan declaradas como no ejecutadas.
 - **TF-1 — Completada (mejora incremental, PROMPT_FORMATO_TARJETA).** El ítem del `RecyclerView` (`item_carga_archivo.xml`) ahora es un `MaterialCardView` con `@style/CardAppPrueba` (DS: radio 12dp, elevación 1dp, `surfaceContainerLow`) y el contenido con padding `dp_16`; se conservan ids, textos, estados y comportamiento. `CargaArchivoAdapter` tiñe la tarjeta según `EstadoArchivo`: `CARGADO`/`REEMPLAZADO` → verde pastel (`successContainer`, token nuevo claro `#C8E6C9` / oscuro `#223D28`), `RECHAZADO`/`ERROR` → rojo pastel (`errorContainer` existente), resto → neutro; el estado se sigue informando por texto (accesibilidad). Sin cambios en lógica de carga/persistencia/reemplazo. Archivos: `values/colors.xml`, `values-night/colors.xml`, `item_carga_archivo.xml`, `CargaArchivoAdapter.kt`, `CargarMuestraEspressoTest` (aserto de color de la tarjeta rechazada), `docs/DESIGN_SYSTEM.md` (token documentado). Evidencia: `assembleDebug` SUCCESS; `testDebugUnitTest` **104/0**; `lintDebug` **0 errores** (36 avisos, todos preexistentes o del patrón `NotifyDataSetChanged`); `connectedDebugAndroidTest` **29/29** en TB311XU (CA-09 verifica color `errorContainer` en tarjeta rechazada). Pendiente manual: comprobar visualmente verde pastel con carga real (personal y viviendas), rojo pastel en rechazo/error, teléfono/tableta, rotación y texto al 200 %.
 
+### v3 — Carga Online desde FTP (RF-28..RF-41)
+
+> Derivadas de `PLAN.md` (v3). Modo Online con `commons-net`; reutiliza el
+> pipeline Offline. Autorizado por el usuario ("apruebo").
+
+- **T-320: Documentar requisitos Online en SPEC/PLAN/TASKS.** Scope:
+  `docs/features/cargar-muestra/*.md`. Criterios: RF-28..RF-41. Validación:
+  documentación coherente.
+- **T-321: Permiso y dependencia FTP.** Scope: `AndroidManifest.xml`
+  (`INTERNET`), `gradle/libs.versions.toml` (`commons-net`), `app/build.gradle.kts`
+  (`BuildConfig` FTP desde `local.properties`). Criterios: RF-34. Validación:
+  `assembleDebug`.
+- **T-322: Tabla MES + migración v6.** Scope: `MesEntity`, `MesDao`,
+  `EncuestaDatabase` (v6 + `migracion5a6`), `MaestrasSeeder` (`MES.sql`),
+  `DatabaseModule`. Criterios: RF-30, CA-28. Validación: test de migración
+  v5→v6.
+- **T-323: Proveedores FTP y de directorio.** Scope:
+  `FtpCredentialsProvider`, `DirectorioConfigProvider`. Criterios: RF-34, RF-35.
+  Validación: test unitario (sin red).
+- **T-324: FtpDataSource.** Scope: listar/descargar con `commons-net`, sin
+  filtrar credenciales. Criterios: RF-32, RF-33. Validación: test unitario con
+  doble.
+- **T-325: Casos de uso de sincronización.** Scope: `domain` (ruta remota,
+  más reciente, delega en `CargarMuestraUseCase`). Criterios: RF-36, RF-37.
+  Validación: tests unitarios.
+- **T-326: ViewModel (modo, ODEI/MES, sincronizar).** Scope:
+  `CargaMuestraUiState`, `CargaMuestraViewModel`. Criterios: RF-28..RF-38.
+  Validación: `CargaMuestraViewModelTest`.
+- **T-327: Layout A/A2 + ocultar textos + strings/estilos.** Scope:
+  `activity_cargar_muestra.xml`, `strings.xml`, `dimens.xml`, `styles.xml`.
+  Criterios: RF-28..RF-31, RF-41. Validación: `lintDebug`.
+- **T-328: Activity (radio, spinners, sincronizar, "Modo:").** Scope:
+  `CargarMuestraActivity`. Criterios: RF-28..RF-38. Validación: build + Espresso.
+- **T-329: Pruebas (unitarias + Espresso) y verificación integral.** Scope:
+  `app/src/test`, `app/src/androidTest`, proyecto completo. Criterios:
+  CA-26..CA-38. Validación: `assembleDebug`, `testDebugUnitTest`, `lintDebug`,
+  `connectedDebugAndroidTest` (si hay dispositivo).
+
+### Estado de implementación (v3) — 2026-10-13
+
+Implementación autorizada por el usuario ("apruebo"). Progreso:
+
+- **T-320 — Completada.** `SPEC.md` (RF-28..RF-41, CA-26..CA-38, DP-17..DP-22),
+  `PLAN.md` (sección "Carga Online desde FTP") y esta lista de tareas.
+- **T-321 — Completada.** `INTERNET`/`ACCESS_NETWORK_STATE` en el manifest;
+  `commons-net:commons-net:3.13.0` en `libs.versions.toml` y `build.gradle.kts`;
+  `FTP_HOST`/`FTP_USUARIO`/`FTP_PASSWORD` como `BuildConfig` desde
+  `local.properties` (host/usuario con valor por defecto institucional, password
+  sin valor por defecto). Evidencia: `assembleDebug` SUCCESS.
+- **T-322 — Completada.** `MesEntity` + `MesDao`; `EncuestaDatabase` v6 +
+  `migracion5a6(seeder)` (`CREATE_MES` + `seeder.sembrarMes`); `MES.sql` en
+  `MaestrasSeeder` (`ARCHIVO_MES`, separado para no romper 4→5); `DatabaseModule`
+  (migración, `onCreate` siembra MES, `provideMesDao`). Esquema `6.json` cotejado
+  (tabla `MES` idéntica). Evidencia: `assembleDebug`; test de migración v5→v6
+  añadido.
+- **T-323 — Completada.** `FtpCredentialsProvider` (con `configurado`) y
+  `DirectorioConfigProvider` (`getExternalFilesDir("ENAHO{AÑO}")/config`).
+- **T-324 — Completada.** `FtpCliente` (commons-net; listar/descargar;
+  `MuestraException` tipada; sin log de credenciales).
+- **T-325 — Completada.** `MuestraOnlineRepositoryImpl` +
+  `CatalogoMuestraRepositoryImpl`; `RutaMuestraRemota` (rutas/nombres);
+  `SincronizarMuestraViviendasUseCase`/`SincronizarMuestraPersonalUseCase` y
+  `ObtenerCatalogoMuestraUseCase`; bindings en `RepositoryModule`. La descarga se
+  entrega al pipeline Offline vía `file://` → `CargarMuestraUseCase`.
+- **T-326 — Completada.** `CargaMuestraUiState` (modo, catálogo, selección),
+  `CargaMuestraViewModel` (carga catálogo, modo, `sincronizarViviendas`,
+  `sincronizarPersonal`, guardas anti doble ejecución).
+- **T-327 — Completada.** `activity_cargar_muestra.xml`: `RadioGroup`
+  Offline/Online (A), bloque Online A2_1/A2_2, "Modo: %s" en tarjetas,
+  `tvDescripcion`/`tvRestriccion` ocultos; `item_spinner_muestra.xml`; strings y
+  mensajes de error nuevos.
+- **T-328 — Completada.** `CargarMuestraActivity`: alterna A1/A2, puebla los
+  `Spinner`, valida ODEI/MES (RF-31), deshabilita botones al procesar y muestra
+  el modo en las tarjetas.
+- **T-329 — Completada (manuales pendientes).** `assembleDebug` SUCCESS;
+  `testDebugUnitTest` **115 pruebas / 0 fallos** (incluye `RutaMuestraRemotaTest`
+  6 y `CargaMuestraViewModelTest` ampliado a 11); `lintDebug` **0 errores / 41
+  avisos** (los nuevos son `NewerVersionAvailable` de commons-net —eliminado al
+  subir a 3.13.0—, `TrustAllX509TrustManager` del propio jar y
+  `UseCompatTextViewDrawableXml` del patrón de `drawableStart` ya presente);
+  `assembleDebugAndroidTest` SUCCESS; `connectedDebugAndroidTest` en tablet
+  **TB311XU** **31 pruebas / 0 fallos** (incluye
+  `migraDe5A6_creandoYSembrandoLaTablaMes` validando `6.json` y
+  `ca26_alterna_entre_modo_offline_y_online`).
+  Comprobaciones **manuales no ejecutadas**: sincronización real contra el FTP
+  (host alcanzable y `ZIP_PASSWORD` para personal, aún vacío en
+  `local.properties`) y revisión visual de A2 en teléfono/tablet y rotación.
+  Credenciales FTP añadidas localmente a `local.properties` (no versionado).
+
+### Corrección v3.1 — 2026-10-13 (prueba en dispositivo)
+
+Validación manual en tablet **TB311XU** contra el FTP real
+(`extranet.inei.gob.pe`; `DescargasEnaho2026` verificada). Se detectó y corrigió:
+
+- **Bug:** `RutaMuestraRemota.nombreArchivoViviendas` emitía `Odei_1_Mes_1` (sin
+  ceros), pero el servidor publica `Enaho2026_Muestra_Odei_01_Mes_01.zip` (**dos
+  dígitos**); la descarga devolvía `ARCHIVO_REMOTO_AUSENTE`. Se corrigió el
+  formato a `%02d` para ODEI y MES (RF-32/CA-30) y se actualizó el kdoc y
+  `RutaMuestraRemotaTest`.
+- **Verificación end-to-end en dispositivo:** ODEI `01 - AMAZONAS` + MES
+  `01 - Enero` → `Enaho2026_Muestra_Odei_01_Mes_01.zip` descargado y procesado:
+  `Resultado por archivo = Cargado`, `tvViviendasEstado = Estado: Cargado`,
+  `Fecha de cargado: 13/10/2026 15:38`, `ODEI 01 - AMAZONAS: 01`. Evidencia:
+  `carga_online_viviendas_ok.png`. `assembleDebug` + `testDebugUnitTest`
+  (**115/0**) reverificados tras el fix.
+- **Personal — verificado end-to-end (RF-33):** la carpeta
+  `DescargasEnaho2026/Muestra/Personal` contiene `Personal_2026_Tablet-2026-10-13.zip`.
+  Con `zip.password` configurado (no versionado), la sincronización **lista el
+  directorio, elige el ZIP más reciente, lo descarga, lo descomprime y lo
+  carga**: `Resultado por archivo = Cargado`,
+  `tvPersonalEstado = Estado: Cargado`, `Fecha de cargado: 13/10/2026 15:50`.
+  Evidencia: `online_personal_ok.png`. (Sin la contraseña se detenía en
+  descompresión con `La aplicación no tiene configurada la contraseña…`.)
+
 ---
 
 ## Historial — versión 1 (personal, completada)

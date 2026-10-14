@@ -17,7 +17,7 @@ data class OdeiMesRow(
 @Dao
 interface ConglomeradoDao {
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(items: List<ConglomeradoEntity>)
 
     @Query("DELETE FROM CAMPO_CONGLOMERADO WHERE ANHO = :anho AND MES = :mes AND ODEI = :odei")

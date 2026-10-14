@@ -272,6 +272,58 @@ Discrepancias detectadas (se reportan; **no se asumen soluciones no acordadas**)
     ascendente y con dos dígitos (`01`, `02`, …, `12`), mostrando solo meses con
     datos. Cada ODEI puede tener meses distintos.
 
+### Carga Online desde FTP (nuevo)
+
+- **RF-28:** La pantalla ofrece un selector de modo (`RadioGroup`) con
+  **Offline** (por defecto) y **Online**. Offline muestra la interfaz actual de
+  selección manual (A1); Online la oculta (A1) y muestra una sección A2. Los
+  componentes desde `grupoProcesando` hacia abajo y las tarjetas informativas se
+  conservan en ambos modos.
+- **RF-29:** A2 contiene dos bloques visualmente independientes:
+  - **A2_1 · Cargar muestra de viviendas:** `Spinner` ODEI + `Spinner` MES +
+    botón `Sincronizar`.
+  - **A2_2 · Cargar muestra personal:** botón `Sincronizar`.
+- **RF-30:** El `Spinner` de ODEI se puebla desde la tabla `ODEI` (primer
+  elemento `--Seleccione--`; siguientes `CODODEI-NOMODEI`); el de MES desde la
+  tabla `MES` (primer elemento `--Seleccione--`; siguientes `CODIGO-NOMBRE`). No
+  se hardcodean los datos en la UI.
+- **RF-31:** `Sincronizar` de viviendas exige ODEI y MES seleccionados; si falta
+  alguno, se informa y no se descarga nada.
+- **RF-32:** La ruta FTP de viviendas se construye como
+  `DescargasEnaho{AÑO}/Muestra/{MM_Mes}/Enaho{AÑO}_Muestra_Odei_{ODEI}_Mes_{MES}.zip`
+  (carpetas mensuales `01_Ene`…`12_Dic`). No se asume que la carpeta o el archivo
+  existan.
+- **RF-33:** Para personal se listan los ZIP de
+  `DescargasEnaho{AÑO}/Muestra/Personal`, se identifican los nombres válidos y se
+  descarga **solamente el más reciente** por fecha de generación del nombre.
+- **RF-34:** Las credenciales y el host FTP provienen de la configuración no
+  versionada del proyecto (`local.properties` → `BuildConfig`), sin exponerse ni
+  registrarse en logs. No se duplican en varias clases.
+- **RF-35:** El ZIP descargado se guarda en `ENAHO{AÑO}/config`. Para viviendas,
+  la misma combinación Año+ODEI+Mes reemplaza el archivo y los datos de esa
+  combinación; para personal, el mismo nombre reemplaza el archivo y las fechas
+  distintas coexisten (la tabla `PERSONAL` mantiene la última muestra).
+- **RF-36:** Offline y Online **convergen en el mismo procesador**: Online
+  descarga el ZIP a `config` y lo procesa con exactamente la misma lógica,
+  validaciones, mensajes y transacciones que Offline. No se duplica la carga de
+  muestras.
+- **RF-37:** La descarga y la carga preservan la integridad: no se elimina la
+  muestra anterior hasta validar que el archivo se descargó, el ZIP es válido, el
+  contenido es válido y corresponde al año/ODEI/mes; un fallo conserva la muestra
+  anterior sin datos parciales.
+- **RF-38:** Mientras hay una sincronización en curso se evita ejecutar otra
+  (botones deshabilitados), se muestra progreso con los componentes existentes y
+  se restaura el estado al finalizar.
+- **RF-39:** El año del aplicativo se obtiene de la fuente existente
+  (`AnioAplicativoProvider`/`ANIO_APLICATIVO`); no se hardcodea `2026` en la
+  lógica de rutas/validaciones.
+- **RF-40:** La incorporación de Online **no cambia** el comportamiento del modo
+  Offline (RF-01..RF-27 se conservan).
+- **RF-41:** La sección A2 y sus bloques se adaptan a teléfono/tablet y a
+  orientación vertical/horizontal con tokens y componentes del Design System; los
+  textos `tvDescripcion` y `tvRestriccion` se ocultan en la UI (las vistas se
+  conservan).
+
 ## Fuera de alcance
 
 - Integrar `PERSONAL` (o las muestras de viviendas) con otras funcionalidades de
@@ -280,7 +332,11 @@ Discrepancias detectadas (se reportan; **no se asumen soluciones no acordadas**)
 - Edición manual, consulta o exportación de los registros cargados.
 - Funcionalidades adicionales sobre `DPTO`, `PROV`, `DISTRITO`, `PAIS` (solo se
   crean y cargan en esta funcionalidad).
-- Descarga de muestras desde un servidor o servicio externo.
+- ~~Descarga de muestras desde un servidor o servicio externo.~~ **Incluido en
+  v3** mediante el modo Online (RF-28..RF-41): descarga por FTP de viviendas
+  (ODEI/mes) y de personal (más reciente). Quedan fuera de alcance la
+  edición/gestión del servidor FTP, la descarga por HTTP/API y la sincronización
+  automática en segundo plano.
 - Corrección de datos de negocio dentro de las muestras. Se **exceptúa la
   normalización de formato de fechas de personal** (RF-06/DP-8) y las
   normalizaciones de tipo/espacios de viviendas (DC-9), que sí están en alcance.
@@ -481,6 +537,35 @@ recursos de texto existentes).
   la fecha de última carga, y por cada ODEI su nombre y sus meses ordenados
   (`01`, `02`, …), sin mostrar meses sin muestra; la tarjeta de personal muestra
   `Cargado`/`Pendiente` y la fecha; las tarjetas no inician cargas.
+- **CA-26 · RF-28:** Al abrir la pantalla, el modo por defecto es **Offline** y se
+  ve A1; al elegir **Online** se oculta A1 y se muestra A2; al volver a Offline se
+  restaura A1. Las tarjetas y el bloque de progreso/resultado siguen visibles.
+- **CA-27 · RF-29/RF-30:** A2 muestra el bloque de viviendas con `ODEI`, `MES` y
+  `Sincronizar`, y el bloque de personal con `Sincronizar`.
+- **CA-28 · RF-30:** Los `Spinner` listan `--Seleccione--` seguido de los registros
+  de `ODEI` (CODODEI-NOMODEI) y `MES` (CODIGO-NOMBRE) leídos de la base.
+- **CA-29 · RF-31/RF-37:** Pulsar `Sincronizar` en viviendas sin ODEI o sin MES
+  informa el faltante y no descarga ni modifica datos.
+- **CA-30 · RF-32:** Con ODEI=01 y MES=01 se descarga
+  `DescargasEnaho2026/Muestra/01_Ene/Enaho2026_Muestra_Odei_01_Mes_01.zip`.
+- **CA-31 · RF-33:** Para personal se descarga solo el ZIP de nombre válido con
+  fecha más reciente de `DescargasEnaho2026/Muestra/Personal`.
+- **CA-32 · RF-36:** Un ZIP descargado se procesa con el mismo pipeline que
+  Offline (mismas validaciones, mensajes y resultado por archivo).
+- **CA-33 · RF-37:** Si la descarga o la validación fallan, la muestra anterior
+  permanece intacta y no hay datos parciales.
+- **CA-34 · RF-35:** Recargar viviendas de la misma combinación reemplaza el
+  archivo y sus registros sin duplicar; personal con distinta fecha coexiste y
+  `PERSONAL` queda con la última cargada.
+- **CA-35 · RF-38:** Durante la sincronización se impide iniciar otra (botones
+  deshabilitados) y se muestra progreso; al terminar se restaura el estado.
+- **CA-36 · RF-34:** Los logs no contienen host/credenciales ni la contraseña FTP;
+  no hay credenciales hardcodeadas ni duplicadas en el código.
+- **CA-37 · RF-40:** Con el modo Offline la pantalla se comporta exactamente como
+  en v2 (selección multi-archivo, validaciones y tarjetas).
+- **CA-38 · RF-41:** A2 se ve sin cortes en teléfono y tablet, en ambas
+  orientaciones y con texto ampliado, usando tokens/componentes del DS; las
+  tarjetas muestran "Modo: Offline" o "Modo: Online" según el selector.
 
 ## Cómo se comprueba el comportamiento
 
@@ -511,6 +596,19 @@ recursos de texto existentes).
 | CA-23 | Procesar selección mixta válidos/inválidos. | Válidos cargados; inválidos reportados; sin parciales. |
 | CA-24 | Cargar, cerrar y reabrir; comparar con fecha de generación. | Fecha de carga persistida en `dd/MM/yyyy HH:mm`. |
 | CA-25 | Cargar varias ODEIs/meses; abrir pantalla. | Tarjetas con estado, fecha y ODEIs→meses correctos. |
+| CA-26 | Abrir pantalla y alternar Offline/Online. | Offline por defecto; A1↔A2 sin perder tarjetas/progreso. |
+| CA-27 | Elegir Online. | Bloques A2_1 (ODEI+MES+Sincronizar) y A2_2 (Sincronizar). |
+| CA-28 | Desplegar ODEI y MES. | `--Seleccione--` + registros de las tablas. |
+| CA-29 | Sincronizar viviendas sin ODEI/MES. | Aviso del faltante; sin descarga ni cambios. |
+| CA-30 | ODEI=01, MES=01. | Ruta `01_Ene/Enaho2026_Muestra_Odei_01_Mes_01.zip`. |
+| CA-31 | Sincronizar personal con varios ZIP. | Solo el más reciente. |
+| CA-32 | Sincronizar un ZIP válido. | Mismo resultado por archivo que Offline. |
+| CA-33 | Forzar fallo de descarga/validación. | Muestra anterior intacta; sin parciales. |
+| CA-34 | Recargar misma combinación / personal con otra fecha. | Reemplazo sin duplicados / coexistencia de fechas. |
+| CA-35 | Sincronizar y pulsar de nuevo durante el proceso. | Segunda ejecución bloqueada; progreso visible. |
+| CA-36 | Revisar código y logs. | Sin credenciales expuestas ni duplicadas. |
+| CA-37 | Usar la pantalla en Offline. | Comportamiento idéntico a v2. |
+| CA-38 | Probar A2 en teléfono/tablet, rotación y texto ampliado. | Sin cortes; "Modo: Offline/Online" correcto. |
 
 ## Decisiones pendientes
 
@@ -544,6 +642,20 @@ Ninguna. Todas las decisiones funcionales fueron resueltas con el usuario:
 - **DP-16:** el nombre de personal no incluye ODEI; si se seleccionan varios
   archivos de personal, `PERSONAL` queda con la **última** muestra cargada
   (RF-07/RF-10).
+- **DP-17:** el cliente FTP se implementa con la librería **commons-net**
+  (`org.apache.commons.net.ftp`) como nueva dependencia (RF-32/RF-33).
+- **DP-18:** los ZIP descargados se guardan en
+  `getExternalFilesDir("ENAHO{AÑO}")/config`, reutilizando la raíz de datos del
+  aplicativo (RF-35).
+- **DP-19:** host, usuario y contraseña FTP **no** se versionan: se leen de
+  `local.properties` y se exponen como `BuildConfig` (mismo patrón que
+  `ZIP_PASSWORD`), en una clase proveedora única (RF-34).
+- **DP-20:** se agrega la tabla `MES` como entidad Room con `MesDao`, sembrada
+  desde `docs/entities/MES.sql`; la base sube de v5 a v6 con migración 5→6
+  (RF-30).
+- **DP-21:** el modo por defecto del selector es **Offline** (RF-28).
+- **DP-22:** los textos `tvDescripcion` y `tvRestriccion` se ocultan en la UI
+  (las vistas se conservan para no romper contratos/test) (RF-41).
 
 <!-- ANTES DE SOLICITAR APROBACIÓN
 Comprueba que el alcance está acordado, los flujos son coherentes, los puntos

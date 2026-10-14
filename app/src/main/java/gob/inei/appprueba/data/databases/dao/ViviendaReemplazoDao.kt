@@ -9,7 +9,7 @@ import gob.inei.appprueba.data.databases.entities.ViviendaReemplazoEntity
 @Dao
 interface ViviendaReemplazoDao {
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(items: List<ViviendaReemplazoEntity>)
 
     @Query(

@@ -76,9 +76,25 @@ class CargarMuestraEspressoTest {
             DrawerActions.openDrawer(R.id.drawerLayout)
             onView(withText(R.string.menu_cargar_muestra)).perform(click())
 
-            esperarVista(R.id.tvRestriccion)
+            esperarVista(R.id.btnSeleccionar)
             onView(withId(R.id.tvRestriccion))
                 .check(matches(withText(R.string.cargar_muestra_restriccion)))
+        }
+    }
+
+    @Test
+    fun ca26_alterna_entre_modo_offline_y_online() {
+        ActivityScenario.launch(CargarMuestraActivity::class.java).use {
+            onView(withId(R.id.btnSeleccionar)).check(matches(isDisplayed()))
+
+            onView(withId(R.id.rbOnline)).perform(click())
+            onView(withId(R.id.btnSincronizarViviendas)).check(matches(isDisplayed()))
+            onView(withId(R.id.btnSincronizarPersonal)).check(matches(isDisplayed()))
+            onView(withId(R.id.btnSeleccionar))
+                .check(matches(withEffectiveVisibility(Visibility.GONE)))
+
+            onView(withId(R.id.rbOffline)).perform(click())
+            onView(withId(R.id.btnSeleccionar)).check(matches(isDisplayed()))
         }
     }
 

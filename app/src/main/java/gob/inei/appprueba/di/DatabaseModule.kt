@@ -21,6 +21,7 @@ import gob.inei.appprueba.data.databases.dao.ConglomeradoDao
 import gob.inei.appprueba.data.databases.dao.DistritoDao
 import gob.inei.appprueba.data.databases.dao.DptoDao
 import gob.inei.appprueba.data.databases.dao.FlowRuleDao
+import gob.inei.appprueba.data.databases.dao.MesDao
 import gob.inei.appprueba.data.databases.dao.OdeiDao
 import gob.inei.appprueba.data.databases.dao.PaisDao
 import gob.inei.appprueba.data.databases.dao.PerfilDao
@@ -50,12 +51,14 @@ object DatabaseModule {
                 EncuestaDatabase.MIGRATION_1_2,
                 EncuestaDatabase.MIGRATION_2_3,
                 EncuestaDatabase.MIGRATION_3_4,
-                EncuestaDatabase.migracion4a5(seeder)
+                EncuestaDatabase.migracion4a5(seeder),
+                EncuestaDatabase.migracion5a6(seeder)
             )
             .addCallback(
                 object : RoomDatabase.Callback() {
                     override fun onCreate(db: SupportSQLiteDatabase) {
                         seeder.sembrar(db)
+                        seeder.sembrarMes(db)
                     }
                 }
             )
@@ -93,6 +96,9 @@ object DatabaseModule {
 
     @Provides
     fun provideOdeiDao(database: EncuestaDatabase): OdeiDao = database.odeiDao()
+
+    @Provides
+    fun provideMesDao(database: EncuestaDatabase): MesDao = database.mesDao()
 
     @Provides
     fun providePaisDao(database: EncuestaDatabase): PaisDao = database.paisDao()

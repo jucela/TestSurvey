@@ -37,7 +37,9 @@
                 android:layout_height="wrap_content"
                 android:text="@string/cargar_muestra_descripcion"
                 android:textAppearance="?attr/textAppearanceBodyLarge"
-                android:textColor="?attr/colorOnSurface" />
+                android:textColor="?attr/colorOnSurface"
+                android:visibility="gone"
+                tools:visibility="gone" />
 
             <TextView
                 android:id="@+id/tvRestriccion"
@@ -46,15 +48,158 @@
                 android:layout_marginTop="@dimen/dp_12"
                 android:text="@string/cargar_muestra_restriccion"
                 android:textAppearance="?attr/textAppearanceBodyMedium"
-                android:textColor="?attr/colorOnSurfaceVariant" />
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:visibility="gone"
+                tools:visibility="gone" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSeleccionar"
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/dp_24"
-                android:text="@string/cargar_muestra_btn_seleccionar"
-                app:icon="@drawable/ic_menu_cargar_muestra" />
+                android:layout_marginTop="@dimen/dp_8"
+                android:text="@string/cargar_muestra_modo_titulo"
+                android:textAppearance="?attr/textAppearanceTitleMedium"
+                android:textColor="?attr/colorOnSurface"
+                android:textStyle="bold" />
+
+            <RadioGroup
+                android:id="@+id/rgModo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_8"
+                android:orientation="horizontal">
+
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/rbOffline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="@string/cargar_muestra_modo_offline" />
+
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/rbOnline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/dp_16"
+                    android:text="@string/cargar_muestra_modo_online" />
+            </RadioGroup>
+
+            <LinearLayout
+                android:id="@+id/grupoOffline"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSeleccionar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/dp_24"
+                    android:text="@string/cargar_muestra_btn_seleccionar"
+                    app:icon="@drawable/ic_menu_cargar_muestra" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/grupoOnline"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_16"
+                android:orientation="vertical"
+                android:visibility="gone"
+                tools:visibility="gone">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="@dimen/dp_12"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/dp_16">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/cargar_muestra_online_viviendas_titulo"
+                            android:drawablePadding="@dimen/dp_8"
+                            android:textAppearance="?attr/textAppearanceTitleMedium"
+                            android:textStyle="bold"
+                            app:drawableStartCompat="@drawable/outline_gite_black_24dp"
+                            app:drawableTint="?attr/colorOnSurface"/>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/dp_12"
+                            android:text="@string/cargar_muestra_online_odei"
+                            android:textAppearance="?attr/textAppearanceLabelLarge"
+                            android:textColor="?attr/colorOnSurfaceVariant" />
+
+                        <Spinner
+                            android:id="@+id/spOdei"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/dp_4" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/dp_12"
+                            android:text="@string/cargar_muestra_online_mes"
+                            android:textAppearance="?attr/textAppearanceLabelLarge"
+                            android:textColor="?attr/colorOnSurfaceVariant" />
+
+                        <Spinner
+                            android:id="@+id/spMes"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/dp_4" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnSincronizarViviendas"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/dp_16"
+                            android:text="@string/cargar_muestra_online_btn_sincronizar"
+                            app:icon="@drawable/ic_menu_cargar_muestra" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/dp_16"
+                    app:cardCornerRadius="@dimen/dp_12"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/dp_16">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/cargar_muestra_online_personal_titulo"
+                            android:drawablePadding="@dimen/dp_8"
+                            android:textAppearance="?attr/textAppearanceTitleMedium"
+                            android:textStyle="bold"
+                            app:drawableStartCompat="@drawable/baseline_people_black_24dp"
+                            app:drawableTint="?attr/colorOnSurface"/>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnSincronizarPersonal"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/dp_16"
+                            android:text="@string/cargar_muestra_online_btn_sincronizar"
+                            app:icon="@drawable/ic_menu_cargar_muestra" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/grupoProcesando"
@@ -90,11 +235,11 @@
                 android:layout_marginTop="@dimen/dp_24"
                 android:text="@string/cargar_muestra_archivos_titulo"
                 android:textAppearance="?attr/textAppearanceTitleMedium"
-                android:textColor="?attr/colorOnSurface"
                 android:visibility="gone"
-                android:drawableStart="@drawable/outline_info_black_24dp"
                 android:textStyle="bold"
-                android:drawablePadding="@dimen/dp_4"
+                android:drawablePadding="@dimen/dp_8"
+                app:drawableStartCompat="@drawable/outline_info_black_24dp"
+                app:drawableTint="?attr/colorOnSurface"
                 tools:visibility="visible" />
 
             <androidx.recyclerview.widget.RecyclerView
@@ -135,16 +280,27 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/cargar_muestra_card_personal_titulo"
-                        android:drawableStart="@drawable/baseline_people_black_24dp"
                         android:textStyle="bold"
-                        android:drawablePadding="@dimen/dp_4"
-                        android:textAppearance="?attr/textAppearanceTitleMedium" />
+                        android:drawablePadding="@dimen/dp_8"
+                        android:textAppearance="?attr/textAppearanceTitleMedium"
+                        app:drawableStartCompat="@drawable/baseline_people_black_24dp"
+                        app:drawableTint="?attr/colorOnSurface"
+                        />
+
+                    <TextView
+                        android:id="@+id/tvPersonalModo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/dp_8"
+                        android:textAppearance="?attr/textAppearanceBodyMedium"
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        tools:text="Modo: Offline" />
 
                     <TextView
                         android:id="@+id/tvPersonalEstado"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/dp_8"
+                        android:layout_marginTop="@dimen/dp_4"
                         android:textAppearance="?attr/textAppearanceBodyMedium"
                         tools:text="Estado: Cargado" />
 
@@ -177,16 +333,27 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/cargar_muestra_card_viviendas_titulo"
-                        android:drawableStart="@drawable/outline_gite_black_24dp"
                         android:textStyle="bold"
-                        android:drawablePadding="@dimen/dp_4"
-                        android:textAppearance="?attr/textAppearanceTitleMedium" />
+                        android:drawablePadding="@dimen/dp_8"
+                        android:textAppearance="?attr/textAppearanceTitleMedium"
+                        app:drawableStartCompat="@drawable/outline_gite_black_24dp"
+                        app:drawableTint="?attr/colorOnSurface"
+                        />
+
+                    <TextView
+                        android:id="@+id/tvViviendasModo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/dp_8"
+                        android:textAppearance="?attr/textAppearanceBodyMedium"
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        tools:text="Modo: Offline" />
 
                     <TextView
                         android:id="@+id/tvViviendasEstado"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/dp_8"
+                        android:layout_marginTop="@dimen/dp_4"
                         android:textAppearance="?attr/textAppearanceBodyMedium"
                         tools:text="Estado: Cargado" />
 
@@ -197,7 +364,7 @@
                         android:layout_marginTop="@dimen/dp_4"
                         android:textAppearance="?attr/textAppearanceBodyMedium"
                         android:textColor="?attr/colorOnSurfaceVariant"
-                        tools:text="Fecha de cargado: 12/10/2026 09:30" />
+                        tools:text="Ultima cargada: 12/10/2026 09:30" />
 
                     <TextView
                         android:id="@+id/tvViviendasOdeis"

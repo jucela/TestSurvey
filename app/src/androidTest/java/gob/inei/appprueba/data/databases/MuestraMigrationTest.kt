@@ -106,6 +106,26 @@ class MuestraMigrationTest {
         db.close()
     }
 
+    @Test
+    fun migraDe5A6_creandoYSembrandoLaTablaMes() {
+        helper.createDatabase(NOMBRE_MES, 5).close()
+
+        val seeder = MaestrasSeeder(
+            InstrumentationRegistry.getInstrumentation().targetContext
+        )
+        val db = helper.runMigrationsAndValidate(
+            NOMBRE_MES,
+            6,
+            true,
+            EncuestaDatabase.migracion5a6(seeder)
+        )
+
+        assertEquals("MES debe quedar con 12 filas", 12, contar(db, "MES"))
+        seeder.sembrarMes(db)
+        assertEquals("la siembra de MES debe ser idempotente", 12, contar(db, "MES"))
+        db.close()
+    }
+
     private fun contar(db: androidx.sqlite.db.SupportSQLiteDatabase, tabla: String): Int =
         db.query("SELECT COUNT(*) FROM $tabla").use {
             it.moveToFirst()
@@ -116,5 +136,6 @@ class MuestraMigrationTest {
         const val NOMBRE = "muestra-migration-test"
         const val NOMBRE_LOGIN = "login-migration-test"
         const val NOMBRE_VIVIENDAS = "viviendas-migration-test"
+        const val NOMBRE_MES = "mes-migration-test"
     }
 }

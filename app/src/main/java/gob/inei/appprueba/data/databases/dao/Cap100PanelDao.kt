@@ -9,7 +9,7 @@ import gob.inei.appprueba.data.databases.entities.Cap100PanelEntity
 @Dao
 interface Cap100PanelDao {
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(items: List<Cap100PanelEntity>)
 
     @Query(

@@ -40,8 +40,8 @@ class ViviendaXmlParser @Inject constructor() {
         val seccionConglomerado = seccion(root, "CONGLOMERADOENTITY")
         val seccionVivienda = seccion(root, "VIVIENDAMARCOENTITY")
         val seccionReemplazo = seccion(root, "VIVIENDAREEMPLAZOENTITY")
-        val seccionPersona = seccion(root, "PERSONAPANELENTITY")
-        val seccionCap100 = seccion(root, "CAP100PANELENTITY")
+        val seccionPersona = seccionOpcional(root, "PERSONAPANELENTITY")
+        val seccionCap100 = seccionOpcional(root, "CAP100PANELENTITY")
 
         val conglomerados = registros(seccionConglomerado, "CAMPO_CONGLOMERADO", MAX_REGISTROS)
             .map { aConglomerado(it) }
@@ -49,10 +49,10 @@ class ViviendaXmlParser @Inject constructor() {
             .map { aViviendaMarco(it) }
         val reemplazos = registros(seccionReemplazo, "CAMPO_VIVIENDA_REEMPLAZO", MAX_REGISTROS)
             .map { aReemplazo(it) }
-        val personas = registros(seccionPersona, "PERSONA_PANEL", MAX_REGISTROS)
-            .map { aPersona(it) }
-        val cap100 = registros(seccionCap100, "CAP100PANEL", MAX_REGISTROS)
-            .map { aCap100(it) }
+        val personas = seccionPersona?.let { registros(it, "PERSONA_PANEL", MAX_REGISTROS) }
+            ?.map { aPersona(it) } ?: emptyList()
+        val cap100 = seccionCap100?.let { registros(it, "CAP100PANEL", MAX_REGISTROS) }
+            ?.map { aCap100(it) } ?: emptyList()
 
         if (conglomerados.isEmpty()) {
             throw MuestraException(
@@ -93,6 +93,9 @@ class ViviendaXmlParser @Inject constructor() {
                 TipoError.ESTRUCTURA_VIVIENDAS_INVALIDA,
                 "Falta la sección de viviendas"
             )
+
+    private fun seccionOpcional(root: Element, nombreSeccion: String): Element? =
+        hijos(root).firstOrNull { nombre(it) == nombreSeccion }
 
     private fun registros(seccion: Element, etiqueta: String, maximo: Int): List<Map<String, String?>> {
         val cantidad = seccion.getAttribute("cantidad").trim().toIntOrNull()

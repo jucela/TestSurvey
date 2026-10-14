@@ -9,7 +9,7 @@ import gob.inei.appprueba.data.databases.entities.PersonaPanelEntity
 @Dao
 interface PersonaPanelDao {
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(items: List<PersonaPanelEntity>)
 
     @Query(

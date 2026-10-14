@@ -13,6 +13,7 @@ import gob.inei.appprueba.data.databases.dao.ConglomeradoDao
 import gob.inei.appprueba.data.databases.dao.DistritoDao
 import gob.inei.appprueba.data.databases.dao.DptoDao
 import gob.inei.appprueba.data.databases.dao.FlowRuleDao
+import gob.inei.appprueba.data.databases.dao.MesDao
 import gob.inei.appprueba.data.databases.dao.OdeiDao
 import gob.inei.appprueba.data.databases.dao.PaisDao
 import gob.inei.appprueba.data.databases.dao.PerfilDao
@@ -32,6 +33,7 @@ import gob.inei.appprueba.data.databases.entities.ConglomeradoEntity
 import gob.inei.appprueba.data.databases.entities.DistritoEntity
 import gob.inei.appprueba.data.databases.entities.DptoEntity
 import gob.inei.appprueba.data.databases.entities.FlowRuleEntity
+import gob.inei.appprueba.data.databases.entities.MesEntity
 import gob.inei.appprueba.data.databases.entities.OdeiEntity
 import gob.inei.appprueba.data.databases.entities.PaisEntity
 import gob.inei.appprueba.data.databases.entities.PerfilEntity
@@ -64,9 +66,10 @@ import gob.inei.appprueba.data.sources.MaestrasSeeder
         ViviendaReemplazoEntity::class,
         PersonaPanelEntity::class,
         Cap100PanelEntity::class,
-        CargaMuestraEntity::class
+        CargaMuestraEntity::class,
+        MesEntity::class
     ],
-    version = 5,
+    version = 6,
     exportSchema = true
 )
 abstract class EncuestaDatabase : RoomDatabase() {
@@ -89,6 +92,7 @@ abstract class EncuestaDatabase : RoomDatabase() {
     abstract fun personaPanelDao(): PersonaPanelDao
     abstract fun cap100PanelDao(): Cap100PanelDao
     abstract fun cargaMuestraDao(): CargaMuestraDao
+    abstract fun mesDao(): MesDao
 
     companion object {
         /** Solo crea la tabla de usuarios; no toca las tablas de la encuesta (RF-11). */
@@ -205,6 +209,21 @@ abstract class EncuestaDatabase : RoomDatabase() {
                 seeder.sembrar(db)
             }
         }
+
+        /**
+         * Modo Online (RF-30): añade la tabla maestra `MES` y la siembra desde
+         * `docs/entities/MES.sql`. Migración aditiva: no altera tablas existentes.
+         */
+        fun migracion5a6(seeder: MaestrasSeeder): Migration = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(CREATE_MES)
+                seeder.sembrarMes(db)
+            }
+        }
+
+        private const val CREATE_MES =
+            "CREATE TABLE IF NOT EXISTS `MES` (`CODIGO` TEXT NOT NULL, `NOMBRE` TEXT, " +
+                "PRIMARY KEY(`CODIGO`))"
 
         private const val CREATE_DPTO =
             "CREATE TABLE IF NOT EXISTS `DPTO` (`CCDD` TEXT NOT NULL, `NOMBREDD` TEXT NOT NULL, " +

@@ -17,6 +17,17 @@ val zipPasswordLiteral = "\"" +
         .replace("\\", "\\\\").replace("\"", "\\\"") +
     "\""
 
+// Credenciales FTP del modo Online (RF-32..RF-34, DP-19). Se leen de
+// local.properties (ignorado por git) y se exponen como BuildConfig; nunca se
+// versionan en texto plano. El host/usuario tienen valor por defecto institucional.
+fun literalConfig(clave: String, porDefecto: String): String {
+    val valor = localProperties.getProperty(clave)?.takeIf { it.isNotBlank() } ?: porDefecto
+    return "\"" + valor.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
+}
+val ftpHostLiteral = literalConfig("ftp.host", "extranet.inei.gob.pe")
+val ftpUsuarioLiteral = literalConfig("ftp.usuario", "ftp-enaho")
+val ftpPasswordLiteral = literalConfig("ftp.password", "")
+
 android {
     namespace = "gob.inei.appprueba"
     compileSdk {
@@ -36,6 +47,11 @@ android {
         // Año del aplicativo (RF-17, DP-12): constante de build usada para validar
         // el año del nombre del archivo y la raíz del XML de muestra.
         buildConfigField("int", "ANIO_APLICATIVO", "2026")
+
+        // FTP de muestras (modo Online): host/usuario/contraseña desde local.properties.
+        buildConfigField("String", "FTP_HOST", ftpHostLiteral)
+        buildConfigField("String", "FTP_USUARIO", ftpUsuarioLiteral)
+        buildConfigField("String", "FTP_PASSWORD", ftpPasswordLiteral)
 
         testInstrumentationRunner = "gob.inei.appprueba.HiltTestRunner"
     }
@@ -82,6 +98,7 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.zip4j)
+    implementation(libs.commons.net)
     implementation(libs.hilt.android)
     ksp(libs.androidx.room.compiler)
     ksp(libs.hilt.compiler)

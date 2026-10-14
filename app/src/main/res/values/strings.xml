@@ -60,7 +60,7 @@
     <string name="cargar_muestra_card_personal_titulo">Muestra de personal</string>
     <string name="cargar_muestra_card_viviendas_titulo">Muestra de viviendas</string>
     <string name="cargar_muestra_card_estado">Estado: %1$s</string>
-    <string name="cargar_muestra_card_fecha">Fecha de cargado: %1$s</string>
+    <string name="cargar_muestra_card_fecha">Ultima fecha de carga: %1$s</string>
     <string name="cargar_muestra_card_odei">ODEI %1$s - %2$s: %3$s</string>
     <string name="cargar_muestra_card_cargado">Cargado</string>
     <string name="cargar_muestra_card_pendiente">Pendiente</string>
@@ -80,4 +80,22 @@
     <string name="cargar_muestra_error_mes">El mes de la muestra no es válido.</string>
     <string name="cargar_muestra_error_discrepancia">La información del nombre no coincide con el contenido del archivo.</string>
     <string name="cargar_muestra_error_estructura_viviendas">El archivo de viviendas no tiene la estructura esperada.</string>
+
+    <!-- Modo Online (RF-28..RF-41) -->
+    <string name="cargar_muestra_modo_titulo">Modo de carga</string>
+    <string name="cargar_muestra_modo_offline">Manual</string>
+    <string name="cargar_muestra_modo_online">Automatico</string>
+    <string name="cargar_muestra_online_viviendas_titulo">Muestra de viviendas</string>
+    <string name="cargar_muestra_online_personal_titulo">Muestra de personal</string>
+    <string name="cargar_muestra_online_odei">ODEI:</string>
+    <string name="cargar_muestra_online_mes">Mes:</string>
+    <string name="cargar_muestra_online_spinner_seleccione">--Seleccione--</string>
+    <string name="cargar_muestra_online_btn_sincronizar">Sincronizar</string>
+    <string name="cargar_muestra_online_falta_odei">Seleccione una ODEI para sincronizar.</string>
+    <string name="cargar_muestra_online_falta_mes">Seleccione un mes para sincronizar.</string>
+    <string name="cargar_muestra_card_modo">Modo: %1$s</string>
+    <string name="cargar_muestra_error_sin_conexion">No se pudo conectar con el servidor. Verifique su conexión e intente de nuevo.</string>
+    <string name="cargar_muestra_error_remoto_ausente">La muestra solicitada no está disponible en el servidor.</string>
+    <string name="cargar_muestra_error_configuracion_ftp">La conexión con el servidor no está configurada. Contacte a soporte.</string>
+    <string name="cargar_muestra_error_descarga">No se pudo descargar la muestra. Intente de nuevo.</string>
 </resources>

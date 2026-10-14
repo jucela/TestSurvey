@@ -358,6 +358,64 @@ reales (`.cfg`/`.xml`) se hará en tests JVM que leen `docs/recursos`.
 dependencias compartidas (Room/schema/repositorio); paralelizar aumentaría el
 riesgo de conflictos sin beneficio claro.
 
+## Carga Online desde FTP (v3, RF-28..RF-41)
+
+### Componentes nuevos y responsabilidades
+
+- `data/sources/FtpCredentialsProvider.kt` (o equivalente): lee host/usuario/
+  contraseña desde `BuildConfig` (DP-19); único punto de acceso.
+- `data/sources/DirectorioConfigProvider.kt`: resuelve
+  `getExternalFilesDir("ENAHO{AÑO}/config")` (DP-18) y garantiza su existencia.
+- `data/sources/FtpDataSource.kt`: con `commons-net` lista el directorio remoto y
+  descarga un archivo a `config` (RF-32/RF-33); no registra credenciales.
+- `domain`: consulta ODEI/MES (repositorio/DAO) y casos de uso
+  `SincronizarMuestraViviendasUseCase` / `SincronizarMuestraPersonalUseCase` que
+  resuelven la ruta remota, descargan a `config` y delegan en el pipeline de carga
+  existente (RF-36/RF-37). Se prefiere un caso de uso de sincronización por tipo,
+  reutilizando `CargarMuestraUseCase`.
+- `Room`: `MesEntity` + `MesDao`, `MIGRATION_5_6`, `MES.sql` en `MaestrasSeeder`
+  (DP-20); consulta de ODEI reutiliza `OdeiDao`.
+
+### Flujo de sincronización
+
+1. La UI valida selección (viviendas) y deshabilita botones (RF-31/RF-38).
+2. El caso de uso construye la ruta remota (RF-32/RF-33) y descarga el ZIP a
+   `config` (RF-35).
+3. El ZIP local se entrega al pipeline actual como `Uri.fromFile(...)`
+   (`MuestraRepositoryImpl.cargar` ya acepta `file://`), con las mismas
+   validaciones y transacciones (RF-36/RF-37).
+4. Se refleja el avance por archivo y las tarjetas con los mismos componentes.
+
+### Presentación
+
+- `activity_cargar_muestra.xml`: `RadioGroup` Offline/Online (sección A), bloque
+  A2 (cards A2_1/A2_2); ocultar `tvDescripcion`/`tvRestriccion` (DP-22).
+- `CargaMuestraViewModel`: nuevo estado de modo, listas ODEI/MES y selección,
+  acciones `sincronizarViviendas`/`sincronizarPersonal`, reutilizando
+  `gestionarCarga`/`ArchivoCargaUi`.
+- `CargarMuestraActivity`: alternar A1/A2, poblar `Spinner`, actualizar
+  "Modo: Offline/Online" en las tarjetas.
+
+### Pruebas
+
+- Unitarias (JVM): construcción de ruta, elección del ZIP más reciente, parser de
+  nombre reutilizado, proveedor de directorio, mapeo de errores FTP (con
+  `Fake`/doble), sin red real.
+- Instrumentadas: migración v5→v6 y siembra de `MES`; Espresso de alternancia
+  Offline/Online y presencia de A2 (sin descarga real).
+
+### Riesgos de v3
+
+- *Red no disponible/credenciales ausentes.* Medida: error de configuración
+  explícito sin exponer secretos; la muestra previa no se altera.
+- *Contrato de UI existente (Espresso).* Medida: actualizar `CargarMuestraEspressoTest`
+  por textos ocultos y añadir cobertura de modo; conservar ids de v2.
+- *`commons-net` y minSdk 24.* Medida: librería compatible; sin APIs nuevas del
+  framework.
+
+**Subagentes:** no se requieren (cambios cohesivos alrededor de la misma pantalla
+y base de datos).
+
 ## Riesgos y decisiones pendientes
 
 - **Riesgos y medidas acordadas:**
