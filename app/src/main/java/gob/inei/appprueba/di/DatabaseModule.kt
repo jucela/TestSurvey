@@ -52,7 +52,8 @@ object DatabaseModule {
                 EncuestaDatabase.MIGRATION_2_3,
                 EncuestaDatabase.MIGRATION_3_4,
                 EncuestaDatabase.migracion4a5(seeder),
-                EncuestaDatabase.migracion5a6(seeder)
+                EncuestaDatabase.migracion5a6(seeder),
+                EncuestaDatabase.MIGRATION_6_7
             )
             .addCallback(
                 object : RoomDatabase.Callback() {

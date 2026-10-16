@@ -4,6 +4,9 @@ import gob.inei.appprueba.domain.FakeCatalogoMuestraRepository
 import gob.inei.appprueba.domain.FakeMuestraOnlineRepository
 import gob.inei.appprueba.domain.FakeMuestraRepository
 import gob.inei.appprueba.domain.entities.EstadoArchivo
+import gob.inei.appprueba.domain.entities.EstadoMuestraPersonal
+import gob.inei.appprueba.domain.entities.EstadoMuestraViviendas
+import gob.inei.appprueba.domain.entities.ModoCargaMuestra
 import gob.inei.appprueba.domain.entities.MuestraException
 import gob.inei.appprueba.domain.entities.ResultadoArchivo
 import gob.inei.appprueba.domain.entities.TipoError
@@ -16,6 +19,7 @@ import gob.inei.appprueba.domain.usecases.SincronizarMuestraPersonalUseCase
 import gob.inei.appprueba.domain.usecases.SincronizarMuestraViviendasUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -194,5 +198,78 @@ class CargaMuestraViewModelTest {
         val vm = crear()
         vm.onModo(ModoCarga.ONLINE)
         assertEquals(ModoCarga.ONLINE, vm.state.value.modo)
+    }
+
+    @Test
+    fun `el tipo automatico por defecto es viviendas`() {
+        val vm = crear()
+        assertEquals(TipoMuestra.VIVIENDAS, vm.state.value.tipoAutomatico)
+    }
+
+    @Test
+    fun `cambiar el tipo automatico no altera el modo de pantalla`() {
+        val vm = crear()
+        vm.onModo(ModoCarga.ONLINE)
+        vm.onTipoAutomatico(TipoMuestra.PERSONAL)
+
+        assertEquals(TipoMuestra.PERSONAL, vm.state.value.tipoAutomatico)
+        assertEquals(ModoCarga.ONLINE, vm.state.value.modo)
+    }
+
+    @Test
+    fun `la seleccion de archivos registra el modo manual`() = runTest {
+        val repo = FakeMuestraRepository()
+        val vm = crear(repo)
+        vm.onArchivosSeleccionados(listOf("content://muestra.zip"))
+        advanceUntilIdle()
+
+        assertEquals(ModoCargaMuestra.MANUAL, repo.ultimoModo)
+    }
+
+    @Test
+    fun `sincronizar viviendas registra el modo automatico`() = runTest {
+        val repo = FakeMuestraRepository().apply {
+            resultado = ResultadoArchivo("v.zip", EstadoArchivo.CARGADO, TipoMuestra.VIVIENDAS)
+        }
+        val vm = crear(repo = repo)
+
+        vm.sincronizarViviendas("11", "08")
+        advanceUntilIdle()
+
+        assertEquals(ModoCargaMuestra.AUTOMATICO, repo.ultimoModo)
+    }
+
+    @Test
+    fun `sincronizar personal registra el modo automatico`() = runTest {
+        val repo = FakeMuestraRepository().apply {
+            resultado = ResultadoArchivo("p.zip", EstadoArchivo.CARGADO, TipoMuestra.PERSONAL)
+        }
+        val vm = crear(repo = repo)
+
+        vm.sincronizarPersonal()
+        advanceUntilIdle()
+
+        assertEquals(ModoCargaMuestra.AUTOMATICO, repo.ultimoModo)
+    }
+
+    @Test
+    fun `el modo de cada tarjeta es independiente por tipo`() {
+        val repo = FakeMuestraRepository().apply {
+            personalState = MutableStateFlow(
+                EstadoMuestraPersonal(cargado = true, fechaCargaMs = 1L, modo = ModoCargaMuestra.MANUAL)
+            )
+            viviendasState = MutableStateFlow(
+                EstadoMuestraViviendas(
+                    cargado = true,
+                    fechaCargaMs = 2L,
+                    odeis = emptyList(),
+                    modo = ModoCargaMuestra.AUTOMATICO
+                )
+            )
+        }
+        val vm = crear(repo)
+
+        assertEquals(ModoCargaMuestra.MANUAL, vm.state.value.personal.modo)
+        assertEquals(ModoCargaMuestra.AUTOMATICO, vm.state.value.viviendas.modo)
     }
 }

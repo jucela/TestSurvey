@@ -69,7 +69,7 @@ import gob.inei.appprueba.data.sources.MaestrasSeeder
         CargaMuestraEntity::class,
         MesEntity::class
     ],
-    version = 6,
+    version = 7,
     exportSchema = true
 )
 abstract class EncuestaDatabase : RoomDatabase() {
@@ -218,6 +218,17 @@ abstract class EncuestaDatabase : RoomDatabase() {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL(CREATE_MES)
                 seeder.sembrarMes(db)
+            }
+        }
+
+        /**
+         * Modo por tarjeta (RF-27): añade `CARGA_MUESTRA.modo` para registrar el
+         * modo (Manual/Automático) de la última carga de cada tipo. Migración
+         * aditiva: columna anulable; las filas previas quedan en `NULL`.
+         */
+        val MIGRATION_6_7 = object : Migration(6, 7) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `CARGA_MUESTRA` ADD COLUMN `modo` TEXT")
             }
         }
 

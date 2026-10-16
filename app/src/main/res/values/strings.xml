@@ -62,6 +62,10 @@
     <string name="cargar_muestra_card_estado">Estado: %1$s</string>
     <string name="cargar_muestra_card_fecha">Ultima fecha de carga: %1$s</string>
     <string name="cargar_muestra_card_odei">ODEI %1$s - %2$s: %3$s</string>
+    <string name="cargar_muestra_item_archivo">Archivo: %1$s</string>
+    <string name="cargar_muestra_item_tipo">Tipo: %1$s</string>
+    <string name="cargar_muestra_item_estado">Estado: %1$s</string>
+    <string name="cargar_muestra_item_detalle">Detalle: %1$s</string>
     <string name="cargar_muestra_card_cargado">Cargado</string>
     <string name="cargar_muestra_card_pendiente">Pendiente</string>
     <string name="cargar_muestra_fecha_vacia">--</string>
@@ -85,10 +89,12 @@
     <string name="cargar_muestra_modo_titulo">Modo de carga</string>
     <string name="cargar_muestra_modo_offline">Manual</string>
     <string name="cargar_muestra_modo_online">Automatico</string>
-    <string name="cargar_muestra_online_viviendas_titulo">Muestra de viviendas</string>
-    <string name="cargar_muestra_online_personal_titulo">Muestra de personal</string>
-    <string name="cargar_muestra_online_odei">ODEI:</string>
-    <string name="cargar_muestra_online_mes">Mes:</string>
+    <string name="cargar_muestra_offline_titulo">Muestra Viviendas o Personal</string>
+    <string name="cargar_muestra_online_tipo_titulo">Tipo de muestra</string>
+    <string name="cargar_muestra_online_viviendas_titulo">Viviendas</string>
+    <string name="cargar_muestra_online_personal_titulo">Personal</string>
+    <string name="cargar_muestra_online_odei">ODEI</string>
+    <string name="cargar_muestra_online_mes">Mes</string>
     <string name="cargar_muestra_online_spinner_seleccione">--Seleccione--</string>
     <string name="cargar_muestra_online_btn_sincronizar">Sincronizar</string>
     <string name="cargar_muestra_online_falta_odei">Seleccione una ODEI para sincronizar.</string>
@@ -98,4 +104,13 @@
     <string name="cargar_muestra_error_remoto_ausente">La muestra solicitada no está disponible en el servidor.</string>
     <string name="cargar_muestra_error_configuracion_ftp">La conexión con el servidor no está configurada. Contacte a soporte.</string>
     <string name="cargar_muestra_error_descarga">No se pudo descargar la muestra. Intente de nuevo.</string>
+
+    <!-- Ayudas informativas de los modos (ajuste v5, RF-46/RF-47) -->
+    <string name="cargar_muestra_info_manual_desc">Información del modo Manual</string>
+    <string name="cargar_muestra_info_automatico_desc">Información del modo Automatico</string>
+    <string name="cargar_muestra_info_manual_titulo">Modo Manual</string>
+    <string name="cargar_muestra_info_manual_mensaje">Debe seleccionar uno o varios archivos ZIP de muestra (personal o viviendas) almacenados en el dispositivo. La aplicación identifica el tipo por el nombre del archivo, valida el contenido y carga los datos en este dispositivo. En este modo no se descarga nada desde el servidor.</string>
+    <string name="cargar_muestra_info_automatico_titulo">Modo Automatico</string>
+    <string name="cargar_muestra_info_automatico_mensaje">La aplicación descarga la muestra desde el servidor. Para viviendas debe elegir la ODEI y el mes correspondientes; para personal descarga automáticamente la muestra más reciente. Luego valida y carga los datos con el mismo proceso que el modo Manual.</string>
+    <string name="cargar_muestra_info_cerrar">Cerrar</string>
 </resources>

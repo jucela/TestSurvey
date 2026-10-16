@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import gob.inei.appprueba.domain.entities.CatalogoMuestra
 import gob.inei.appprueba.domain.entities.EstadoArchivo
+import gob.inei.appprueba.domain.entities.ModoCargaMuestra
 import gob.inei.appprueba.domain.entities.ResultadoArchivo
 import gob.inei.appprueba.domain.entities.TipoMuestra
 import gob.inei.appprueba.domain.usecases.CargarMuestraUseCase
@@ -37,9 +38,10 @@ class CargaMuestraViewModel @Inject constructor(
     private val sincronizarPersonal: SincronizarMuestraPersonalUseCase
 ) : ViewModel() {
 
-    /** Estado propio del modo Online: modo, catálogos y selección ODEI/mes. */
+    /** Estado propio del modo Online: modo, tipo de muestra, catálogos y selección ODEI/mes. */
     private data class EstadoOnline(
         val modo: ModoCarga = ModoCarga.OFFLINE,
+        val tipoAutomatico: TipoMuestra = TipoMuestra.VIVIENDAS,
         val catalogo: CatalogoMuestra = CatalogoMuestra(),
         val odei: String? = null,
         val mes: String? = null
@@ -59,6 +61,7 @@ class CargaMuestraViewModel @Inject constructor(
         CargaMuestraUiState(
             procesando = enProceso,
             modo = onlineState.modo,
+            tipoAutomatico = onlineState.tipoAutomatico,
             catalogo = onlineState.catalogo,
             odeiSeleccionado = onlineState.odei,
             mesSeleccionado = onlineState.mes,
@@ -77,6 +80,11 @@ class CargaMuestraViewModel @Inject constructor(
     /** Cambia entre carga manual (Offline) y descarga FTP (Online) (RF-28). */
     fun onModo(modo: ModoCarga) {
         online.value = online.value.copy(modo = modo)
+    }
+
+    /** Selecciona qué muestra sincronizar dentro del modo Automático (RF-28). */
+    fun onTipoAutomatico(tipo: TipoMuestra) {
+        online.value = online.value.copy(tipoAutomatico = tipo)
     }
 
     fun onOdeiSeleccionado(codigo: String?) {
@@ -106,7 +114,7 @@ class CargaMuestraViewModel @Inject constructor(
                 }
                 seleccion.forEachIndexed { indice, uri ->
                     marcar(indice, EstadoArchivo.PROCESANDO)
-                    val resultado = cargarMuestra(uri)
+                    val resultado = cargarMuestra(uri, ModoCargaMuestra.MANUAL)
                     reemplazar(indice, resultado.toUi(uri))
                 }
             } finally {

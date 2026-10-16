@@ -6,10 +6,10 @@
          Los nombres no listados conservan su valor claro.
          ============================================================ -->
 
-    <color name="primary">#FFBB86FC</color>
-    <color name="onPrimary">#FF21005D</color>
-    <color name="primaryContainer">#FF3700B3</color>
-    <color name="onPrimaryContainer">#FFEADDFF</color>
+    <color name="primary">#BAC2FF</color>
+    <color name="onPrimary">#222C61</color>
+    <color name="primaryContainer">#394279</color>
+    <color name="onPrimaryContainer">#DEE1FF</color>
 
     <color name="roleSecondary">#FF03DAC5</color>
     <color name="roleOnSecondary">#FF003F3B</color>

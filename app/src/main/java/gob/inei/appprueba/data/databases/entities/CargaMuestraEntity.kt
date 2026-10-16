@@ -20,5 +20,6 @@ data class CargaMuestraEntity(
     @ColumnInfo(name = "anho") val anho: String?,
     @ColumnInfo(name = "odei") val odei: String?,
     @ColumnInfo(name = "mes") val mes: String?,
-    @ColumnInfo(name = "fechaHora") val fechaHora: Long
+    @ColumnInfo(name = "fechaHora") val fechaHora: Long,
+    @ColumnInfo(name = "modo") val modo: String? = null
 )

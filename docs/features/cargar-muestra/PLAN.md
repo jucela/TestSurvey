@@ -416,6 +416,54 @@ riesgo de conflictos sin beneficio claro.
 **Subagentes:** no se requieren (cambios cohesivos alrededor de la misma pantalla
 y base de datos).
 
+## Ajuste v4 — Selector Automático y modo independiente por tarjeta (RF-42..RF-44)
+
+Cambio principalmente de presentación con una extensión mínima de persistencia
+(autorizado por RF-44/DP-23):
+
+- `activity_cargar_muestra.xml`: nuevo `cardTipoAutomatico` con `rgTipoAutomatico`
+  (`rbViviendas` por defecto / `rbPersonal`) dentro de `grupoOnline`, antes de
+  `groupOnlineHousing`; la visibilidad de `groupOnlineHousing`/`groupOnlineUsers`
+  pasa a depender del tipo seleccionado (RF-42). No se reorganizan los
+  componentes desde `grupoProcesando` hacia abajo.
+- `item_carga_archivo.xml` + `CargaArchivoAdapter`: etiquetas
+  `Archivo:`/`Tipo:`/`Estado:`/`Detalle:` con valores dinámicos (RF-43).
+- Modo por tarjeta (RF-44): nuevo `ModoCargaMuestra`; columna
+  `CARGA_MUESTRA.modo` + `MIGRATION_6_7` (aditiva) y `CargaMuestraDao.observarModo`;
+  `cargar(uri, modo)` propaga el modo; cada tarjeta lee su propio `modo` del flujo
+  de Room (`--` si no hay carga previa).
+- Sin cambios en descarga, validaciones, transacciones ni mensajes.
+
+**Subagentes:** no se requieren.
+
+## Ajuste v5 — ODEI/MES como exposed dropdown Outlined y ayudas informativas (RF-45..RF-47)
+
+Cambio de presentación, sin tocar la lógica de datos ni de sincronización:
+
+- `activity_cargar_muestra.xml`: dentro de `groupOnlineHousing`, los `Spinner`
+  `spOdei`/`spMes` se reemplazan por `TextInputLayout`
+  (`Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu`) +
+  `MaterialAutoCompleteTextView`, conservando **los mismos IDs** `spOdei`/`spMes`
+  y el `hint` ODEI/MES (los `TextView` etiqueta se retiran) (RF-45/DP-27).
+- Íconos de información: en `cardTipoManual` y `cardTipoAutomatico` la fila de
+  título pasa a un `LinearLayout` horizontal (título con `weight=1`, ícono 48dp
+  `outline_info_black_24dp` con `contentDescription`), de modo que el ícono no se
+  superpone al contenido (RF-46).
+- `CargarMuestraActivity`: `poblar(...)` usa `setSimpleItems` +
+  `setOnItemClickListener` guardando `odeiSeleccionado`/`mesSeleccionado` (mismo
+  formato `codigo - nombre`, `--Seleccione--`, mismas validaciones); la tarjeta no
+  es clickeable, solo el ícono. Los diálogos se construyen con
+  `MaterialAlertDialogBuilder` (título, mensaje, `Cerrar`), inline en la actividad
+  (RF-47/DP-28) y no alteran estado.
+- `strings.xml`: `ODEI`/`Mes` sin `:`; se agregan títulos/mensajes de los
+  diálogos, `contentDescription` y `Cerrar`.
+- `DESIGN_SYSTEM.md`: la fila de "Listas desplegables" documenta `Spinner` (para
+  preguntas) y el exposed dropdown Outlined; se agrega la ayuda contextual
+  (ícono de información + diálogo).
+- Se elimina `item_spinner_muestra.xml` por quedar sin uso.
+
+**Subagentes:** no se requieren.
+
 ## Riesgos y decisiones pendientes
 
 - **Riesgos y medidas acordadas:**

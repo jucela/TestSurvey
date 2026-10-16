@@ -100,9 +100,10 @@ Las etiquetas y hints de los campos los provee `TextInputLayout` (OutlinedBox).
 | Campos de texto | `TextInputLayout` + `TextInputEditText` con `Widget.Material3.TextInputLayout.OutlinedBox` (Outlined Text Fields) | normal/focused/disabled/error con texto |
 | Casilla | `MaterialCheckBox` | checked/unchecked/indeterminate (según uso), enabled/disabled |
 | Radio | `MaterialRadioButton` dentro de `RadioGroup` | checked/unchecked, enabled/disabled |
-| Listas desplegables | `Spinner` (tema M3, popup del tema) | normal/focused/disabled |
+| Listas desplegables | `Spinner` (tema M3, popup del tema) para preguntas de encuesta; `TextInputLayout` + `MaterialAutoCompleteTextView` con `Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu` (exposed dropdown Outlined) para selección ODEI/MES | normal/focused/disabled/error con texto |
 | Tarjetas | `MaterialCardView` con estilo `CardAppPrueba` (elevado, radio 12dp, `colorSurfaceContainerLow`) | pressed/checked comentado por estado |
 | Diálogos | `MaterialAlertDialogBuilder` | estándar M3 |
+| Ayuda contextual | `ImageView` con `outline_info_black_24dp`, área táctil 48dp, `?attr/selectableItemBackgroundBorderless`, `contentDescription`, `?attr/colorOnSurfaceVariant`; abre `MaterialAlertDialogBuilder` informativo | normal/focused/pressed |
 | Avisos (Toast) | Vista `toast_aviso.xml` con `errorContainer`/`onErrorContainer` | — |
 | Barra superior | Estilo `TopBarAppPrueba` (`colorPrimary`/`onPrimary`, padding 16/12dp) | — |
 | Indicadores | `ProgressBar` clásico teñido con `colorAccent` (≈ `colorPrimary`) | — |

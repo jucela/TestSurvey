@@ -2,8 +2,6 @@ package gob.inei.appprueba.presentation.activities
 
 import android.os.Bundle
 import android.view.View
-import android.widget.ArrayAdapter
-import android.widget.Spinner
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -12,11 +10,14 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import dagger.hilt.android.AndroidEntryPoint
 import gob.inei.appprueba.R
 import gob.inei.appprueba.databinding.ActivityCargarMuestraBinding
 import gob.inei.appprueba.domain.entities.CatalogoMuestra
 import gob.inei.appprueba.domain.entities.EstadoArchivo
+import gob.inei.appprueba.domain.entities.ModoCargaMuestra
 import gob.inei.appprueba.domain.entities.OpcionMuestra
 import gob.inei.appprueba.domain.entities.TipoError
 import gob.inei.appprueba.domain.entities.TipoMuestra
@@ -38,13 +39,19 @@ class CargarMuestraActivity : AppCompatActivity() {
     private val formatoFecha = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.US)
 
     private val adapter = CargaArchivoAdapter(
-        tipoTexto = { getString(tipoDe(it)) },
-        estadoTexto = { getString(estadoDe(it)) },
-        detalleTexto = { archivo -> archivo.tipoError?.let { getString(mensajeDe(it)) } }
+        nombreTexto = { getString(R.string.cargar_muestra_item_archivo, it.nombre) },
+        tipoTexto = { getString(R.string.cargar_muestra_item_tipo, getString(tipoDe(it))) },
+        estadoTexto = { getString(R.string.cargar_muestra_item_estado, getString(estadoDe(it))) },
+        detalleTexto = { archivo ->
+            archivo.tipoError?.let {
+                getString(R.string.cargar_muestra_item_detalle, getString(mensajeDe(it)))
+            }
+        }
     )
 
     private var catalogoMostrado: CatalogoMuestra? = null
-    private var catalogoActual: CatalogoMuestra = CatalogoMuestra()
+    private var odeiSeleccionado: String? = null
+    private var mesSeleccionado: String? = null
 
     private val selectorZip =
         registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
@@ -61,7 +68,9 @@ class CargarMuestraActivity : AppCompatActivity() {
         binding.btnReintentar.setOnClickListener { viewModel.onReintentar() }
 
         configurarModo()
+        configurarTipoAutomatico()
         configurarOnline()
+        configurarInfo()
 
         binding.rvArchivos.layoutManager = LinearLayoutManager(this)
         binding.rvArchivos.adapter = adapter
@@ -79,14 +88,45 @@ class CargarMuestraActivity : AppCompatActivity() {
         }
     }
 
+    private fun configurarTipoAutomatico() {
+        binding.rgTipoAutomatico.setOnCheckedChangeListener { _, id ->
+            viewModel.onTipoAutomatico(
+                if (id == R.id.rbPersonal) TipoMuestra.PERSONAL else TipoMuestra.VIVIENDAS
+            )
+        }
+    }
+
     private fun configurarOnline() {
         binding.btnSincronizarViviendas.setOnClickListener { sincronizarViviendas() }
         binding.btnSincronizarPersonal.setOnClickListener { viewModel.sincronizarPersonal() }
     }
 
+    private fun configurarInfo() {
+        binding.btnInfoManual.setOnClickListener { mostrarInfoManual() }
+        binding.btnInfoAutomatico.setOnClickListener { mostrarInfoAutomatico() }
+    }
+
+    /** Diálogo informativo del modo Manual (RF-47): solo explica; no carga ni cambia estado. */
+    private fun mostrarInfoManual() {
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.cargar_muestra_info_manual_titulo)
+            .setMessage(R.string.cargar_muestra_info_manual_mensaje)
+            .setPositiveButton(R.string.cargar_muestra_info_cerrar, null)
+            .show()
+    }
+
+    /** Diálogo informativo del modo Automático (RF-47): solo explica; no sincroniza. */
+    private fun mostrarInfoAutomatico() {
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.cargar_muestra_info_automatico_titulo)
+            .setMessage(R.string.cargar_muestra_info_automatico_mensaje)
+            .setPositiveButton(R.string.cargar_muestra_info_cerrar, null)
+            .show()
+    }
+
     private fun sincronizarViviendas() {
-        val odei = codigoSeleccionado(binding.spOdei.selectedItemPosition, catalogoActual.odeis)
-        val mes = codigoSeleccionado(binding.spMes.selectedItemPosition, catalogoActual.meses)
+        val odei = odeiSeleccionado
+        val mes = mesSeleccionado
         when {
             odei == null -> avisar(R.string.cargar_muestra_online_falta_odei)
             mes == null -> avisar(R.string.cargar_muestra_online_falta_mes)
@@ -121,7 +161,7 @@ class CargarMuestraActivity : AppCompatActivity() {
 
         binding.tvPersonalModo.text = getString(
             R.string.cargar_muestra_card_modo,
-            getString(modoTexto(state.modo))
+            modoTexto(state.personal.modo)
         )
         binding.tvPersonalEstado.text = getString(
             R.string.cargar_muestra_card_estado,
@@ -134,7 +174,7 @@ class CargarMuestraActivity : AppCompatActivity() {
 
         binding.tvViviendasModo.text = getString(
             R.string.cargar_muestra_card_modo,
-            getString(modoTexto(state.modo))
+            modoTexto(state.viviendas.modo)
         )
         binding.tvViviendasEstado.text = getString(
             R.string.cargar_muestra_card_estado,
@@ -166,43 +206,59 @@ class CargarMuestraActivity : AppCompatActivity() {
             binding.rgModo.check(radioEsperado)
         }
 
+        renderTipoAutomatico(state.tipoAutomatico)
+
         binding.btnSeleccionar.isEnabled = !state.procesando
         binding.btnSincronizarViviendas.isEnabled = !state.procesando
         binding.btnSincronizarPersonal.isEnabled = !state.procesando
     }
 
-    /** Reconstruye los `Spinner` sólo cuando el catálogo cambia (RF-30). */
+    /** Dentro de Automático, alterna la sección visible según el tipo elegido (RF-28). */
+    private fun renderTipoAutomatico(tipo: TipoMuestra) {
+        val viviendas = tipo == TipoMuestra.VIVIENDAS
+        binding.groupOnlineHousing.visibility = if (viviendas) View.VISIBLE else View.GONE
+        binding.groupOnlineUsers.visibility = if (viviendas) View.GONE else View.VISIBLE
+
+        val radioEsperado = if (viviendas) R.id.rbViviendas else R.id.rbPersonal
+        if (binding.rgTipoAutomatico.checkedRadioButtonId != radioEsperado) {
+            binding.rgTipoAutomatico.check(radioEsperado)
+        }
+    }
+
+    /** Reconstruye los menús desplegables sólo cuando el catálogo cambia (RF-30/RF-45). */
     private fun renderSpinners(catalogo: CatalogoMuestra) {
-        catalogoActual = catalogo
         if (catalogo == catalogoMostrado) return
         catalogoMostrado = catalogo
 
-        poblar(binding.spOdei, catalogo.odeis)
-        poblar(binding.spMes, catalogo.meses)
+        poblar(binding.spOdei, catalogo.odeis) { odeiSeleccionado = it }
+        poblar(binding.spMes, catalogo.meses) { mesSeleccionado = it }
     }
 
-    private fun poblar(spinner: Spinner, opciones: List<OpcionMuestra>) {
+    private fun poblar(
+        campo: MaterialAutoCompleteTextView,
+        opciones: List<OpcionMuestra>,
+        alSeleccionar: (String?) -> Unit
+    ) {
         val textos = ArrayList<String>(opciones.size + 1)
         textos.add(getString(R.string.cargar_muestra_online_spinner_seleccione))
         opciones.forEach { textos.add("${it.codigo} - ${it.nombre}") }
-        val adapter = ArrayAdapter(this, R.layout.item_spinner_muestra, textos)
-        adapter.setDropDownViewResource(R.layout.item_spinner_muestra)
-        spinner.adapter = adapter
-        spinner.setSelection(0)
-    }
-
-    private fun codigoSeleccionado(indice: Int, opciones: List<OpcionMuestra>): String? {
-        val posicion = indice - 1
-        return opciones.getOrNull(posicion)?.codigo
+        campo.setSimpleItems(textos.toTypedArray())
+        campo.setText(textos.first(), false)
+        alSeleccionar(null)
+        campo.setOnItemClickListener { _, _, position, _ ->
+            alSeleccionar(opciones.getOrNull(position - 1)?.codigo)
+        }
     }
 
     private fun avisar(mensaje: Int) {
         Toast.makeText(this, getString(mensaje), Toast.LENGTH_SHORT).show()
     }
 
-    private fun modoTexto(modo: ModoCarga): Int =
-        if (modo == ModoCarga.OFFLINE) R.string.cargar_muestra_modo_offline
-        else R.string.cargar_muestra_modo_online
+    private fun modoTexto(modo: ModoCargaMuestra?): String = when (modo) {
+        ModoCargaMuestra.MANUAL -> getString(R.string.cargar_muestra_modo_offline)
+        ModoCargaMuestra.AUTOMATICO -> getString(R.string.cargar_muestra_modo_online)
+        null -> getString(R.string.cargar_muestra_fecha_vacia)
+    }
 
     private fun fecha(ms: Long?): String =
         if (ms == null) getString(R.string.cargar_muestra_fecha_vacia) else formatoFecha.format(Date(ms))

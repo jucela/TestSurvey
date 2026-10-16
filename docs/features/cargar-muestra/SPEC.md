@@ -324,6 +324,40 @@ Discrepancias detectadas (se reportan; **no se asumen soluciones no acordadas**)
   textos `tvDescripcion` y `tvRestriccion` se ocultan en la UI (las vistas se
   conservan).
 
+### Selector Automático y modo independiente por tarjeta (ajuste v4)
+
+- **RF-42:** En el modo Automático la pantalla muestra un `CardView` con un
+  `RadioGroup` **Viviendas/Personal** que **solo** alterna la sección automática
+  visible: Viviendas muestra `groupOnlineHousing` y oculta `groupOnlineUsers`;
+  Personal hace lo contrario. No cambia descarga, validaciones, carga ni
+  mensajes. El selector de tipo inicia en **Viviendas** y no se muestra en modo
+  Manual. `grupoProcesando` y los componentes inferiores conservan su orden.
+- **RF-43:** Cada ítem del resultado por archivo (`item_carga_archivo.xml`)
+  antepone las etiquetas `Archivo:`, `Tipo:`, `Estado:` y `Detalle:` a los
+  valores que ya produce la aplicación; los valores siguen siendo dinámicos.
+- **RF-44:** `cardPersonal` y `cardViviendas` muestran el **modo de su propia
+  última carga** (Manual/Automático), de forma independiente por tipo: cargar
+  Personal no altera el modo de Viviendas ni viceversa. El modo se registra en el
+  registro de carga existente (`CARGA_MUESTRA`) y se conserva tras recrear la
+  pantalla o reiniciar la app; antes de la primera carga se muestra `--`.
+
+### ODEI/MES como exposed dropdown Outlined y ayudas informativas (ajuste v5)
+
+- **RF-45:** En el modo Automático, `spOdei` y `spMes` se muestran como menús
+  desplegables expuestos con la variante
+  `Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu`. Se conservan
+  el listado de opciones (formato `codigo - nombre`), el primer elemento
+  `--Seleccione--`, el orden, la selección, la validación (ODEI/mes faltantes) y
+  la lógica de sincronización (RF-31/RF-32).
+- **RF-46:** `cardTipoManual` y `cardTipoAutomatico` muestran un ícono de
+  información (`outline_info_black_24dp`) en la esquina superior derecha, con
+  área táctil mínima de 48dp y `contentDescription` accesible; la tarjeta no se
+  convierte en botón.
+- **RF-47:** Al pulsar el ícono de información de cada tarjeta se abre un diálogo
+  informativo (`MaterialAlertDialogBuilder`) con título, mensaje y botón `Cerrar`
+  que solo explica el modo correspondiente; cerrar no descarga, no carga, no
+  sincroniza ni cambia el estado de la pantalla.
+
 ## Fuera de alcance
 
 - Integrar `PERSONAL` (o las muestras de viviendas) con otras funcionalidades de
@@ -609,6 +643,15 @@ recursos de texto existentes).
 | CA-36 | Revisar código y logs. | Sin credenciales expuestas ni duplicadas. |
 | CA-37 | Usar la pantalla en Offline. | Comportamiento idéntico a v2. |
 | CA-38 | Probar A2 en teléfono/tablet, rotación y texto ampliado. | Sin cortes; "Modo: Offline/Online" correcto. |
+| CA-39 | Alternar Manual/Automático. | Manual idéntico a hoy; Automático muestra el selector Viviendas/Personal. |
+| CA-40 | Automático → Viviendas. | `groupOnlineHousing` visible, `groupOnlineUsers` oculto; sincronización intacta. |
+| CA-41 | Automático → Personal. | `groupOnlineUsers` visible, `groupOnlineHousing` oculto; sincronización intacta. |
+| CA-42 | Cargar un archivo (válido o rechazado). | El ítem muestra Archivo/Tipo/Estado/Detalle con valores dinámicos. |
+| CA-43 | Cargar Personal Manual y luego Viviendas Automático (y al revés). | Cada tarjeta conserva su propio modo; el otro no cambia. |
+| CA-44 | Verificar `grupoProcesando` y componentes inferiores. | Conservan su posición y orden relativos. |
+| CA-45 | Elegir Online+Automático y desplegar ODEI/MES. | `spOdei`/`spMes` son `TextInputLayout` Outlined + `MaterialAutoCompleteTextView` (exposed dropdown); muestran `--Seleccione--` y conservan la validación. |
+| CA-46 | Pulsar el ícono de información de `cardTipoManual`. | Se abre un diálogo con título, mensaje y `Cerrar`; al cerrar queda en modo Manual, sin cambios. |
+| CA-47 | Pulsar el ícono de información de `cardTipoAutomatico`. | Se abre un diálogo con título, mensaje y `Cerrar`; al cerrar queda en modo Automático, sin cambios. |
 
 ## Decisiones pendientes
 
@@ -656,6 +699,21 @@ Ninguna. Todas las decisiones funcionales fueron resueltas con el usuario:
 - **DP-21:** el modo por defecto del selector es **Offline** (RF-28).
 - **DP-22:** los textos `tvDescripcion` y `tvRestriccion` se ocultan en la UI
   (las vistas se conservan para no romper contratos/test) (RF-41).
+- **DP-23:** el modo por tarjeta se persiste en una columna nueva
+  `CARGA_MUESTRA.modo` (migración v6→v7, aditiva y anulable); se reutiliza el
+  registro de carga existente como única fuente de verdad (RF-44).
+- **DP-24:** antes de la primera carga, el modo de la tarjeta se muestra como `--`
+  (misma convención que la fecha vacía) (RF-44).
+- **DP-25:** el selector de tipo dentro de Automático inicia en Viviendas y solo
+  controla visibilidad; no modifica la lógica de sincronización (RF-42).
+- **DP-26:** se conservan `--Seleccione--` y el formato de opción
+  (`codigo - nombre`) en los menús desplegables expuestos (RF-45).
+- **DP-27:** la etiqueta ODEI/MES la provee el `hint` del `TextInputLayout`
+  Outlined; se retiran los `TextView` `ODEI:`/`Mes:` y se quita el `:` de las
+  cadenas (RF-45).
+- **DP-28:** los diálogos informativos se implementan con
+  `MaterialAlertDialogBuilder` en `CargarMuestraActivity`, sin helper nuevo
+  (RF-47).
 
 <!-- ANTES DE SOLICITAR APROBACIÓN
 Comprueba que el alcance está acordado, los flujos son coherentes, los puntos

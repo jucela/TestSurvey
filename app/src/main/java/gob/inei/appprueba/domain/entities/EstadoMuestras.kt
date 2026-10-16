@@ -3,7 +3,8 @@ package gob.inei.appprueba.domain.entities
 /** Estado de la muestra de personal para la tarjeta informativa (RF-27). */
 data class EstadoMuestraPersonal(
     val cargado: Boolean,
-    val fechaCargaMs: Long?
+    val fechaCargaMs: Long?,
+    val modo: ModoCargaMuestra? = null
 )
 
 /** Meses cargados de una ODEI, ordenados y con dos dígitos (`01`..`12`) (RF-27). */
@@ -17,5 +18,6 @@ data class OdeiMeses(
 data class EstadoMuestraViviendas(
     val cargado: Boolean,
     val fechaCargaMs: Long?,
-    val odeis: List<OdeiMeses>
+    val odeis: List<OdeiMeses>,
+    val modo: ModoCargaMuestra? = null
 )

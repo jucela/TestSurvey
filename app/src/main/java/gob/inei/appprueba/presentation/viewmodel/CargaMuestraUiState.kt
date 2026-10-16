@@ -22,11 +22,13 @@ data class ArchivoCargaUi(
 
 /**
  * Estado de la pantalla "Cargar muestra": avance por archivo (RF-25), estado de
- * las dos tarjetas informativas (RF-27) y estado del modo Online (RF-28..RF-31).
+ * las dos tarjetas informativas (RF-27) y estado del modo Online (RF-28..RF-31),
+ * incluido el tipo de muestra seleccionado dentro de Automático.
  */
 data class CargaMuestraUiState(
     val procesando: Boolean = false,
     val modo: ModoCarga = ModoCarga.OFFLINE,
+    val tipoAutomatico: TipoMuestra = TipoMuestra.VIVIENDAS,
     val catalogo: CatalogoMuestra = CatalogoMuestra(),
     val odeiSeleccionado: String? = null,
     val mesSeleccionado: String? = null,

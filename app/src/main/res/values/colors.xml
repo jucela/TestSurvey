@@ -7,8 +7,8 @@
          ============================================================ -->
 
     <!-- Rol principal (marca) -->
-    <color name="primary">#FF6200EE</color>
-    <color name="onPrimary">#FFFFFFFF</color>
+    <color name="primary">#515A91</color>
+    <color name="onPrimary">#FFFFFF</color>
 
     <!-- Estados semánticos -->
     <color name="error">#C62828</color>
@@ -17,8 +17,8 @@
     <!-- Roles M3 (light) -->
     <color name="roleSecondary">#FF018786</color>
     <color name="roleOnSecondary">#FFFFFFFF</color>
-    <color name="primaryContainer">#FFEADDFF</color>
-    <color name="onPrimaryContainer">#FF21005D</color>
+    <color name="primaryContainer">#DEE1FF</color>
+    <color name="onPrimaryContainer">#0A154B</color>
     <color name="secondaryContainer">#FF03DAC5</color>
     <color name="onSecondaryContainer">#FF003F3B</color>
     <color name="tertiary">#FF6D4C00</color>

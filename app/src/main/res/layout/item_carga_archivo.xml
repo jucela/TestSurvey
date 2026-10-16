@@ -22,7 +22,7 @@
             android:maxLines="1"
             android:textAppearance="?attr/textAppearanceBodyLarge"
             android:textColor="?attr/colorOnSurface"
-            tools:text="Enaho2026_Muestra_Odei_11_Mes_08.zip" />
+            tools:text="Archivo: Enaho2026_Muestra_Odei_11_Mes_08.zip" />
 
         <TextView
             android:id="@+id/tvTipoArchivo"
@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:textAppearance="?attr/textAppearanceBodySmall"
             android:textColor="?attr/colorOnSurfaceVariant"
-            tools:text="Muestra de viviendas" />
+            tools:text="Tipo: Muestra de viviendas" />
 
         <TextView
             android:id="@+id/tvEstadoArchivo"
@@ -38,7 +38,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/dp_4"
             android:textAppearance="?attr/textAppearanceLabelLarge"
-            tools:text="Cargado" />
+            tools:text="Estado: Cargado" />
 
         <TextView
             android:id="@+id/tvDetalleArchivo"
@@ -48,7 +48,7 @@
             android:textAppearance="?attr/textAppearanceBodySmall"
             android:textColor="?attr/colorOnSurfaceVariant"
             android:visibility="gone"
-            tools:text="El ZIP no contiene el XML de muestra esperado."
+            tools:text="Detalle: El ZIP no contiene el XML de muestra esperado."
             tools:visibility="visible" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

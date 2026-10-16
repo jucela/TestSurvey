@@ -33,6 +33,7 @@ import gob.inei.appprueba.domain.entities.EstadoMuestraPersonal
 import gob.inei.appprueba.domain.entities.EstadoMuestraViviendas
 import gob.inei.appprueba.domain.entities.MuestraException
 import gob.inei.appprueba.domain.entities.MuestraNombre
+import gob.inei.appprueba.domain.entities.ModoCargaMuestra
 import gob.inei.appprueba.domain.entities.Perfil
 import gob.inei.appprueba.domain.entities.Personal
 import gob.inei.appprueba.domain.entities.ResultadoArchivo
@@ -77,43 +78,44 @@ class MuestraRepositoryImpl @Inject constructor(
     private val anioProvider: AnioAplicativoProvider
 ) : MuestraRepository {
 
-    override suspend fun cargar(uriZip: String): ResultadoArchivo = withContext(Dispatchers.IO) {
-        val nombre = nombreResolver.resolver(uriZip) ?: nombreRespaldo(uriZip)
-        val nombreMuestra = try {
-            nombreParser.parse(nombre, anioProvider.obtener())
-        } catch (e: MuestraException) {
-            return@withContext ResultadoArchivo(
-                nombre = nombre,
-                estado = e.tipo.estadoDeFallo(),
-                tipoError = e.tipo,
-                detalle = e.detalle
-            )
-        } catch (e: Exception) {
-            return@withContext ResultadoArchivo(
-                nombre = nombre,
-                estado = EstadoArchivo.ERROR,
-                tipoError = TipoError.ERROR_ESCRITURA,
-                detalle = "No se pudo identificar el archivo"
-            )
-        }
-
-        try {
-            when (nombreMuestra.tipo) {
-                TipoMuestra.PERSONAL -> cargarPersonal(uriZip, nombre, nombreMuestra)
-                TipoMuestra.VIVIENDAS -> cargarViviendas(uriZip, nombre, nombreMuestra)
+    override suspend fun cargar(uriZip: String, modo: ModoCargaMuestra): ResultadoArchivo =
+        withContext(Dispatchers.IO) {
+            val nombre = nombreResolver.resolver(uriZip) ?: nombreRespaldo(uriZip)
+            val nombreMuestra = try {
+                nombreParser.parse(nombre, anioProvider.obtener())
+            } catch (e: MuestraException) {
+                return@withContext ResultadoArchivo(
+                    nombre = nombre,
+                    estado = e.tipo.estadoDeFallo(),
+                    tipoError = e.tipo,
+                    detalle = e.detalle
+                )
+            } catch (e: Exception) {
+                return@withContext ResultadoArchivo(
+                    nombre = nombre,
+                    estado = EstadoArchivo.ERROR,
+                    tipoError = TipoError.ERROR_ESCRITURA,
+                    detalle = "No se pudo identificar el archivo"
+                )
             }
-        } catch (e: MuestraException) {
-            ResultadoArchivo(nombre, e.tipo.estadoDeFallo(), nombreMuestra.tipo, e.tipo, e.detalle)
-        } catch (e: Exception) {
-            ResultadoArchivo(
-                nombre,
-                EstadoArchivo.ERROR,
-                nombreMuestra.tipo,
-                TipoError.ERROR_ESCRITURA,
-                "No se pudo completar la carga"
-            )
+
+            try {
+                when (nombreMuestra.tipo) {
+                    TipoMuestra.PERSONAL -> cargarPersonal(uriZip, nombre, nombreMuestra, modo)
+                    TipoMuestra.VIVIENDAS -> cargarViviendas(uriZip, nombre, nombreMuestra, modo)
+                }
+            } catch (e: MuestraException) {
+                ResultadoArchivo(nombre, e.tipo.estadoDeFallo(), nombreMuestra.tipo, e.tipo, e.detalle)
+            } catch (e: Exception) {
+                ResultadoArchivo(
+                    nombre,
+                    EstadoArchivo.ERROR,
+                    nombreMuestra.tipo,
+                    TipoError.ERROR_ESCRITURA,
+                    "No se pudo completar la carga"
+                )
+            }
         }
-    }
 
     override suspend fun nombresDe(urisZip: List<String>): List<String> = withContext(Dispatchers.IO) {
         urisZip.map { nombreResolver.resolver(it) ?: nombreRespaldo(it) }
@@ -122,28 +124,39 @@ class MuestraRepositoryImpl @Inject constructor(
     override fun observarMuestraPersonal(): Flow<EstadoMuestraPersonal> =
         combine(
             personalDao.observarCount(),
-            cargaMuestraDao.observarUltimaFecha(TipoMuestra.PERSONAL.name)
-        ) { total, fecha ->
-            EstadoMuestraPersonal(cargado = total > 0, fechaCargaMs = fecha)
+            cargaMuestraDao.observarUltimaFecha(TipoMuestra.PERSONAL.name),
+            cargaMuestraDao.observarModo(TipoMuestra.PERSONAL.name)
+        ) { total, fecha, modo ->
+            EstadoMuestraPersonal(
+                cargado = total > 0,
+                fechaCargaMs = fecha,
+                modo = modoDesde(modo)
+            )
         }
 
     override fun observarMuestraViviendas(): Flow<EstadoMuestraViviendas> =
         combine(
             conglomeradoDao.observarOdeiMeses(),
-            cargaMuestraDao.observarUltimaFecha(TipoMuestra.VIVIENDAS.name)
-        ) { filas, fecha ->
+            cargaMuestraDao.observarUltimaFecha(TipoMuestra.VIVIENDAS.name),
+            cargaMuestraDao.observarModo(TipoMuestra.VIVIENDAS.name)
+        ) { filas, fecha, modo ->
             val odeis = filas.toOdeiMeses()
             EstadoMuestraViviendas(
                 cargado = odeis.isNotEmpty(),
                 fechaCargaMs = fecha,
-                odeis = odeis
+                odeis = odeis,
+                modo = modoDesde(modo)
             )
         }
+
+    private fun modoDesde(nombre: String?): ModoCargaMuestra? =
+        ModoCargaMuestra.entries.firstOrNull { it.name == nombre }
 
     private suspend fun cargarPersonal(
         uriZip: String,
         nombre: String,
-        nombreMuestra: MuestraNombre
+        nombreMuestra: MuestraNombre,
+        modo: ModoCargaMuestra
     ): ResultadoArchivo {
         val password = passwordProvider.obtener()
         if (password.isEmpty()) {
@@ -171,7 +184,8 @@ class MuestraRepositoryImpl @Inject constructor(
                         anho = null,
                         odei = null,
                         mes = null,
-                        fechaHora = ahora()
+                        fechaHora = ahora(),
+                        modo = modo.name
                     )
                 )
             }
@@ -184,7 +198,8 @@ class MuestraRepositoryImpl @Inject constructor(
     private suspend fun cargarViviendas(
         uriZip: String,
         nombre: String,
-        nombreMuestra: MuestraNombre
+        nombreMuestra: MuestraNombre,
+        modo: ModoCargaMuestra
     ): ResultadoArchivo {
         val dir = dirTemporal()
         val zip = copiarTemporal(uriZip)
@@ -223,7 +238,8 @@ class MuestraRepositoryImpl @Inject constructor(
                         anho = muestra.anio,
                         odei = muestra.odei,
                         mes = muestra.mes,
-                        fechaHora = ahora()
+                        fechaHora = ahora(),
+                        modo = modo.name
                     )
                 )
             }

@@ -3,6 +3,7 @@ package gob.inei.appprueba.domain
 import gob.inei.appprueba.domain.entities.EstadoArchivo
 import gob.inei.appprueba.domain.entities.EstadoMuestraPersonal
 import gob.inei.appprueba.domain.entities.EstadoMuestraViviendas
+import gob.inei.appprueba.domain.entities.ModoCargaMuestra
 import gob.inei.appprueba.domain.entities.ResultadoArchivo
 import gob.inei.appprueba.domain.entities.TipoMuestra
 import gob.inei.appprueba.domain.repositories.MuestraRepository
@@ -19,10 +20,12 @@ class FakeMuestraRepository : MuestraRepository {
         MutableStateFlow(EstadoMuestraViviendas(false, null, emptyList()))
     var llamadas = 0
     var ultimaUri: String? = null
+    var ultimoModo: ModoCargaMuestra? = null
 
-    override suspend fun cargar(uriZip: String): ResultadoArchivo {
+    override suspend fun cargar(uriZip: String, modo: ModoCargaMuestra): ResultadoArchivo {
         llamadas++
         ultimaUri = uriZip
+        ultimoModo = modo
         return resultado
     }
 

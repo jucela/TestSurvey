@@ -144,6 +144,49 @@ class MuestraViviendasDaoTest {
         assertEquals(1, db.cargaMuestraDao().count())
     }
 
+    @Test
+    fun observarModo_devuelve_el_modo_de_la_carga_mas_reciente_por_tipo() = runBlocking {
+        db.cargaMuestraDao().insert(
+            CargaMuestraEntity(
+                tipo = TipoMuestra.VIVIENDAS.name,
+                anho = "2026",
+                odei = "11",
+                mes = "08",
+                fechaHora = 1_000L,
+                modo = "MANUAL"
+            )
+        )
+        db.cargaMuestraDao().insert(
+            CargaMuestraEntity(
+                tipo = TipoMuestra.VIVIENDAS.name,
+                anho = "2026",
+                odei = "12",
+                mes = "08",
+                fechaHora = 2_000L,
+                modo = "AUTOMATICO"
+            )
+        )
+        db.cargaMuestraDao().insert(
+            CargaMuestraEntity(
+                tipo = TipoMuestra.PERSONAL.name,
+                anho = null,
+                odei = null,
+                mes = null,
+                fechaHora = 500L,
+                modo = "MANUAL"
+            )
+        )
+
+        assertEquals(
+            "AUTOMATICO",
+            db.cargaMuestraDao().observarModo(TipoMuestra.VIVIENDAS.name).first()
+        )
+        assertEquals(
+            "MANUAL",
+            db.cargaMuestraDao().observarModo(TipoMuestra.PERSONAL.name).first()
+        )
+    }
+
     private suspend fun insertar(conglome: String, odei: String, mesa: String) {
         db.conglomeradoDao().insertAll(listOf(conglomerado(conglome, odei, mesa)))
         db.viviendaMarcoDao().insertAll(listOf(vivienda(conglome)))

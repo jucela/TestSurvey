@@ -1,5 +1,6 @@
 package gob.inei.appprueba.domain.usecases
 
+import gob.inei.appprueba.domain.entities.ModoCargaMuestra
 import gob.inei.appprueba.domain.entities.ResultadoArchivo
 import gob.inei.appprueba.domain.repositories.MuestraRepository
 import javax.inject.Inject
@@ -8,5 +9,6 @@ import javax.inject.Inject
 class CargarMuestraUseCase @Inject constructor(
     private val repository: MuestraRepository
 ) {
-    suspend operator fun invoke(uriZip: String): ResultadoArchivo = repository.cargar(uriZip)
+    suspend operator fun invoke(uriZip: String, modo: ModoCargaMuestra): ResultadoArchivo =
+        repository.cargar(uriZip, modo)
 }

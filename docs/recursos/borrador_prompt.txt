@@ -61,6 +61,22 @@ quiero hacer una actualización en el modulo de cargar muestra, como ya esta imp
 * determina como debe hacerse el copiado de las muestras en las tablas correspondientes, puedes descargar el archivo en ENAHO2026/config y desde ahi hacer el copiado o determina otra mejor opcion.
 * el botón Sincronizar en el modo online descargara y copiara la muestra de personal o viviendas en la carpeta ENAHO2026/config y la cargara a las tablas que corresponden.
 
+* Quiero actualizar el feature cargar-muestra , cuando se selecciones la opcion Automatico del radiogroup, se muestre un cardView que contiene un radiogroup con dos ocpiones: Viviendas y Personal.
+* cuando se seleccione la opcion viviendas se muestre el cardView android:id="@+id/groupOnlineHousing" y los componentes que contiene, debe mantener la misma funcionalidad que tenia, el cambio solo es visual.
+* cuando se seleccione la opcion personal  se muestre el cardView android:id="@+id/groupOnlineUsers" y los componentes que contiene, debe mantener la misma funcionalidad que tenia, el cambio solo es visual.
+* del LinearLayout @+id/grupoProcesando para abajo mantener el mismo orden.
+* hacer cambios visuales en item_carga_archivo.xml, los 4 textView deben tener una etiqueta para determinar que es cada caracteristica.
+- tools:text="Archivo: Enaho2026_Muestra_Odei_11_Mes_08.zip"
+- tools:text="Tipo   : Muestra de viviendas"
+- tools:text="Estado : Cargado"
+- tools:text="Detalle: El ZIP no contiene el XML de muestra esperado."
+* los cardview android:id="@+id/cardPersonal" y android:id="@+id/cardViviendas" siempre muestran la etiqueta de modo:Manual/automatico igual, osea si carga una muestra de personal modo manual y luego cargo la muestra de viviendas automaticamente, en los dos cardview sale automatico. el modo debe tener independencia,
+  si cargue la muestra personal de forma manual debera tener el modo manual como etiqueta y  si cargue la muestra de vivinedas de forma automatica debera tener el modo automatico.
+
+* quiero cambiar el tipo de componente de spinner a  menú desplegable expuesto con variacion delineada de material design, los componentes son android:id="@+id/spOdei" y android:id="@+id/spMes"
+* tambien quiero que los cardview tenga un icono de informacion en la parte superior derecha (esquina), que cuando se haga click muestre un dialog informativo (mensaje informativo del modo manual/automatico y boton de cerrar el dialog).los cardView que tendra esta funcion son: android:id="@+id/cardTipoManual" y android:id="@+id/cardTipoAutomatico"
+
+
 
 
 

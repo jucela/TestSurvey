@@ -126,6 +126,31 @@ class MuestraMigrationTest {
         db.close()
     }
 
+    @Test
+    fun migraDe6A7_agregandoElModoDeCargaSinPerderFilas() {
+        helper.createDatabase(NOMBRE_MODO, 6).apply {
+            execSQL(
+                "INSERT INTO CARGA_MUESTRA (tipo, anho, odei, mes, fechaHora) " +
+                    "VALUES ('PERSONAL', NULL, NULL, NULL, 123)"
+            )
+            close()
+        }
+
+        val db = helper.runMigrationsAndValidate(
+            NOMBRE_MODO,
+            7,
+            true,
+            EncuestaDatabase.MIGRATION_6_7
+        )
+
+        db.query("SELECT modo FROM CARGA_MUESTRA").use {
+            assertEquals(1, it.count)
+            it.moveToFirst()
+            assertTrue("las filas previas quedan sin modo", it.isNull(0))
+        }
+        db.close()
+    }
+
     private fun contar(db: androidx.sqlite.db.SupportSQLiteDatabase, tabla: String): Int =
         db.query("SELECT COUNT(*) FROM $tabla").use {
             it.moveToFirst()
@@ -137,5 +162,6 @@ class MuestraMigrationTest {
         const val NOMBRE_LOGIN = "login-migration-test"
         const val NOMBRE_VIVIENDAS = "viviendas-migration-test"
         const val NOMBRE_MES = "mes-migration-test"
+        const val NOMBRE_MODO = "modo-migration-test"
     }
 }

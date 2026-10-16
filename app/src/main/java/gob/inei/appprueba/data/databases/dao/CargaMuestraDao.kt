@@ -27,6 +27,12 @@ interface CargaMuestraDao {
     @Query("SELECT MAX(fechaHora) FROM CARGA_MUESTRA WHERE tipo = :tipo")
     fun observarUltimaFecha(tipo: String): Flow<Long?>
 
+    @Query(
+        "SELECT modo FROM CARGA_MUESTRA WHERE tipo = :tipo " +
+            "ORDER BY fechaHora DESC LIMIT 1"
+    )
+    fun observarModo(tipo: String): Flow<String?>
+
     @Query("SELECT COUNT(*) FROM CARGA_MUESTRA")
     suspend fun count(): Int
 }

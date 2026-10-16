@@ -1,6 +1,7 @@
 package gob.inei.appprueba.domain.usecases
 
 import gob.inei.appprueba.domain.entities.EstadoArchivo
+import gob.inei.appprueba.domain.entities.ModoCargaMuestra
 import gob.inei.appprueba.domain.entities.MuestraException
 import gob.inei.appprueba.domain.entities.ResultadoArchivo
 import gob.inei.appprueba.domain.entities.TipoError
@@ -19,7 +20,7 @@ class SincronizarMuestraPersonalUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(): ResultadoArchivo = try {
         val descargada = online.obtenerPersonalMasReciente()
-        cargar("file://${descargada.archivo.absolutePath}")
+        cargar("file://${descargada.archivo.absolutePath}", ModoCargaMuestra.AUTOMATICO)
     } catch (e: MuestraException) {
         ResultadoArchivo(
             nombre = NOMBRE_FALLO,

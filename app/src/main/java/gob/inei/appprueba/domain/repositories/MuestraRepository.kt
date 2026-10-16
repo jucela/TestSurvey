@@ -2,6 +2,7 @@ package gob.inei.appprueba.domain.repositories
 
 import gob.inei.appprueba.domain.entities.EstadoMuestraPersonal
 import gob.inei.appprueba.domain.entities.EstadoMuestraViviendas
+import gob.inei.appprueba.domain.entities.ModoCargaMuestra
 import gob.inei.appprueba.domain.entities.ResultadoArchivo
 import kotlinx.coroutines.flow.Flow
 
@@ -11,8 +12,9 @@ interface MuestraRepository {
      * Procesa un único ZIP (personal o viviendas) de forma independiente: resuelve
      * el nombre, detecta el tipo, valida y carga (RF-14..RF-25). Nunca lanza por
      * reglas de negocio: devuelve el [ResultadoArchivo] con el estado alcanzado.
+     * El [modo] registra cómo se obtuvo la muestra para la tarjeta de su tipo (RF-27).
      */
-    suspend fun cargar(uriZip: String): ResultadoArchivo
+    suspend fun cargar(uriZip: String, modo: ModoCargaMuestra): ResultadoArchivo
 
     /**
      * Resuelve el nombre visible de cada `Uri` conservando el orden (RF-14). Usa

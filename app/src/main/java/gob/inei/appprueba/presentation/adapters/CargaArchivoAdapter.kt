@@ -14,9 +14,11 @@ import gob.inei.appprueba.presentation.viewmodel.ArchivoCargaUi
 
 /**
  * Muestra el avance por archivo de la operación de carga (RF-25): nombre, tipo,
- * estado y, cuando aplica, el detalle del rechazo o error.
+ * estado y, cuando aplica, el detalle del rechazo o error. Cada línea se rotula
+ * (Archivo/Tipo/Estado/Detalle) mediante los formateadores recibidos.
  */
 class CargaArchivoAdapter(
+    private val nombreTexto: (ArchivoCargaUi) -> String,
     private val tipoTexto: (TipoMuestra) -> String,
     private val estadoTexto: (EstadoArchivo) -> String,
     private val detalleTexto: (ArchivoCargaUi) -> String?
@@ -51,7 +53,7 @@ class CargaArchivoAdapter(
 
         fun bind(item: ArchivoCargaUi) {
             card.setCardBackgroundColor(colorDeEstado(item.estado, itemView))
-            nombre.text = item.nombre
+            nombre.text = nombreTexto(item)
             tipo.text = item.tipo?.let(tipoTexto).orEmpty()
             tipo.visibility = if (item.tipo == null) View.GONE else View.VISIBLE
             estado.text = estadoTexto(item.estado)

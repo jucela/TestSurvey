@@ -295,6 +295,141 @@ Validación manual en tablet **TB311XU** contra el FTP real
   Evidencia: `online_personal_ok.png`. (Sin la contraseña se detenía en
   descompresión con `La aplicación no tiene configurada la contraseña…`.)
 
+### v4 — Selector Automático y modo independiente por tarjeta (RF-42..RF-44)
+
+> Derivadas de `docs/prompts/main/PROMPT_CARGAR_MUESTRA_ORDEN.md` y de `SPEC.md`
+> (ajuste v4). Reorganización visual + corrección del modo por tarjeta.
+> Autorizado por el usuario ("aprobado").
+
+- **T-330: Documentar RF-42..RF-44, CA-39..CA-44 y DP-23..DP-25.** Scope:
+  `docs/features/cargar-muestra/SPEC.md`, `PLAN.md`, `TASKS.md`. Validación:
+  documentación coherente.
+- **T-331: Persistir el modo por tipo (data/domain).** Scope: `ModoCargaMuestra`,
+  `EstadoMuestras`, `MuestraRepository`, `CargarMuestraUseCase`, casos de uso de
+  sincronización, `CargaMuestraEntity`, `CargaMuestraDao.observarModo`,
+  `EncuestaDatabase` v7 + `MIGRATION_6_7`, `DatabaseModule`,
+  `MuestraRepositoryImpl`. Criterios: RF-44, DP-23. Validación: migración v6→v7 +
+  `MuestraViviendasDaoTest`.
+- **T-332: Selector de tipo y visibilidad.** Scope: `activity_cargar_muestra.xml`
+  (`cardTipoAutomatico` + `rgTipoAutomatico`), `CargaMuestraUiState`,
+  `CargaMuestraViewModel` (`onTipoAutomatico`), `CargarMuestraActivity`,
+  `strings.xml`. Criterios: RF-42, CA-39..CA-41, CA-44. Validación: build +
+  Espresso.
+- **T-333: Etiquetas del ítem y modo por tarjeta.** Scope:
+  `item_carga_archivo.xml`, `strings.xml`, `CargaArchivoAdapter`,
+  `CargarMuestraActivity`, `CargarMuestraEspressoTest`. Criterios: RF-43, RF-44,
+  CA-42, CA-43. Validación: Espresso.
+- **T-334: Verificación integral.** Scope: proyecto completo. Validación:
+  `assembleDebug`, `testDebugUnitTest`, `lintDebug`,
+  `connectedDebugAndroidTest` (si hay dispositivo).
+
+### Estado de implementación (v4) — 2026-10-15
+
+Implementación autorizada por el usuario ("aprobado") tras presentar el análisis
+previo obligatorio de la sección 13 del prompt.
+
+- **T-330 — Completada.** `SPEC.md` (RF-42..RF-44, CA-39..CA-44, DP-23..DP-25),
+  `PLAN.md` (nota del ajuste v4) y esta lista.
+- **T-331 — Completada.** Nuevo `domain/entities/ModoCargaMuestra`
+  (`MANUAL`/`AUTOMATICO`); `EstadoMuestraPersonal`/`EstadoMuestraViviendas` con
+  `modo`; `MuestraRepository.cargar(uri, modo)`; `CargarMuestraUseCase` y casos de
+  uso de sincronización pasan `MANUAL`/`AUTOMATICO`; columna
+  `CARGA_MUESTRA.modo` + `CargaMuestraDao.observarModo(tipo)`; `EncuestaDatabase`
+  v7 + `MIGRATION_6_7` (`ALTER TABLE ... ADD COLUMN modo TEXT`) registrada en
+  `DatabaseModule`; `MuestraRepositoryImpl` persiste el modo y lo expone en los
+  flujos de las tarjetas. Evidencia: `compileDebugKotlin` SUCCESS;
+  `MuestraMigrationTest.migraDe6A7_agregandoElModoDeCargaSinPerderFilas`;
+  `MuestraViviendasDaoTest.observarModo_devuelve_el_modo_de_la_carga_mas_reciente_por_tipo`.
+- **T-332 — Completada.** `activity_cargar_muestra.xml`: nuevo
+  `cardTipoAutomatico` con `rgTipoAutomatico` (`rbViviendas` marcado por defecto,
+  `rbPersonal`) dentro de `grupoOnline`, antes de `groupOnlineHousing`;
+  `groupOnlineUsers` inicia oculto. `CargaMuestraUiState.tipoAutomatico`;
+  `CargaMuestraViewModel.onTipoAutomatico`; `CargarMuestraActivity`
+  (`configurarTipoAutomatico` + `renderTipoAutomatico`); string
+  `cargar_muestra_online_tipo_titulo`. La lógica de sincronización no se modificó.
+- **T-333 — Completada.** Etiquetas `Archivo:`/`Tipo:`/`Estado:`/`Detalle:` vía
+  strings con formato aplicadas en `CargaArchivoAdapter` (`nombreTexto` + lambdas
+  rotuladas), `item_carga_archivo.xml` (`tools:text` de ejemplo) y las tarjetas
+  leyendo `state.personal.modo`/`state.viviendas.modo` (independientes por tipo,
+  `--` cuando aún no hay carga). `CargarMuestraEspressoTest` actualizado
+  (`ca26` alterna por tipo; CA-09 verifica el texto rotulado y el color).
+- **T-334 — Completada (manuales pendientes).** `compileDebugKotlin` y
+  `assembleDebug` SUCCESS; `assembleDebugAndroidTest` SUCCESS;
+  `testDebugUnitTest` **121 pruebas / 0 fallos**; `lintDebug` **0 errores / 35
+  avisos** (categorías preexistentes); `connectedDebugAndroidTest` en tablet
+  **TB311XU** **33 pruebas / 0 fallos** (incluye
+  `migraDe6A7_agregandoElModoDeCargaSinPerderFilas`,
+  `observarModo_devuelve_el_modo_de_la_carga_mas_reciente_por_tipo` y
+  `ca26_alterna_entre_modo_manual_y_automatico_por_tipo`). Comprobaciones
+  **manuales no ejecutadas**: sincronización real contra el FTP y revisión visual
+  (teléfono/tablet, rotación, texto 200 %) de la alternancia Viviendas/Personal y
+  del modo por tarjeta tras reiniciar.
+
+### v5 — ODEI/MES como exposed dropdown Outlined y ayudas informativas (RF-45..RF-47)
+
+> Derivadas de `docs/prompts/main/PROMPT_CARGAR_MUESTRA_INFO.md` y de `SPEC.md`
+> (ajuste v5). Cambio de presentación, sin tocar la lógica de datos ni de
+> sincronización. Autorizado por el usuario ("APROBADO") tras el análisis previo
+> obligatorio.
+
+- **T-335: Documentar RF-45..RF-47, CA-45..CA-47 y DP-26..DP-28.** Scope:
+  `docs/features/cargar-muestra/SPEC.md`, `PLAN.md`, `TASKS.md`. Validación:
+  documentación coherente.
+- **T-336: ODEI/MES como exposed dropdown Outlined.** Scope:
+  `activity_cargar_muestra.xml` (`TextInputLayout` +
+  `MaterialAutoCompleteTextView`, conservando los IDs `spOdei`/`spMes`),
+  `strings.xml` (hints sin `:`), `CargarMuestraActivity` (`poblar` con
+  `setSimpleItems` + `setOnItemClickListener`), eliminación de
+  `item_spinner_muestra.xml`. Criterios: RF-45, CA-45. Validación: build +
+  Espresso.
+- **T-337: Íconos de información y diálogos.** Scope:
+  `activity_cargar_muestra.xml` (`btnInfoManual`/`btnInfoAutomatico`),
+  `strings.xml`, `CargarMuestraActivity` (`configurarInfo` +
+  `mostrarInfoManual`/`mostrarInfoAutomatico`). Criterios: RF-46, RF-47,
+  CA-46..CA-47. Validación: Espresso.
+- **T-338: Actualizar el Design System.** Scope: `docs/DESIGN_SYSTEM.md` (listas
+  desplegables + ayuda contextual). Validación: revisión de contenido.
+- **T-339: Verificación integral.** Scope: proyecto completo. Validación:
+  `assembleDebug`, `testDebugUnitTest`, `lintDebug`,
+  `connectedDebugAndroidTest` (si hay dispositivo).
+
+### Estado de implementación (v5) — 2026-10-16
+
+Implementación autorizada por el usuario ("APROBADO") tras el análisis previo
+obligatorio del prompt.
+
+- **T-335 — Completada.** `SPEC.md` (RF-45..RF-47, CA-45..CA-47, DP-26..DP-28),
+  `PLAN.md` (sección del ajuste v5) y esta lista.
+- **T-336 — Completada.** En `activity_cargar_muestra.xml` los `Spinner`
+  `spOdei`/`spMes` se reemplazaron por `TextInputLayout`
+  `Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu` +
+  `MaterialAutoCompleteTextView` (IDs conservados; etiquetas ODEI/MES movidas al
+  `hint`); `CargarMuestraActivity.poblar` usa `setSimpleItems` y
+  `setOnItemClickListener` guardando `odeiSeleccionado`/`mesSeleccionado`;
+  `strings.xml` con hints sin `:`; `item_spinner_muestra.xml` eliminado.
+- **T-337 — Completada.** Filas de título de `cardTipoManual`/`cardTipoAutomatico`
+  con ícono `outline_info_black_24dp` (48dp, `contentDescription`,
+  `btnInfoManual`/`btnInfoAutomatico`); `CargarMuestraActivity.configurarInfo`
+  con `MaterialAlertDialogBuilder` (título, mensaje, `Cerrar`) sin alterar estado.
+- **T-338 — Completada.** `docs/DESIGN_SYSTEM.md` actualizado (fila de listas
+  desplegables con ambas variantes + fila de "Ayuda contextual").
+- **T-339 — Completada.** Resultados en la verificación integral (más abajo).
+
+**Verificación integral (v5) — 2026-10-16:**
+
+- `:app:compileDebugKotlin` y `:app:assembleDebug`: SUCCESS.
+- `:app:testDebugUnitTest`: **121 pruebas / 0 fallos** (13 suites).
+- `:app:lintDebug`: **0 errores / 36 avisos**. Respecto a v4 (35 avisos) aparece
+  **1 aviso nuevo**: `TooDeepLayout` en `activity_cargar_muestra.xml` (nivel 257,
+  `MaterialAutoCompleteTextView`), por el nivel adicional que exige el
+  `TextInputLayout` del exposed dropdown. Es un aviso de rendimiento (no error) y
+  se acepta por el componente de Material requerido por RF-45.
+- `:app:assembleDebugAndroidTest`: SUCCESS.
+- `:app:connectedDebugAndroidTest`: **37 pruebas / 0 fallos** en tablet
+  **TB311XU** (33 de v4 + 4 nuevas: `ca45`, `ca46`, `ca47`, `ca48`).
+- Comprobaciones **manuales pendientes**: revisión visual en teléfono/tablet,
+  rotación y texto ampliado de los dropdowns y de los diálogos informativos.
+
 ---
 
 ## Historial — versión 1 (personal, completada)
