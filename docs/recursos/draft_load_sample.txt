@@ -61,7 +61,7 @@ quiero hacer una actualización en el modulo de cargar muestra, como ya esta imp
 * determina como debe hacerse el copiado de las muestras en las tablas correspondientes, puedes descargar el archivo en ENAHO2026/config y desde ahi hacer el copiado o determina otra mejor opcion.
 * el botón Sincronizar en el modo online descargara y copiara la muestra de personal o viviendas en la carpeta ENAHO2026/config y la cargara a las tablas que corresponden.
 
-* Quiero actualizar el feature cargar-muestra , cuando se selecciones la opcion Automatico del radiogroup, se muestre un cardView que contiene un radiogroup con dos ocpiones: Viviendas y Personal.
+* Quiero actualizar el feature cargar-muestra , cuando se selecciones la opcion Automatico del radiogroup, se muestre un cardView que contiene un radiogroup con dos opciones: Viviendas y Personal.
 * cuando se seleccione la opcion viviendas se muestre el cardView android:id="@+id/groupOnlineHousing" y los componentes que contiene, debe mantener la misma funcionalidad que tenia, el cambio solo es visual.
 * cuando se seleccione la opcion personal  se muestre el cardView android:id="@+id/groupOnlineUsers" y los componentes que contiene, debe mantener la misma funcionalidad que tenia, el cambio solo es visual.
 * del LinearLayout @+id/grupoProcesando para abajo mantener el mismo orden.
