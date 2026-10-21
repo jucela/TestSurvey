@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="none">
+        <item
+            android:id="@+id/action_informacion"
+            android:icon="@drawable/ic_info"
+            android:title="@string/menu_informacion" />
+        <item
+            android:id="@+id/action_marco"
+            android:icon="@drawable/ic_menu_marco"
+            android:title="@string/menu_marco" />
+        <item
+            android:id="@+id/action_cobertura"
+            android:icon="@drawable/ic_menu_cobertura"
+            android:title="@string/menu_cobertura" />
+        <item
+            android:id="@+id/action_exportacion"
+            android:icon="@drawable/ic_menu_exportacion"
+            android:title="@string/menu_exportacion" />
+        <item
+            android:id="@+id/action_cargar_muestra"
+            android:icon="@drawable/ic_menu_cargar_muestra"
+            android:title="@string/menu_cargar_muestra" />
+    </group>
+</menu>

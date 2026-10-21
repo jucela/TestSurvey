@@ -1,0 +1,84 @@
+ahora quiero agregar una funcionalidad de cargar muestra de viviendas esta será parecida a la carga de muestra de personal, esta nueva funcionalidad también cargara un archivo zip.
+* El archivo descomprimido es Enaho2026_Muestra_Odei_11_Mes_08.cfg el cual tiene la estructura de un XML, los archivos Enaho2026_Muestra_Odei_11_Mes_08.zip y Enaho2026_Muestra_Odei_11_Mes_08.cfg te lo dejo en docs/recursos, el Enaho2026_Muestra_Odei_11_Mes_08.zip no tiene contraseña como la muestra de personal.
+* Este XML tiene 5 secciones: ConglomeradoEntity,ViviendaMarcoEntity,ViviendaReemplazoEntity,PersonaPanelEntity,Cap100PanelEntity que contiene información que será cargada en  tablas la información de 5 tablas CAMPO_CONGLOMERADO,CAMPO_VIVIENDA_MARCO,CAMPO_VIVIENDA_REEMPLAZO,PERSONA_PANEL,CAP100PANEL.
+* el XML tiene como etiqueta principal <ENAHO2026>y cierra con </ENAHO2026> esto significa que la muestra pertenece al 2026. esta muestra solo se cargara en el aplicativo 2026. ósea si cargo la muestra 2026 en el aplicativo 2025 no debe permitir, aplica esto para todas las muestras que se cargan.
+* la estructura de las 5 tablas esta docs/entities/CONGLOMERADO_MARCO_REEMPLAZO_PERSONA_CAP100.sql
+* la muestra de personal y viviendas deberá cargarse desde el mismo botón seleccionar archivo de cargar muestra.
+* se puede seleccionar Y cargar mas de una muestra al mismo tiempo, por ejemplo puedo seleccionar la muestra personal y la muestra de viviendas de los meses 01 y 02 de la misma ODEI.
+* la muestra personal cada vez que se cargue limpia los datos anteriores de la tabla personal pero cada que se cargue la muestra de viviendas deberá agregar los conglomeras de viviendas que no existen , ya que esta muestra se carga cada mes ósea hay 12 muestras por año. solo se eliminara la muestra de un mes y se agregara la muestra del mismo mes ósea si cargue la muestra del mes 01 y luego vuelvo cargar la muestra del mes 01 esta reemplazara la muestra anterior cargada.si ya esta agregada la muestra del mes 01  y se agrega las muestra del mes 02 se conservan las 2. 
+* el nombre del zip  es y siempre será así Enaho2026_Muestra_Odei_11_Mes_08.zip: Odei_11 = Departamento de ICA(11)  Y Mes_08= Mes de agosto debe haber una validación para que antes de cargar valide que se esta cargando una muestra 2026 en el aplicativo 2026.
+* la muestra de personal siempre tendrá este nombre Personal_2026_Tablet-2026-10-07.zip lo que cambia es 2026,2026-10-07(fecha que se genero la muestra) después mantiene el mismo nombre, ya que la muestra puede cargarse en cualquier parte del año, ya que la encuestadora A puede cargar la muestra en enero y ya no cargarla mas pero si en julio entra una nueva encuestadora B la muestra de enero no tendrá sus credenciales por eso la encuestadora B cargara otra muestra actualizada .
+* la muestra de vviendas siempre tendrá este nombre Enaho2026_Muestra_Odei_11_Mes_08.zip lo que cambia es 2026,11(odei) y 08 (mes) después mantiene el mismo nombre.
+* carga las 5 tablas ODEI,DPTO,PROV,DISTRITO,PAIS, la tabla ODEI nos dice cuantas ODEIS tiene la aplicación, las otras 4 se usaran luego pero igual cargalas. crea y carga los datos desde docs/entities/ODEI_DPTO_PROV_DISTRITO_PAIS.sql
+* toma como referencias el docs/features/cargar-muestra ya que este ya fue implementado y esta nueva funcionalidad seria una actualización. 
+* recuerda que se peude cargar y mantener la data de varias ODEIS: osea se peude tener la data de los meses 01 y 02 de la ODEI 11 asi como tbn la data de los meses 05 y 06 de la ODEI 15
+
+
+en la interfaz de cargara muestra, quiero que agregues 2 carview debajo del boton  seleccionar archivo o el cardview de resultado o mensaje, estos 2 carview nuevos seran informativos ya que cada 1 tendr ala sigueinte informacion:
+*  carview 1 mostrara si la muestra de personal esta cargada si existe data en la tabla de PERSONAL : 
+    Muestra de Personal
+    -------------------
+    Estado: Cargado/Pendiente
+    Fecha de cargado : 12/10/2026 01:04
+
+*  carview 2 mostrara si la muestra de viviendas esta cargada si existe data en la tabla de CAMPO_CONGLOMERADO : 
+    Muestra de Viviendas
+    -------------------
+    Estado: Cargado/Pendiente
+    Fecha de cargado : 12/10/2026 01:04
+    -------------------
+    ODEI: Lima
+    Meses: 01,08...
+    -------------------
+    ODEI: Arequipa
+    M: 01,08...
+     
+
+creaste un reclyclerview con item_carga_archivo.xml, quiero que conviertas el item del recyclerview en cardview, y cunado s ehaya cargado correctamente la muestra de personal o vivinedas selc arview se pinte de color verde pastel pero si es rechazado o tien error de color rojo pastel.
+
+
+quiero hacer una actualización en el modulo de cargar muestra, como ya esta implementada la funcionalidad de cargar la muestra manual (Offline), ahora quiero crear la funcionalidad online que descargara la muestra de personal y viviendas desde una carpeta ftp publica.
+* crea una sección A con un radiogroup en la parte superior con 2 opciones Offline y Online
+* cuando se haga click en offline mostrara la sección A1 donde se visualiza el  botón de seleccionar archivos, el cual mantendrá la misma funcionalidad que se implemento.
+* cuando se haga click en online  mostrara la sección A2: sección A2_1 con titulo (cargar muestra de viviendas), spinner (ODEI),spinner (MES) y un botón sincronizar, esta sección descargara un archivo Enaho2026_Muestra_Odei_11_Mes_08.zip y tendrá que guardar o actualizar según la funcionalidad que se implemento anteriormente. sección A2_2 con titulo (Cargar muestra personal) y botón sincronizar
+ , esta sección descargara el archivo Personal_2026_Tablet-2026-10-07.zip y tendrá que guardar o actualizar según la funcionalidad que se implemento anteriormente.
+* en la sección A2_1 el spinner (ODEI) y el spinner (MES) se llenaran desde la tablas ODEI y MES(crear e insertar datos desde docs/entities/MES.sql) respectivamente.
+* el spinner (ODEI) tendra que tener  como primer item la etiqueta --Seleccione-- despues los demas items tendran la etiqueta la union de CODODEI+"-"+NOMODEI (01-AMAZONAS,....,26-UCAYALI)
+* el spinner (MES) tendra que tener  como primer item la etiqueta --Seleccione-- despues los demas items tendran la etiqueta la union de CODIGO+"-"+NOMBRE (01-ENERO,...,12-DICIEMBRE)
+* la diferencia de implementar esta funcionalidad con lo que había es que la muestra ya no se seleccionara desde una carpeta interna de la tablet sino desde una carpeta ftp y se cargara y mostrara los mismo mensajes que se mostraban en la funcionalidad anterior.
+* visualmente en el modo online debe diferencias las sección A2_1 cargar muestra de viviendas y la sección A2_2 Cargar muestra personal deben verse independientes pero dentro la sección A2.
+* el Linearlayout @+id/grupoProcesando y demás componentes para abajo se mantendrán igual como se implementaron.
+* en los cardViews cardPersonal y cardViviendas agregar un característica que es modo: Offline/Online , el modo se define desde la sección A y si en el radigroup se selecciono online u offline.
+* oculta los textViews android:id="@+id/tvRestriccion" y  android:id="@+id/tvDescripcion" para poder tener una mejor visualizacion de la fucnionalidad y aporvechar la pantalla.
+* la carpeta FTP tiene la siguiente ruta principal (extranet.inei.gob.pe) y las credenciales (usuario:ftp-enaho, contraseña:primavera)
+* para el caso de muestra de viviendas en la carpeta extranet.inei.gob.pe/DescargasEnaho2026/Muestra, existe una carpeta por cada mes (01_Ene,02_Feb,03_Mar,04_Abr,05_May,06_Jun,07_Jul,08_Ago,09_Sep,10_Oct,11_Nov,12_Dic), aunque todas se van creando en el transcurso del año, osea si estamos en octubre todavia no existen las carpetas de noviembre y diciembre.
+* para el caso de muestra de viviendas en la carpeta extranet.inei.gob.pe/DescargasEnaho2026/Muestra/01_Ene, existe un archivo zip por cada ODEI (Enaho2025_Muestra_Odei_01_Mes_01.zip,Enaho2025_Muestra_Odei_02_Mes_01.zip,....Enaho2025_Muestra_Odei_26_Mes_01.zip), aunque todas las odeis se van creando en el transcurso del mes, osea si estamos en octubre puede haber solo los archivos de las odeis 01 hasta 24 y los archivos de las odeis 25 y 26 estan pendientes.
+* el spinner (ODEI) y el spinner (MES) determinaran a que carpeta o que archivo se descarga ya que Enaho2025_Muestra_Odei_01_Mes_01.zip tiene Odei_01 como ODEI Y Mes_01 como mes.
+* para el caso de muestra de personal en la carpeta extranet.inei.gob.pe/DescargasEnaho2026/Muestra/Personal, existe un archivo zip Personal_2026_Tablet-2026-10-13.zip que contiene la muestra de personal, recuerda que el año y fecha puede variar ya que puede ser Personal_2026_Tablet-2026-10-18.zip, si en al carpeta ftp se encuentra dos archivos zip debera seleccionar el mas reciente, siempre se descarga 1 muestra de personal.
+* cuando descarge la muestra de personal o viviendas debera crear y guardarla en una carpeta publica ENAHO{Año del aplicativo}/config
+* En la carpeta ENAHO{Año del aplicativo}/config si hoy se descargo el archivo Enaho2025_Muestra_Odei_01_Mes_01.zip y de aca a dos dias o unas horas despues se descarga de nuevo debera reemplazar la data de la muestra anterior y tbn el archivo Enaho2025_Muestra_Odei_01_Mes_01.
+* En la carpeta ENAHO{Año del aplicativo}/config si hoy se descargo el archivo Personal_2026_Tablet-2026-10-13.zip y de aca a dos dias o unas horas despues se descarga de nuevo debera reemplazar la data de la muestra anterior y tbn el archivo Personal_2026_Tablet-2026-10-13.zip si tienen el mismo nombre, si tienen nombre diferente conservar los dos archivos (Personal_2026_Tablet-2026-10-13.zip y Personal_2026_Tablet-2026-10-15.zip) pero tener la data en las tablas de la ultima muestra(Personal_2026_Tablet-2026-10-15.zip)
+* determina como debe hacerse el copiado de las muestras en las tablas correspondientes, puedes descargar el archivo en ENAHO2026/config y desde ahi hacer el copiado o determina otra mejor opcion.
+* el botón Sincronizar en el modo online descargara y copiara la muestra de personal o viviendas en la carpeta ENAHO2026/config y la cargara a las tablas que corresponden.
+
+* Quiero actualizar el feature cargar-muestra , cuando se selecciones la opcion Automatico del radiogroup, se muestre un cardView que contiene un radiogroup con dos opciones: Viviendas y Personal.
+* cuando se seleccione la opcion viviendas se muestre el cardView android:id="@+id/groupOnlineHousing" y los componentes que contiene, debe mantener la misma funcionalidad que tenia, el cambio solo es visual.
+* cuando se seleccione la opcion personal  se muestre el cardView android:id="@+id/groupOnlineUsers" y los componentes que contiene, debe mantener la misma funcionalidad que tenia, el cambio solo es visual.
+* del LinearLayout @+id/grupoProcesando para abajo mantener el mismo orden.
+* hacer cambios visuales en item_carga_archivo.xml, los 4 textView deben tener una etiqueta para determinar que es cada caracteristica.
+- tools:text="Archivo: Enaho2026_Muestra_Odei_11_Mes_08.zip"
+- tools:text="Tipo   : Muestra de viviendas"
+- tools:text="Estado : Cargado"
+- tools:text="Detalle: El ZIP no contiene el XML de muestra esperado."
+* los cardview android:id="@+id/cardPersonal" y android:id="@+id/cardViviendas" siempre muestran la etiqueta de modo:Manual/automatico igual, osea si carga una muestra de personal modo manual y luego cargo la muestra de viviendas automaticamente, en los dos cardview sale automatico. el modo debe tener independencia,
+  si cargue la muestra personal de forma manual debera tener el modo manual como etiqueta y  si cargue la muestra de vivinedas de forma automatica debera tener el modo automatico.
+
+* quiero cambiar el tipo de componente de spinner a  menú desplegable expuesto con variacion delineada de material design, los componentes son android:id="@+id/spOdei" y android:id="@+id/spMes"
+* tambien quiero que los cardview tenga un icono de informacion en la parte superior derecha (esquina), que cuando se haga click muestre un dialog informativo (mensaje informativo del modo manual/automatico y boton de cerrar el dialog).los cardView que tendra esta funcion son: android:id="@+id/cardTipoManual" y android:id="@+id/cardTipoAutomatico"
+
+
+
+
+
+
+

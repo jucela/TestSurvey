@@ -1,0 +1,1989 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 7,
+    "identityHash": "b8332cabebd615bd98f983feca012989",
+    "entities": [
+      {
+        "tableName": "questions",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `anio` INTEGER NOT NULL, `capitulo` INTEGER NOT NULL, `campoTabla` TEXT NOT NULL, `padre` TEXT, `orden` INTEGER, `sortOrder` INTEGER NOT NULL, `tipo` TEXT NOT NULL, `componenteUi` TEXT NOT NULL, `numeracion` TEXT NOT NULL, `titulo` TEXT NOT NULL, `subtitulo` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "anio",
+            "columnName": "anio",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "capitulo",
+            "columnName": "capitulo",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "campoTabla",
+            "columnName": "campoTabla",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "padre",
+            "columnName": "padre",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "orden",
+            "columnName": "orden",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "sortOrder",
+            "columnName": "sortOrder",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tipo",
+            "columnName": "tipo",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "componenteUi",
+            "columnName": "componenteUi",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "numeracion",
+            "columnName": "numeracion",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "titulo",
+            "columnName": "titulo",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "subtitulo",
+            "columnName": "subtitulo",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "alternatives",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`anio` INTEGER NOT NULL, `pregunta` TEXT NOT NULL, `campoTabla` TEXT NOT NULL, `orden` INTEGER NOT NULL, `numeracion` TEXT NOT NULL, `texto` TEXT NOT NULL, `tipoOpcion` TEXT NOT NULL, `campoDependiente` TEXT, PRIMARY KEY(`pregunta`, `orden`))",
+        "fields": [
+          {
+            "fieldPath": "anio",
+            "columnName": "anio",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pregunta",
+            "columnName": "pregunta",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "campoTabla",
+            "columnName": "campoTabla",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "orden",
+            "columnName": "orden",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "numeracion",
+            "columnName": "numeracion",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "texto",
+            "columnName": "texto",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tipoOpcion",
+            "columnName": "tipoOpcion",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "campoDependiente",
+            "columnName": "campoDependiente",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "pregunta",
+            "orden"
+          ]
+        }
+      },
+      {
+        "tableName": "flow_rules",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `anio` INTEGER NOT NULL, `origen` TEXT NOT NULL, `condicion` TEXT NOT NULL, `accion` TEXT NOT NULL, `destino` TEXT NOT NULL, `instruccion` TEXT, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "anio",
+            "columnName": "anio",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "origen",
+            "columnName": "origen",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "condicion",
+            "columnName": "condicion",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "accion",
+            "columnName": "accion",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "destino",
+            "columnName": "destino",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "instruccion",
+            "columnName": "instruccion",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "answers",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`preguntaId` TEXT NOT NULL, `valor` TEXT NOT NULL, `textoLibre` TEXT, `actualizado` INTEGER NOT NULL, PRIMARY KEY(`preguntaId`))",
+        "fields": [
+          {
+            "fieldPath": "preguntaId",
+            "columnName": "preguntaId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "valor",
+            "columnName": "valor",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "textoLibre",
+            "columnName": "textoLibre",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "actualizado",
+            "columnName": "actualizado",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "preguntaId"
+          ]
+        }
+      },
+      {
+        "tableName": "PERSONAL",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`DNI` TEXT NOT NULL, `PERFIL` TEXT NOT NULL, `NOMBRE` TEXT NOT NULL, `APEPATERNO` TEXT NOT NULL, `APEMATERNO` TEXT NOT NULL, `ODEI` TEXT NOT NULL, `DPTO` TEXT, `PROV` TEXT, `DIST` TEXT, `CLAVE` TEXT, `USUARIO` TEXT, `ACTIVO` INTEGER NOT NULL, `FECHAALTA` TEXT, `FECHABAJA` TEXT, `MOVIL` INTEGER, `reentrevista` INTEGER, `PBASICO` INTEGER, `PFINAL` INTEGER, `CARGO` TEXT NOT NULL, `FECHANAC` TEXT, `TELEFONO` TEXT, `ESTADOCIVIL` TEXT, `SEXO` TEXT, PRIMARY KEY(`DNI`), FOREIGN KEY(`PERFIL`) REFERENCES `PERFIL`(`CODPERFIL`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`CARGO`) REFERENCES `CARGO`(`CARGO`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "dni",
+            "columnName": "DNI",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "perfil",
+            "columnName": "PERFIL",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombre",
+            "columnName": "NOMBRE",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "apePaterno",
+            "columnName": "APEPATERNO",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "apeMaterno",
+            "columnName": "APEMATERNO",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "odei",
+            "columnName": "ODEI",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dpto",
+            "columnName": "DPTO",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "prov",
+            "columnName": "PROV",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "dist",
+            "columnName": "DIST",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "clave",
+            "columnName": "CLAVE",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "usuario",
+            "columnName": "USUARIO",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "activo",
+            "columnName": "ACTIVO",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fechaAlta",
+            "columnName": "FECHAALTA",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "fechaBaja",
+            "columnName": "FECHABAJA",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "movil",
+            "columnName": "MOVIL",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "reentrevista",
+            "columnName": "reentrevista",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "pbasico",
+            "columnName": "PBASICO",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "pfinal",
+            "columnName": "PFINAL",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "cargo",
+            "columnName": "CARGO",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fechaNac",
+            "columnName": "FECHANAC",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "telefono",
+            "columnName": "TELEFONO",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "estadoCivil",
+            "columnName": "ESTADOCIVIL",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "sexo",
+            "columnName": "SEXO",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "DNI"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_PERSONAL_PERFIL",
+            "unique": false,
+            "columnNames": [
+              "PERFIL"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_PERSONAL_PERFIL` ON `${TABLE_NAME}` (`PERFIL`)"
+          },
+          {
+            "name": "index_PERSONAL_CARGO",
+            "unique": false,
+            "columnNames": [
+              "CARGO"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_PERSONAL_CARGO` ON `${TABLE_NAME}` (`CARGO`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "PERFIL",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "PERFIL"
+            ],
+            "referencedColumns": [
+              "CODPERFIL"
+            ]
+          },
+          {
+            "table": "CARGO",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "CARGO"
+            ],
+            "referencedColumns": [
+              "CARGO"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "CARGO",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`CARGO` TEXT NOT NULL, `NOMCARGO` TEXT, `ABRCARGO` TEXT, PRIMARY KEY(`CARGO`))",
+        "fields": [
+          {
+            "fieldPath": "cargo",
+            "columnName": "CARGO",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nomCargo",
+            "columnName": "NOMCARGO",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "abrCargo",
+            "columnName": "ABRCARGO",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "CARGO"
+          ]
+        }
+      },
+      {
+        "tableName": "PERFIL",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`CODPERFIL` TEXT NOT NULL, `NOMPERFIL` TEXT NOT NULL, PRIMARY KEY(`CODPERFIL`))",
+        "fields": [
+          {
+            "fieldPath": "codPerfil",
+            "columnName": "CODPERFIL",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nomPerfil",
+            "columnName": "NOMPERFIL",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "CODPERFIL"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_PERFIL_NOMPERFIL",
+            "unique": true,
+            "columnNames": [
+              "NOMPERFIL"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_PERFIL_NOMPERFIL` ON `${TABLE_NAME}` (`NOMPERFIL`)"
+          }
+        ]
+      },
+      {
+        "tableName": "DPTO",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`CCDD` TEXT NOT NULL, `NOMBREDD` TEXT NOT NULL, PRIMARY KEY(`CCDD`))",
+        "fields": [
+          {
+            "fieldPath": "ccdd",
+            "columnName": "CCDD",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombreDd",
+            "columnName": "NOMBREDD",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "CCDD"
+          ]
+        }
+      },
+      {
+        "tableName": "PROV",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`CCDD` TEXT NOT NULL, `CCPP` TEXT NOT NULL, `NOMBREPV` TEXT NOT NULL, PRIMARY KEY(`CCDD`, `CCPP`), FOREIGN KEY(`CCDD`) REFERENCES `DPTO`(`CCDD`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "ccdd",
+            "columnName": "CCDD",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ccpp",
+            "columnName": "CCPP",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombrePv",
+            "columnName": "NOMBREPV",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "CCDD",
+            "CCPP"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_PROV_CCDD",
+            "unique": false,
+            "columnNames": [
+              "CCDD"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_PROV_CCDD` ON `${TABLE_NAME}` (`CCDD`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "DPTO",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "CCDD"
+            ],
+            "referencedColumns": [
+              "CCDD"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "DISTRITO",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`CCDD` TEXT NOT NULL, `CCPP` TEXT NOT NULL, `CCDI` TEXT NOT NULL, `NOMBRE_DIST` TEXT, `NOMBRE_CA` TEXT, `CODODEI` TEXT, `ETAPA` TEXT, PRIMARY KEY(`CCDD`, `CCPP`, `CCDI`), FOREIGN KEY(`CCDD`, `CCPP`) REFERENCES `PROV`(`CCDD`, `CCPP`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "ccdd",
+            "columnName": "CCDD",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ccpp",
+            "columnName": "CCPP",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ccdi",
+            "columnName": "CCDI",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombreDist",
+            "columnName": "NOMBRE_DIST",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "nombreCa",
+            "columnName": "NOMBRE_CA",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "codOdei",
+            "columnName": "CODODEI",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "etapa",
+            "columnName": "ETAPA",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "CCDD",
+            "CCPP",
+            "CCDI"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_DISTRITO_CCDD_CCPP",
+            "unique": false,
+            "columnNames": [
+              "CCDD",
+              "CCPP"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_DISTRITO_CCDD_CCPP` ON `${TABLE_NAME}` (`CCDD`, `CCPP`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "PROV",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "CCDD",
+              "CCPP"
+            ],
+            "referencedColumns": [
+              "CCDD",
+              "CCPP"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "ODEI",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ID` INTEGER NOT NULL, `CODODEI` TEXT NOT NULL, `NOMODEI` TEXT NOT NULL, `CCDD` TEXT, `USUCRE` TEXT, `FECCRE` TEXT, `USUREG` TEXT, `FECREG` TEXT, `FECENV` TEXT, PRIMARY KEY(`ID`), FOREIGN KEY(`CCDD`) REFERENCES `DPTO`(`CCDD`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "ID",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "codOdei",
+            "columnName": "CODODEI",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nomOdei",
+            "columnName": "NOMODEI",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ccdd",
+            "columnName": "CCDD",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "usuCre",
+            "columnName": "USUCRE",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "fecCre",
+            "columnName": "FECCRE",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "usuReg",
+            "columnName": "USUREG",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "fecReg",
+            "columnName": "FECREG",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "fecEnv",
+            "columnName": "FECENV",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "ID"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_ODEI_CODODEI",
+            "unique": true,
+            "columnNames": [
+              "CODODEI"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_ODEI_CODODEI` ON `${TABLE_NAME}` (`CODODEI`)"
+          },
+          {
+            "name": "index_ODEI_CCDD",
+            "unique": false,
+            "columnNames": [
+              "CCDD"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ODEI_CCDD` ON `${TABLE_NAME}` (`CCDD`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "DPTO",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "CCDD"
+            ],
+            "referencedColumns": [
+              "CCDD"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "PAIS",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`CODPAIS` TEXT NOT NULL, `NOMPAIS` TEXT, `CODCONTINENTE` TEXT, `USUCRE` TEXT, `FECCRE` TEXT, `USUREG` TEXT, `FECREG` TEXT, `FECENV` TEXT, PRIMARY KEY(`CODPAIS`))",
+        "fields": [
+          {
+            "fieldPath": "codPais",
+            "columnName": "CODPAIS",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nomPais",
+            "columnName": "NOMPAIS",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "codContinente",
+            "columnName": "CODCONTINENTE",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "usuCre",
+            "columnName": "USUCRE",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "fecCre",
+            "columnName": "FECCRE",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "usuReg",
+            "columnName": "USUREG",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "fecReg",
+            "columnName": "FECREG",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "fecEnv",
+            "columnName": "FECENV",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "CODPAIS"
+          ]
+        }
+      },
+      {
+        "tableName": "PERIODO",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`CODPER` TEXT NOT NULL, `NOMPER` TEXT, PRIMARY KEY(`CODPER`))",
+        "fields": [
+          {
+            "fieldPath": "codPer",
+            "columnName": "CODPER",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nomPer",
+            "columnName": "NOMPER",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "CODPER"
+          ]
+        }
+      },
+      {
+        "tableName": "CAMPO_CONGLOMERADO",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ID` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `CONGLOME` TEXT NOT NULL, `ANHO` TEXT, `MES` TEXT, `PERIODO` TEXT, `ESTRATO` TEXT, `DPTO` TEXT, `PROV` TEXT, `DIST` TEXT, `ZONA` TEXT, `DOMINIO` TEXT, `TIPOSELECCION` TEXT, `ODEI` TEXT, `AERINI` TEXT, `AERFIN` TEXT, `MUESTRA` TEXT, `SEDE` TEXT, `PRUEBA` INTEGER, `COVID19` INTEGER, `USUARIODIG` TEXT, `FECHADIG` TEXT, `USUARIOMOD` TEXT, `FECHAMOD` TEXT, `USUCRE` TEXT, `FECCRE` TEXT, `USUREG` TEXT, `FECREG` TEXT, `FECENV` TEXT, FOREIGN KEY(`ODEI`) REFERENCES `ODEI`(`CODODEI`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`PERIODO`) REFERENCES `PERIODO`(`CODPER`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "ID",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "conglome",
+            "columnName": "CONGLOME",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "anho",
+            "columnName": "ANHO",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "mes",
+            "columnName": "MES",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "periodo",
+            "columnName": "PERIODO",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "estrato",
+            "columnName": "ESTRATO",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "dpto",
+            "columnName": "DPTO",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "prov",
+            "columnName": "PROV",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "dist",
+            "columnName": "DIST",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "zona",
+            "columnName": "ZONA",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "dominio",
+            "columnName": "DOMINIO",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "tipoSeleccion",
+            "columnName": "TIPOSELECCION",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "odei",
+            "columnName": "ODEI",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "aerIni",
+            "columnName": "AERINI",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "aerFin",
+            "columnName": "AERFIN",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "muestra",
+            "columnName": "MUESTRA",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "sede",
+            "columnName": "SEDE",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "prueba",
+            "columnName": "PRUEBA",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "covid19",
+            "columnName": "COVID19",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "usuarioDig",
+            "columnName": "USUARIODIG",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "fechaDig",
+            "columnName": "FECHADIG",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "usuarioMod",
+            "columnName": "USUARIOMOD",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "fechaMod",
+            "columnName": "FECHAMOD",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "usuCre",
+            "columnName": "USUCRE",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "fecCre",
+            "columnName": "FECCRE",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "usuReg",
+            "columnName": "USUREG",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "fecReg",
+            "columnName": "FECREG",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "fecEnv",
+            "columnName": "FECENV",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "ID"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_CAMPO_CONGLOMERADO_CONGLOME",
+            "unique": true,
+            "columnNames": [
+              "CONGLOME"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_CAMPO_CONGLOMERADO_CONGLOME` ON `${TABLE_NAME}` (`CONGLOME`)"
+          },
+          {
+            "name": "index_CAMPO_CONGLOMERADO_ODEI",
+            "unique": false,
+            "columnNames": [
+              "ODEI"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_CAMPO_CONGLOMERADO_ODEI` ON `${TABLE_NAME}` (`ODEI`)"
+          },
+          {
+            "name": "index_CAMPO_CONGLOMERADO_PERIODO",
+            "unique": false,
+            "columnNames": [
+              "PERIODO"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_CAMPO_CONGLOMERADO_PERIODO` ON `${TABLE_NAME}` (`PERIODO`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "ODEI",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "ODEI"
+            ],
+            "referencedColumns": [
+              "CODODEI"
+            ]
+          },
+          {
+            "table": "PERIODO",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "PERIODO"
+            ],
+            "referencedColumns": [
+              "CODPER"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "CAMPO_VIVIENDA_MARCO",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ID` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `CONGLOME` TEXT NOT NULL, `VIVIENDA` TEXT NOT NULL, `MANZANA` TEXT, `NROVIVIENDA` TEXT, `TIPOVIVIENDA` TEXT, `CATVIA` TEXT, `NOMBREVIA` TEXT, `PUERTA` TEXT, `INTERIOR` TEXT, `PISO` TEXT, `MZ` TEXT, `LOTE` TEXT, `KM` TEXT, `NROBLOCK` TEXT, `CODCCPP` TEXT, `NOMCCPP` TEXT, `LATORIGEN_GPS` TEXT, `LONORIGEN_GPS` TEXT, `USUARIODIG` TEXT, `FECHADIG` TEXT, `USUARIOMOD` TEXT, `FECHAMOD` TEXT, `activo` INTEGER, `USUCRE` TEXT, `FECCRE` TEXT, `USUREG` TEXT, `FECREG` TEXT, `FECENV` TEXT, FOREIGN KEY(`CONGLOME`) REFERENCES `CAMPO_CONGLOMERADO`(`CONGLOME`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "ID",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "conglome",
+            "columnName": "CONGLOME",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "vivienda",
+            "columnName": "VIVIENDA",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "manzana",
+            "columnName": "MANZANA",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "nroVivienda",
+            "columnName": "NROVIVIENDA",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "tipoVivienda",
+            "columnName": "TIPOVIVIENDA",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "catVia",
+            "columnName": "CATVIA",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "nombreVia",
+            "columnName": "NOMBREVIA",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "puerta",
+            "columnName": "PUERTA",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "interior",
+            "columnName": "INTERIOR",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "piso",
+            "columnName": "PISO",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "mz",
+            "columnName": "MZ",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "lote",
+            "columnName": "LOTE",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "km",
+            "columnName": "KM",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "nroBlock",
+            "columnName": "NROBLOCK",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "codCcpp",
+            "columnName": "CODCCPP",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "nomCcpp",
+            "columnName": "NOMCCPP",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "latOrigenGps",
+            "columnName": "LATORIGEN_GPS",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "lonOrigenGps",
+            "columnName": "LONORIGEN_GPS",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "usuarioDig",
+            "columnName": "USUARIODIG",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "fechaDig",
+            "columnName": "FECHADIG",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "usuarioMod",
+            "columnName": "USUARIOMOD",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "fechaMod",
+            "columnName": "FECHAMOD",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "activo",
+            "columnName": "activo",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "usuCre",
+            "columnName": "USUCRE",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "fecCre",
+            "columnName": "FECCRE",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "usuReg",
+            "columnName": "USUREG",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "fecReg",
+            "columnName": "FECREG",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "fecEnv",
+            "columnName": "FECENV",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "ID"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_CAMPO_VIVIENDA_MARCO_CONGLOME_VIVIENDA",
+            "unique": true,
+            "columnNames": [
+              "CONGLOME",
+              "VIVIENDA"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_CAMPO_VIVIENDA_MARCO_CONGLOME_VIVIENDA` ON `${TABLE_NAME}` (`CONGLOME`, `VIVIENDA`)"
+          },
+          {
+            "name": "index_CAMPO_VIVIENDA_MARCO_CONGLOME",
+            "unique": false,
+            "columnNames": [
+              "CONGLOME"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_CAMPO_VIVIENDA_MARCO_CONGLOME` ON `${TABLE_NAME}` (`CONGLOME`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "CAMPO_CONGLOMERADO",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "CONGLOME"
+            ],
+            "referencedColumns": [
+              "CONGLOME"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "CAMPO_VIVIENDA_REEMPLAZO",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`CONGLOME` TEXT NOT NULL, `VIVIENDA` TEXT NOT NULL, `MZN` TEXT, `TIPVIA` TEXT, `NOMVIA` TEXT, `PTANRO` TEXT, `NROBLOCK` TEXT, `NROPISO` TEXT, `INTNRO` TEXT, `INTALF` TEXT, `NROMZA` TEXT, `NROLOTE` TEXT, `NROKM` TEXT, `OCUPADA` TEXT, `ORDEN` TEXT, `ORDENVIV` TEXT, `SELECCION` TEXT, `CONTIGUASEL` TEXT, `REEMPLAZO` TEXT, `CONTIGUAREE` TEXT, `SELECCIONANT` TEXT, `ANHOANT` TEXT, `MESANT` TEXT, `DPTO` TEXT, `ODEI` TEXT, `USOLOCAL` TEXT, `JEFEHOGAR` TEXT, `REEMPLAZOCAMPO` TEXT, `GRUPO` TEXT, `NOMCCPP` TEXT, `AERINI` TEXT, `AERFIN` TEXT, `CODCCPP` TEXT, `LATITUD` TEXT, `LONGITUD` TEXT, `USUCRE` TEXT, `FECCRE` TEXT, `USUREG` TEXT, `FECREG` TEXT, `FECENV` TEXT, PRIMARY KEY(`CONGLOME`, `VIVIENDA`), FOREIGN KEY(`CONGLOME`) REFERENCES `CAMPO_CONGLOMERADO`(`CONGLOME`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "conglome",
+            "columnName": "CONGLOME",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "vivienda",
+            "columnName": "VIVIENDA",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mzn",
+            "columnName": "MZN",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "tipVia",
+            "columnName": "TIPVIA",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "nomVia",
+            "columnName": "NOMVIA",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "ptaNro",
+            "columnName": "PTANRO",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "nroBlock",
+            "columnName": "NROBLOCK",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "nroPiso",
+            "columnName": "NROPISO",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "intNro",
+            "columnName": "INTNRO",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "intAlf",
+            "columnName": "INTALF",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "nroMza",
+            "columnName": "NROMZA",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "nroLote",
+            "columnName": "NROLOTE",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "nroKm",
+            "columnName": "NROKM",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "ocupada",
+            "columnName": "OCUPADA",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "orden",
+            "columnName": "ORDEN",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "ordenViv",
+            "columnName": "ORDENVIV",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "seleccion",
+            "columnName": "SELECCION",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "contiguaSel",
+            "columnName": "CONTIGUASEL",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "reemplazo",
+            "columnName": "REEMPLAZO",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "contiguaRee",
+            "columnName": "CONTIGUAREE",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "seleccionAnt",
+            "columnName": "SELECCIONANT",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "anhoAnt",
+            "columnName": "ANHOANT",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "mesAnt",
+            "columnName": "MESANT",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "dpto",
+            "columnName": "DPTO",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "odei",
+            "columnName": "ODEI",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "usoLocal",
+            "columnName": "USOLOCAL",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "jefeHogar",
+            "columnName": "JEFEHOGAR",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "reemplazoCampo",
+            "columnName": "REEMPLAZOCAMPO",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "grupo",
+            "columnName": "GRUPO",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "nomCcpp",
+            "columnName": "NOMCCPP",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "aerIni",
+            "columnName": "AERINI",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "aerFin",
+            "columnName": "AERFIN",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "codCcpp",
+            "columnName": "CODCCPP",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "latitud",
+            "columnName": "LATITUD",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "longitud",
+            "columnName": "LONGITUD",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "usuCre",
+            "columnName": "USUCRE",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "fecCre",
+            "columnName": "FECCRE",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "usuReg",
+            "columnName": "USUREG",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "fecReg",
+            "columnName": "FECREG",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "fecEnv",
+            "columnName": "FECENV",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "CONGLOME",
+            "VIVIENDA"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_CAMPO_VIVIENDA_REEMPLAZO_CONGLOME",
+            "unique": false,
+            "columnNames": [
+              "CONGLOME"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_CAMPO_VIVIENDA_REEMPLAZO_CONGLOME` ON `${TABLE_NAME}` (`CONGLOME`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "CAMPO_CONGLOMERADO",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "CONGLOME"
+            ],
+            "referencedColumns": [
+              "CONGLOME"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "PERSONA_PANEL",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`CONGLOME` TEXT NOT NULL, `VIVIENDA` TEXT NOT NULL, `HOGAR` TEXT, `CODPANEL` TEXT NOT NULL, `P201` TEXT, `P202A` TEXT, `P202B` TEXT, `P202C` TEXT, `P203` TEXT, `P207` TEXT, `P208A` TEXT, `P301A` TEXT, `P301B` TEXT, `P401` TEXT, `P558C` TEXT, `P558C_ESPECIFIQUE` TEXT, `USUCRE` TEXT, `FECCRE` TEXT, `USUREG` TEXT, `FECREG` TEXT, `FECENV` TEXT, `P204` TEXT, `P401H1` TEXT, `P401H2` TEXT, `P401H3` TEXT, `P401H4` TEXT, `P401H5` TEXT, `P401H6` TEXT, `P558A1` TEXT, `P558A2` TEXT, `P558A3` TEXT, `P558A4` TEXT, `P558A5` TEXT, `P558A6` TEXT, `P401H11` TEXT, `P401H12` TEXT, `P401H13` TEXT, `P401H14` TEXT, `P401H15` TEXT, `P401H16` TEXT, `P401H17` TEXT, `P558C1` TEXT, `P558C1_ESPECIFIQUE` TEXT, PRIMARY KEY(`CONGLOME`, `VIVIENDA`, `CODPANEL`), FOREIGN KEY(`CONGLOME`, `VIVIENDA`) REFERENCES `CAMPO_VIVIENDA_MARCO`(`CONGLOME`, `VIVIENDA`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "conglome",
+            "columnName": "CONGLOME",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "vivienda",
+            "columnName": "VIVIENDA",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hogar",
+            "columnName": "HOGAR",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "codPanel",
+            "columnName": "CODPANEL",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "p201",
+            "columnName": "P201",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p202a",
+            "columnName": "P202A",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p202b",
+            "columnName": "P202B",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p202c",
+            "columnName": "P202C",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p203",
+            "columnName": "P203",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p207",
+            "columnName": "P207",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p208a",
+            "columnName": "P208A",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p301a",
+            "columnName": "P301A",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p301b",
+            "columnName": "P301B",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p401",
+            "columnName": "P401",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p558c",
+            "columnName": "P558C",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p558cEspecifique",
+            "columnName": "P558C_ESPECIFIQUE",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "usuCre",
+            "columnName": "USUCRE",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "fecCre",
+            "columnName": "FECCRE",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "usuReg",
+            "columnName": "USUREG",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "fecReg",
+            "columnName": "FECREG",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "fecEnv",
+            "columnName": "FECENV",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p204",
+            "columnName": "P204",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p401h1",
+            "columnName": "P401H1",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p401h2",
+            "columnName": "P401H2",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p401h3",
+            "columnName": "P401H3",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p401h4",
+            "columnName": "P401H4",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p401h5",
+            "columnName": "P401H5",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p401h6",
+            "columnName": "P401H6",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p558a1",
+            "columnName": "P558A1",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p558a2",
+            "columnName": "P558A2",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p558a3",
+            "columnName": "P558A3",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p558a4",
+            "columnName": "P558A4",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p558a5",
+            "columnName": "P558A5",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p558a6",
+            "columnName": "P558A6",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p401h11",
+            "columnName": "P401H11",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p401h12",
+            "columnName": "P401H12",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p401h13",
+            "columnName": "P401H13",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p401h14",
+            "columnName": "P401H14",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p401h15",
+            "columnName": "P401H15",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p401h16",
+            "columnName": "P401H16",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p401h17",
+            "columnName": "P401H17",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p558c1",
+            "columnName": "P558C1",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p558c1Especifique",
+            "columnName": "P558C1_ESPECIFIQUE",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "CONGLOME",
+            "VIVIENDA",
+            "CODPANEL"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_PERSONA_PANEL_CONGLOME_VIVIENDA",
+            "unique": false,
+            "columnNames": [
+              "CONGLOME",
+              "VIVIENDA"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_PERSONA_PANEL_CONGLOME_VIVIENDA` ON `${TABLE_NAME}` (`CONGLOME`, `VIVIENDA`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "CAMPO_VIVIENDA_MARCO",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "CONGLOME",
+              "VIVIENDA"
+            ],
+            "referencedColumns": [
+              "CONGLOME",
+              "VIVIENDA"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "CAP100PANEL",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ANHO` TEXT NOT NULL, `MES` TEXT NOT NULL, `CONGLOME` TEXT NOT NULL, `VIVIENDA` TEXT NOT NULL, `HOGAR` TEXT NOT NULL, `UBIGEO` TEXT, `DOMINIO` TEXT, `ESTRATO` TEXT, `P101` TEXT, `P102A` TEXT, `P103` TEXT, `P103A` TEXT, `P104` TEXT, `P104A` TEXT, `P105A` TEXT, `P110` TEXT, `P110A` TEXT, `P111` TEXT, `P112_1` TEXT, `P112_2` TEXT, `P112_3` TEXT, `P112_4` TEXT, `P112_5` TEXT, `P112_6` TEXT, `P112_7` TEXT, `P112a` TEXT, `USUCRE` TEXT, `FECCRE` TEXT, `USUREG` TEXT, `FECREG` TEXT, `FECENV` TEXT, `P106A` TEXT, `P113A` TEXT, `ALERT` TEXT, PRIMARY KEY(`ANHO`, `MES`, `CONGLOME`, `VIVIENDA`, `HOGAR`))",
+        "fields": [
+          {
+            "fieldPath": "anho",
+            "columnName": "ANHO",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mes",
+            "columnName": "MES",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "conglome",
+            "columnName": "CONGLOME",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "vivienda",
+            "columnName": "VIVIENDA",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hogar",
+            "columnName": "HOGAR",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ubigeo",
+            "columnName": "UBIGEO",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "dominio",
+            "columnName": "DOMINIO",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "estrato",
+            "columnName": "ESTRATO",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p101",
+            "columnName": "P101",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p102a",
+            "columnName": "P102A",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p103",
+            "columnName": "P103",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p103a",
+            "columnName": "P103A",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p104",
+            "columnName": "P104",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p104a",
+            "columnName": "P104A",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p105a",
+            "columnName": "P105A",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p110",
+            "columnName": "P110",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p110a",
+            "columnName": "P110A",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p111",
+            "columnName": "P111",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p112_1",
+            "columnName": "P112_1",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p112_2",
+            "columnName": "P112_2",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p112_3",
+            "columnName": "P112_3",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p112_4",
+            "columnName": "P112_4",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p112_5",
+            "columnName": "P112_5",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p112_6",
+            "columnName": "P112_6",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p112_7",
+            "columnName": "P112_7",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p112a",
+            "columnName": "P112a",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "usuCre",
+            "columnName": "USUCRE",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "fecCre",
+            "columnName": "FECCRE",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "usuReg",
+            "columnName": "USUREG",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "fecReg",
+            "columnName": "FECREG",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "fecEnv",
+            "columnName": "FECENV",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p106a",
+            "columnName": "P106A",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "p113a",
+            "columnName": "P113A",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "alert",
+            "columnName": "ALERT",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "ANHO",
+            "MES",
+            "CONGLOME",
+            "VIVIENDA",
+            "HOGAR"
+          ]
+        }
+      },
+      {
+        "tableName": "CARGA_MUESTRA",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `tipo` TEXT NOT NULL, `anho` TEXT, `odei` TEXT, `mes` TEXT, `fechaHora` INTEGER NOT NULL, `modo` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tipo",
+            "columnName": "tipo",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "anho",
+            "columnName": "anho",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "odei",
+            "columnName": "odei",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "mes",
+            "columnName": "mes",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "fechaHora",
+            "columnName": "fechaHora",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "modo",
+            "columnName": "modo",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_CARGA_MUESTRA_tipo_anho_odei_mes",
+            "unique": false,
+            "columnNames": [
+              "tipo",
+              "anho",
+              "odei",
+              "mes"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_CARGA_MUESTRA_tipo_anho_odei_mes` ON `${TABLE_NAME}` (`tipo`, `anho`, `odei`, `mes`)"
+          }
+        ]
+      },
+      {
+        "tableName": "MES",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`CODIGO` TEXT NOT NULL, `NOMBRE` TEXT, PRIMARY KEY(`CODIGO`))",
+        "fields": [
+          {
+            "fieldPath": "codigo",
+            "columnName": "CODIGO",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombre",
+            "columnName": "NOMBRE",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "CODIGO"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b8332cabebd615bd98f983feca012989')"
+    ]
+  }
+}
