@@ -75,10 +75,10 @@ class MainActivity : AppCompatActivity() {
         toggle.syncState()
 
         binding.navigationView.setNavigationItemSelectedListener { item ->
-            val destino = if (item.itemId == R.id.action_cargar_muestra) {
-                CargarMuestraActivity::class.java
-            } else {
-                SectionPlaceholderActivity::class.java
+            val destino = when (item.itemId) {
+                R.id.action_cargar_muestra -> CargarMuestraActivity::class.java
+                R.id.action_marco -> MarcoActivity::class.java
+                else -> SectionPlaceholderActivity::class.java
             }
             startActivity(
                 Intent(this, destino)

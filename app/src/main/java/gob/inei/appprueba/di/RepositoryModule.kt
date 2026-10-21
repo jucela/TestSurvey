@@ -6,6 +6,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import gob.inei.appprueba.data.repositories.AuthRepositoryImpl
 import gob.inei.appprueba.data.repositories.CatalogoMuestraRepositoryImpl
+import gob.inei.appprueba.data.repository.MarcoRepositoryImpl
 import gob.inei.appprueba.data.repositories.MuestraOnlineRepositoryImpl
 import gob.inei.appprueba.data.repositories.MuestraRepositoryImpl
 import gob.inei.appprueba.data.repositories.SurveyRepositoryImpl
@@ -13,6 +14,7 @@ import gob.inei.appprueba.data.sources.RawCatalogDataSource
 import gob.inei.appprueba.data.sources.ResRawCatalogDataSource
 import gob.inei.appprueba.domain.repositories.AuthRepository
 import gob.inei.appprueba.domain.repositories.CatalogoMuestraRepository
+import gob.inei.appprueba.domain.repository.MarcoRepository
 import gob.inei.appprueba.domain.repositories.MuestraOnlineRepository
 import gob.inei.appprueba.domain.repositories.MuestraRepository
 import gob.inei.appprueba.domain.repositories.SurveyRepository
@@ -45,6 +47,10 @@ abstract class RepositoryModule {
     abstract fun bindCatalogoMuestraRepository(
         impl: CatalogoMuestraRepositoryImpl
     ): CatalogoMuestraRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindMarcoRepository(impl: MarcoRepositoryImpl): MarcoRepository
 
     @Binds
     @Singleton

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <dimen name="dp_0">0dp</dimen>
     <dimen name="dp_1">1dp</dimen>
     <dimen name="dp_2">2dp</dimen>
     <dimen name="dp_4">4dp</dimen>
@@ -15,4 +16,10 @@
     <dimen name="login_logo_size">64dp</dimen>
     <dimen name="drawer_width">280dp</dimen>
     <dimen name="drawer_header_avatar_size">56dp</dimen>
+    <dimen name="marco_acordeon_padding">16dp</dimen>
+    <dimen name="marco_fila_padding">8dp</dimen>
+    <dimen name="marco_dialog_padding">24dp</dimen>
+    <dimen name="marco_dialog_margin">24dp</dimen>
+    <dimen name="marco_icon_size">24dp</dimen>
+    <dimen name="marco_icon_detalle_size">48dp</dimen>
 </resources>

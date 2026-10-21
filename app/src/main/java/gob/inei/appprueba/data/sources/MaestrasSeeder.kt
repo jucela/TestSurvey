@@ -1,6 +1,7 @@
 package gob.inei.appprueba.data.sources
 
 import android.content.Context
+import android.util.Log
 import androidx.sqlite.db.SupportSQLiteDatabase
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -19,9 +20,12 @@ class MaestrasSeeder @Inject constructor(
 ) {
 
     fun sembrar(db: SupportSQLiteDatabase) {
+        Log.i("MaestrasSeeder", "sembrar: INICIO")
         ARCHIVOS.forEach { archivo ->
+            Log.d("MaestrasSeeder", "Ejecutando $archivo")
             ejecutar(db, leerAsset(archivo))
         }
+        Log.i("MaestrasSeeder", "sembrar: FIN")
     }
 
     /**
@@ -29,7 +33,41 @@ class MaestrasSeeder @Inject constructor(
      * `MES` no existe en el esquema v4→v5 y sólo debe ejecutarse desde v6.
      */
     fun sembrarMes(db: SupportSQLiteDatabase) {
+        Log.i("MaestrasSeeder", "sembrarMes: INICIO")
         ejecutar(db, leerAsset(ARCHIVO_MES))
+        Log.i("MaestrasSeeder", "sembrarMes: FIN")
+    }
+
+    /**
+     * Siembra las tablas maestras solo si están vacías.
+     * Útil para BDs ya creadas (v8) que no tienen datos.
+     */
+    fun sembrarSiVacio(db: SupportSQLiteDatabase) {
+        Log.i("MaestrasSeeder", "sembrarSiVacio: INICIO")
+        val tablas = listOf("ODEI", "MES", "PERIODO", "DPTO", "PROV", "DISTRITO", "PAIS")
+        var necesitaSiembra = false
+        for (tabla in tablas) {
+            try {
+                val cursor = db.query("SELECT COUNT(*) FROM $tabla")
+                if (cursor.moveToFirst() && cursor.getLong(0) == 0L) {
+                    Log.i("MaestrasSeeder", "Tabla $tabla está vacía, requiere siembra")
+                    necesitaSiembra = true
+                    break
+                }
+                cursor.close()
+            } catch (e: Exception) {
+                Log.w("MaestrasSeeder", "Error verificando $tabla: ${e.message}")
+            }
+        }
+        if (necesitaSiembra) {
+            Log.i("MaestrasSeeder", "Sembrando tablas maestras vacías...")
+            sembrar(db)
+            sembrarMes(db)
+            Log.i("MaestrasSeeder", "Siembra completada")
+        } else {
+            Log.d("MaestrasSeeder", "Tablas maestras ya tienen datos, omitiendo siembra")
+        }
+        Log.i("MaestrasSeeder", "sembrarSiVacio: FIN")
     }
 
     private fun leerAsset(nombre: String): String =
@@ -39,7 +77,10 @@ class MaestrasSeeder @Inject constructor(
         sentencias(contenido).forEach { sentencia ->
             val normalizada = sentencia.trim()
             if (!normalizada.startsWith("INSERT", ignoreCase = true)) return@forEach
-            generarInserciones(normalizada).forEach { db.execSQL(it) }
+            generarInserciones(normalizada).forEach { 
+                Log.d("MaestrasSeeder", "Ejecutando SQL: ${it.take(200)}")
+                db.execSQL(it) 
+            }
         }
     }
 

@@ -113,4 +113,31 @@
     <string name="cargar_muestra_info_automatico_titulo">Modo Automatico</string>
     <string name="cargar_muestra_info_automatico_mensaje">La aplicación descarga la muestra desde el servidor. Para viviendas debe elegir la ODEI y el mes correspondientes; para personal descarga automáticamente la muestra más reciente. Luego valida y carga los datos con el mismo proceso que el modo Manual.</string>
     <string name="cargar_muestra_info_cerrar">Cerrar</string>
+
+    <!-- Marco (Funcionalidad Marco) -->
+    <string name="marco_titulo">Relacion de Viviendas del Conglomerado</string>
+    <string name="marco_filtros_titulo">Filtros</string>
+    <string name="marco_filtros_acordeon_desc">Expandir o colapsar panel de filtros</string>
+    <string name="marco_busqueda_hint">Buscar conglomerado...</string>
+    <string name="marco_busqueda_limpiar">Limpiar búsqueda</string>
+    <string name="marco_filtro_activos">Activos</string>
+    <string name="marco_filtro_activos_desc">Mostrar solo viviendas activas</string>
+    <string name="marco_filtro_odei">ODEI</string>
+    <string name="marco_filtro_mes">MES</string>
+    <string name="marco_filtro_periodo">PERIODO</string>
+    <string name="marco_filtro_conglomerado">CONGLOMERADO</string>
+    <string name="marco_spinner_seleccione">--Seleccione--</string>
+    <string name="marco_info_conglomerado">Estrato: %1$s    Tipo Selección: %2$s    Viviendas: %3$d seleccionadas / %4$d reemplazo</string>
+    <string name="marco_col_activo">Activo</string>
+    <string name="marco_col_detalle_desc">Ver detalle de la vivienda</string>
+    <string name="marco_dialog_titulo">Detalle de la vivienda</string>
+    <string name="marco_dialog_direccion">Dirección</string>
+    <string name="marco_dialog_puerta">Puerta</string>
+    <string name="marco_dialog_interior">Interior</string>
+    <string name="marco_dialog_piso">Piso</string>
+    <string name="marco_dialog_mz">Mz</string>
+    <string name="marco_dialog_lote">Lote</string>
+    <string name="marco_dialog_cerrar">Cerrar</string>
+    <string name="marco_error_titulo">Error</string>
+    <string name="marco_dialog_reintentar">Reintentar</string>
 </resources>

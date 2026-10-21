@@ -75,6 +75,7 @@ android {
     }
     ksp {
         arg("room.schemaLocation", "$projectDir/schemas")
+        arg("includeCompilationClasspath", "true")
     }
     sourceSets {
         getByName("androidTest").assets.directories.add("$projectDir/schemas")

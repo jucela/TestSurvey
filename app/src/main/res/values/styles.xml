@@ -108,4 +108,42 @@
         <item name="cornerRadius">@dimen/dp_12</item>
         <item name="iconTint">@color/login_on_button</item>
     </style>
+
+    <!-- ============================================================
+         Funcionalidad Marco
+         ============================================================ -->
+
+    <style name="Widget.AppPrueba.Marco.Acordeon" parent="Widget.Material3.CardView.Elevated">
+        <item name="cardCornerRadius">@dimen/dp_12</item>
+        <item name="cardElevation">@dimen/dp_0</item>
+        <item name="cardBackgroundColor">?attr/colorSurfaceContainerLow</item>
+    </style>
+
+    <style name="Widget.AppPrueba.Marco.ExposedDropdownMenu" parent="Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+        <item name="boxBackgroundColor">?attr/colorSurface</item>
+        <item name="hintTextColor">?attr/colorOnSurfaceVariant</item>
+    </style>
+
+    <style name="Widget.AppPrueba.Marco.DetalleRow" parent="Widget.Material3.CardView.Elevated">
+        <item name="cardCornerRadius">@dimen/dp_8</item>
+        <item name="cardElevation">@dimen/dp_0</item>
+    </style>
+
+    <style name="Widget.AppPrueba.Marco.DetailDialog" parent="Widget.Material3.CardView.Elevated">
+        <item name="cardCornerRadius">@dimen/dp_16</item>
+        <item name="cardElevation">@dimen/dp_2</item>
+        <item name="cardBackgroundColor">?attr/colorSurfaceContainerLow</item>
+    </style>
+
+    <style name="Widget.AppPrueba.Marco.Switch" parent="Widget.Material3.CompoundButton.Switch">
+        <item name="iconTint">?attr/colorPrimary</item>
+        <item name="trackTint">?attr/colorPrimaryContainer</item>
+    </style>
+
+    <!-- Colores para filas de reemplazo -->
+    <color name="marco_activo_color">@color/primaryContainer</color>
+    <color name="marco_inactivo_color">@color/outlineVariant</color>
+
+    <!-- Bool para tablet/tablet mode -->
+    <bool name="marco_tablet_mode">false</bool>
 </resources>

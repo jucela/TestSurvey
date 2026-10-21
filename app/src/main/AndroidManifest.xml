@@ -53,6 +53,13 @@
             android:label="@string/menu_cargar_muestra"
             android:parentActivityName=".presentation.activities.MainActivity"
             android:theme="@style/Theme.AppPrueba" />
+
+        <activity
+            android:name=".presentation.activities.MarcoActivity"
+            android:exported="false"
+            android:label="@string/marco_titulo"
+            android:parentActivityName=".presentation.activities.MainActivity"
+            android:theme="@style/Theme.AppPrueba" />
     </application>
 
 </manifest>

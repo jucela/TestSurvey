@@ -14,4 +14,7 @@ interface PeriodoDao {
 
     @Query("SELECT COUNT(*) FROM PERIODO")
     suspend fun count(): Int
+
+    @Query("SELECT * FROM PERIODO ORDER BY CODPER")
+    suspend fun listar(): List<PeriodoEntity>
 }

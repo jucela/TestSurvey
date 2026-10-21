@@ -58,4 +58,9 @@
     <color name="surfaceContainer">#FFF3EDF7</color>
     <color name="surfaceContainerHigh">#FFECE6F0</color>
     <color name="surfaceContainerHighest">#FFE6E0E9</color>
+
+    <!-- Colores para Marco (filas de reemplazo) -->
+    <color name="marco_reemplazo_color">#FFFFDAD6</color>
+    <color name="marco_no_reemplazo_color">#DEE1FF</color>
+
 </resources>

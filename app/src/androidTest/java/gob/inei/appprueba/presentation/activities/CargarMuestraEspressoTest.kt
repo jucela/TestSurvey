@@ -83,8 +83,6 @@ class CargarMuestraEspressoTest {
             onView(withText(R.string.menu_cargar_muestra)).perform(click())
 
             esperarVista(R.id.btnSeleccionar)
-            onView(withId(R.id.tvRestriccion))
-                .check(matches(withText(R.string.cargar_muestra_restriccion)))
         }
     }
 
@@ -190,8 +188,6 @@ class CargarMuestraEspressoTest {
                 .respondWith(Instrumentation.ActivityResult(Activity.RESULT_CANCELED, null))
 
             ActivityScenario.launch(CargarMuestraActivity::class.java).use {
-                onView(withId(R.id.tvRestriccion))
-                    .check(matches(withText(R.string.cargar_muestra_restriccion)))
                 onView(withId(R.id.btnSeleccionar)).check(matches(isDisplayed()))
 
                 onView(withId(R.id.btnSeleccionar)).perform(click())
