@@ -8,6 +8,8 @@ import gob.inei.appprueba.data.databases.dao.AlternativeDao
 import gob.inei.appprueba.data.databases.dao.AnswerDao
 import gob.inei.appprueba.data.databases.dao.Cap100PanelDao
 import gob.inei.appprueba.data.databases.dao.CargaMuestraDao
+import gob.inei.appprueba.data.databases.dao.HogarDao
+import gob.inei.appprueba.data.databases.dao.MarcoDao
 import gob.inei.appprueba.data.databases.dao.CargoDao
 import gob.inei.appprueba.data.databases.dao.ConglomeradoDao
 import gob.inei.appprueba.data.databases.dao.DistritoDao
@@ -22,6 +24,7 @@ import gob.inei.appprueba.data.databases.dao.PersonaPanelDao
 import gob.inei.appprueba.data.databases.dao.PersonalDao
 import gob.inei.appprueba.data.databases.dao.ProvDao
 import gob.inei.appprueba.data.databases.dao.QuestionDao
+import gob.inei.appprueba.data.databases.dao.ViviendaDao
 import gob.inei.appprueba.data.databases.dao.ViviendaMarcoDao
 import gob.inei.appprueba.data.databases.dao.ViviendaReemplazoDao
 import gob.inei.appprueba.data.databases.entities.AlternativeEntity
@@ -33,6 +36,7 @@ import gob.inei.appprueba.data.databases.entities.ConglomeradoEntity
 import gob.inei.appprueba.data.databases.entities.DistritoEntity
 import gob.inei.appprueba.data.databases.entities.DptoEntity
 import gob.inei.appprueba.data.databases.entities.FlowRuleEntity
+import gob.inei.appprueba.data.databases.entities.HogarEntity
 import gob.inei.appprueba.data.databases.entities.MesEntity
 import gob.inei.appprueba.data.databases.entities.OdeiEntity
 import gob.inei.appprueba.data.databases.entities.PaisEntity
@@ -42,6 +46,7 @@ import gob.inei.appprueba.data.databases.entities.PersonaPanelEntity
 import gob.inei.appprueba.data.databases.entities.PersonalEntity
 import gob.inei.appprueba.data.databases.entities.ProvEntity
 import gob.inei.appprueba.data.databases.entities.QuestionEntity
+import gob.inei.appprueba.data.databases.entities.ViviendaEntity
 import gob.inei.appprueba.data.databases.entities.ViviendaMarcoEntity
 import gob.inei.appprueba.data.databases.entities.ViviendaReemplazoEntity
 import gob.inei.appprueba.data.sources.MaestrasSeeder
@@ -67,9 +72,11 @@ import gob.inei.appprueba.data.sources.MaestrasSeeder
         PersonaPanelEntity::class,
         Cap100PanelEntity::class,
         CargaMuestraEntity::class,
-        MesEntity::class
+        MesEntity::class,
+        ViviendaEntity::class,
+        HogarEntity::class
     ],
-    version = 7,
+    version = 8,
     exportSchema = true
 )
 abstract class EncuestaDatabase : RoomDatabase() {
@@ -93,6 +100,9 @@ abstract class EncuestaDatabase : RoomDatabase() {
     abstract fun cap100PanelDao(): Cap100PanelDao
     abstract fun cargaMuestraDao(): CargaMuestraDao
     abstract fun mesDao(): MesDao
+    abstract fun viviendaDao(): ViviendaDao
+    abstract fun hogarDao(): HogarDao
+    abstract fun marcoDao(): MarcoDao
 
     companion object {
         /** Solo crea la tabla de usuarios; no toca las tablas de la encuesta (RF-11). */
@@ -232,6 +242,57 @@ abstract class EncuestaDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * Marco de viviendas (RF-02): agrega `CAMPO_VIVIENDA` y `CAMPO_HOGAR`.
+         * Migracion aditiva: no altera tablas existentes ni siembra datos.
+         */
+        val MIGRATION_7_8 = object : Migration(7, 8) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(CREATE_CAMPO_VIVIENDA)
+                db.execSQL(CREATE_CAMPO_HOGAR)
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS `index_CAMPO_VIVIENDA_CONGLOME` " +
+                        "ON `CAMPO_VIVIENDA` (`CONGLOME`)"
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS `index_CAMPO_HOGAR_CONGLOME_VIVIENDA` " +
+                        "ON `CAMPO_HOGAR` (`CONGLOME`, `VIVIENDA`)"
+                )
+            }
+        }
+
+        private const val CREATE_CAMPO_VIVIENDA =
+            "CREATE TABLE IF NOT EXISTS `CAMPO_VIVIENDA` (" +
+                "`CONGLOME` TEXT NOT NULL, `VIVIENDA` TEXT NOT NULL, `MANZANA` TEXT, " +
+                "`NROVIVIENDA` TEXT, `TIPOVIVIENDA` TEXT, `CATVIA` TEXT, `NOMBREVIA` TEXT, " +
+                "`PUERTA` TEXT, `INTERIOR` TEXT, `PISO` TEXT, `MZ` TEXT, `LOTE` TEXT, `KM` TEXT, " +
+                "`NROBLOCK` TEXT, `CODCCPP` TEXT, `NOMCCPP` TEXT, `TELEFONO` TEXT, " +
+                "`ESREEMPLAZO` TEXT, `NROREEMPLAZO` TEXT, `APERTURA` TEXT, `NROHOGARES` TEXT, " +
+                "`P101` TEXT, `P102A` TEXT, `P103` TEXT, `P103A` TEXT, `P104` INTEGER, " +
+                "`P104A` INTEGER, `P104B1` TEXT, `P104B2` TEXT, `LATORIGEN_GPS` TEXT, " +
+                "`LONORIGEN_GPS` TEXT, `LATITUD_GPS` TEXT, `LONGITUD_GPS` TEXT, " +
+                "`DISTANCIA_GPS` TEXT, `USUARIODIG` TEXT, `FECHADIG` TEXT, `USUARIOMOD` TEXT, " +
+                "`FECHAMOD` TEXT, `MOVIL` TEXT, `HORAINIDIG` TEXT, `HORAFINDIG` TEXT, " +
+                "`COMPLETO` TEXT, `USUCRE` TEXT, `FECCRE` TEXT, `USUREG` TEXT, `FECREG` TEXT, " +
+                "`FECENV` TEXT, PRIMARY KEY(`CONGLOME`, `VIVIENDA`), " +
+                "FOREIGN KEY(`CONGLOME`) REFERENCES `CAMPO_CONGLOMERADO`(`CONGLOME`) " +
+                "ON UPDATE NO ACTION ON DELETE NO ACTION)"
+
+        private const val CREATE_CAMPO_HOGAR =
+            "CREATE TABLE IF NOT EXISTS `CAMPO_HOGAR` (" +
+                "`CONGLOME` TEXT NOT NULL, `VIVIENDA` TEXT NOT NULL, `HOGAR` TEXT NOT NULL, " +
+                "`HOGAR_ORDEN` TEXT NOT NULL, `NOMBRE_JEFE` TEXT, `APELLIDO_JEFE` TEXT, " +
+                "`APELLIDO2_JEFE` TEXT, `FecResRec` TEXT, `FECRESFIN` TEXT, `RESFIN` TEXT, " +
+                "`CODENC` TEXT, `CODSUPLOC` TEXT, `CODCOORD` TEXT, `CODSUPNAC` TEXT, " +
+                "`HOGARENTRE` TEXT, `P22` TEXT, `P23` TEXT, `P24A` TEXT, `P24B` TEXT, " +
+                "`P25` TEXT, `P25_1` TEXT, `P25_2` TEXT, `P25_3` TEXT, `P25_4` TEXT, " +
+                "`P25_5` TEXT, `PDA` TEXT, `USUARIODIG` TEXT, `FECHADIG` TEXT, " +
+                "`USUARIOMOD` TEXT, `FECHAMOD` TEXT, `MOVIL` TEXT, `HORAINIDIG` TEXT, " +
+                "`HORAFINDIG` TEXT, `COMPLETO` TEXT, `USUCRE` TEXT, `FECCRE` TEXT, " +
+                "`USUREG` TEXT, `FECREG` TEXT, `FECENV` TEXT, `ESTADOSUP` TEXT, " +
+                "PRIMARY KEY(`CONGLOME`, `VIVIENDA`, `HOGAR`), " +
+                "FOREIGN KEY(`CONGLOME`, `VIVIENDA`) REFERENCES `CAMPO_VIVIENDA`(`CONGLOME`, `VIVIENDA`) " +
+                "ON UPDATE NO ACTION ON DELETE NO ACTION)"
         private const val CREATE_MES =
             "CREATE TABLE IF NOT EXISTS `MES` (`CODIGO` TEXT NOT NULL, `NOMBRE` TEXT, " +
                 "PRIMARY KEY(`CODIGO`))"

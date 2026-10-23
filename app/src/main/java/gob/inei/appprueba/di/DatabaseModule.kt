@@ -21,6 +21,8 @@ import gob.inei.appprueba.data.databases.dao.ConglomeradoDao
 import gob.inei.appprueba.data.databases.dao.DistritoDao
 import gob.inei.appprueba.data.databases.dao.DptoDao
 import gob.inei.appprueba.data.databases.dao.FlowRuleDao
+import gob.inei.appprueba.data.databases.dao.HogarDao
+import gob.inei.appprueba.data.databases.dao.MarcoDao
 import gob.inei.appprueba.data.databases.dao.MesDao
 import gob.inei.appprueba.data.databases.dao.OdeiDao
 import gob.inei.appprueba.data.databases.dao.PaisDao
@@ -30,6 +32,7 @@ import gob.inei.appprueba.data.databases.dao.PersonaPanelDao
 import gob.inei.appprueba.data.databases.dao.PersonalDao
 import gob.inei.appprueba.data.databases.dao.ProvDao
 import gob.inei.appprueba.data.databases.dao.QuestionDao
+import gob.inei.appprueba.data.databases.dao.ViviendaDao
 import gob.inei.appprueba.data.databases.dao.ViviendaMarcoDao
 import gob.inei.appprueba.data.databases.dao.ViviendaReemplazoDao
 import gob.inei.appprueba.data.sources.MaestrasSeeder
@@ -53,7 +56,8 @@ object DatabaseModule {
                 EncuestaDatabase.MIGRATION_3_4,
                 EncuestaDatabase.migracion4a5(seeder),
                 EncuestaDatabase.migracion5a6(seeder),
-                EncuestaDatabase.MIGRATION_6_7
+                EncuestaDatabase.MIGRATION_6_7,
+                EncuestaDatabase.MIGRATION_7_8
             )
             .addCallback(
                 object : RoomDatabase.Callback() {
@@ -131,6 +135,14 @@ object DatabaseModule {
     fun provideCargaMuestraDao(database: EncuestaDatabase): CargaMuestraDao =
         database.cargaMuestraDao()
 
+    @Provides
+    fun provideViviendaDao(database: EncuestaDatabase): ViviendaDao = database.viviendaDao()
+
+    @Provides
+    fun provideHogarDao(database: EncuestaDatabase): HogarDao = database.hogarDao()
+
+    @Provides
+    fun provideMarcoDao(database: EncuestaDatabase): MarcoDao = database.marcoDao()
     @Provides
     @Singleton
     fun provideSessionDataStore(@ApplicationContext context: Context): DataStore<Preferences> =

@@ -75,15 +75,21 @@ class MainActivity : AppCompatActivity() {
         toggle.syncState()
 
         binding.navigationView.setNavigationItemSelectedListener { item ->
-            val destino = if (item.itemId == R.id.action_cargar_muestra) {
-                CargarMuestraActivity::class.java
-            } else {
-                SectionPlaceholderActivity::class.java
+            when (item.itemId) {
+                R.id.action_cargar_muestra -> startActivity(
+                    Intent(this, CargarMuestraActivity::class.java)
+                )
+
+                R.id.action_marco -> startActivity(Intent(this, MarcoActivity::class.java))
+
+                else -> startActivity(
+                    Intent(this, SectionPlaceholderActivity::class.java)
+                        .putExtra(
+                            SectionPlaceholderActivity.EXTRA_TITULO,
+                            item.title?.toString().orEmpty()
+                        )
+                )
             }
-            startActivity(
-                Intent(this, destino)
-                    .putExtra(SectionPlaceholderActivity.EXTRA_TITULO, item.title?.toString().orEmpty())
-            )
             binding.drawerLayout.closeDrawer(GravityCompat.START)
             true
         }

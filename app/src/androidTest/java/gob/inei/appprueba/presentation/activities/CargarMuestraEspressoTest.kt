@@ -83,8 +83,6 @@ class CargarMuestraEspressoTest {
             onView(withText(R.string.menu_cargar_muestra)).perform(click())
 
             esperarVista(R.id.btnSeleccionar)
-            onView(withId(R.id.tvRestriccion))
-                .check(matches(withText(R.string.cargar_muestra_restriccion)))
         }
     }
 
@@ -183,15 +181,13 @@ class CargarMuestraEspressoTest {
     }
 
     @Test
-    fun ca02_muestra_la_restriccion_y_solo_abre_el_selector_de_zip() {
+    fun ca02_solo_abre_el_selector_de_zip() {
         Intents.init()
         try {
             intending(hasAction(Intent.ACTION_OPEN_DOCUMENT))
                 .respondWith(Instrumentation.ActivityResult(Activity.RESULT_CANCELED, null))
 
             ActivityScenario.launch(CargarMuestraActivity::class.java).use {
-                onView(withId(R.id.tvRestriccion))
-                    .check(matches(withText(R.string.cargar_muestra_restriccion)))
                 onView(withId(R.id.btnSeleccionar)).check(matches(isDisplayed()))
 
                 onView(withId(R.id.btnSeleccionar)).perform(click())

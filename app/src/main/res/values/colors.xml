@@ -58,4 +58,8 @@
     <color name="surfaceContainer">#FFF3EDF7</color>
     <color name="surfaceContainerHigh">#FFECE6F0</color>
     <color name="surfaceContainerHighest">#FFE6E0E9</color>
+
+    <!-- Marco de viviendas (claro) -->
+    <color name="marcoFilaReemplazo">#F9DEDC</color>
+    <color name="marcoFilaSinReemplazo">#D7E9F7</color>
 </resources>

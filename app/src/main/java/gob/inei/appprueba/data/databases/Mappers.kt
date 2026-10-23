@@ -5,6 +5,19 @@ import gob.inei.appprueba.data.databases.entities.AlternativeEntity
 import gob.inei.appprueba.data.databases.entities.AnswerEntity
 import gob.inei.appprueba.data.databases.entities.FlowRuleEntity
 import gob.inei.appprueba.data.databases.entities.QuestionEntity
+import gob.inei.appprueba.data.databases.entities.MesEntity
+import gob.inei.appprueba.data.databases.entities.OdeiEntity
+import gob.inei.appprueba.data.databases.entities.PeriodoEntity
+import gob.inei.appprueba.data.databases.projections.ConglomeradoMarcoRow
+import gob.inei.appprueba.data.databases.projections.DetalleMarcoRow
+import gob.inei.appprueba.data.databases.projections.MarcoFilaRow
+import gob.inei.appprueba.domain.entities.DetalleViviendaMarco
+import gob.inei.appprueba.domain.entities.FilaMarco
+import gob.inei.appprueba.domain.entities.IndicadoresMarco
+import gob.inei.appprueba.domain.entities.OpcionConglomerado
+import gob.inei.appprueba.domain.entities.OpcionMuestra
+import gob.inei.appprueba.domain.entities.PeriodoMarco
+import gob.inei.appprueba.domain.entities.ReglasMarco
 import gob.inei.appprueba.domain.entities.Alternative
 import gob.inei.appprueba.domain.entities.Answer
 import gob.inei.appprueba.domain.entities.FlowRule
@@ -107,3 +120,58 @@ fun List<OdeiMesRow>.toOdeiMeses(): List<OdeiMeses> = this
             meses = filas.mapNotNull { it.mes }.distinct().sorted()
         )
     }
+
+fun MarcoFilaRow.toFilaMarco() = FilaMarco(
+    conglome = conglome,
+    vivienda = vivienda,
+    nroVivienda = limpiar(nroVivienda),
+    activo = activo?.let { it == 1 },
+    hogar = limpiar(hogar),
+    seleccion = ReglasMarco.seleccion(seleccion),
+    nroReemplazo = limpiar(nroReemplazo),
+    resultado = ReglasMarco.resultadoVisita(resfin),
+    esReemplazo = ReglasMarco.esReemplazo(esReemplazo)
+)
+
+fun ConglomeradoMarcoRow.toOpcionConglomerado() = OpcionConglomerado(
+    conglome = conglome,
+    area = ReglasMarco.areaGeografica(estrato, tipoSeleccion),
+    estrato = limpiar(estrato),
+    tipoSeleccion = limpiar(tipoSeleccion)
+)
+
+fun DetalleMarcoRow.toDetalleViviendaMarco() = DetalleViviendaMarco(
+    nombreVia = ReglasMarco.campo(marcoNombreVia, viviendaNombreVia),
+    puerta = ReglasMarco.campo(marcoPuerta, viviendaPuerta),
+    interior = ReglasMarco.campo(marcoInterior, viviendaInterior),
+    piso = ReglasMarco.campo(marcoPiso, viviendaPiso),
+    manzana = ReglasMarco.campo(marcoMz, viviendaMz),
+    lote = ReglasMarco.campo(marcoLote, viviendaLote)
+)
+
+fun List<MarcoFilaRow>.toIndicadoresMarco(
+    estrato: String?,
+    tipoSeleccion: String?
+): IndicadoresMarco {
+    val viviendas = distinctBy { it.conglome to it.vivienda }
+    return IndicadoresMarco(
+        seleccionadas = viviendas.count { ReglasMarco.seleccion(it.seleccion) == "1" },
+        reemplazos = viviendas.count { ReglasMarco.seleccion(it.seleccion) == "2" },
+        estrato = limpiar(estrato),
+        tipoSeleccion = limpiar(tipoSeleccion)
+    )
+}
+
+fun OdeiEntity.toOpcionMuestraMarco() = OpcionMuestra(codOdei, nomOdei)
+
+fun MesEntity.toOpcionMuestraMarco() = OpcionMuestra(codigo, nombre.orEmpty())
+
+fun PeriodoEntity.toPeriodoMarco() = PeriodoMarco(codPer, nomPer.orEmpty())
+
+/** Escapa los comodines de LIKE para que la busqueda sea literal. */
+fun escaparLike(texto: String): String = texto
+    .replace("\\", "\\\\")
+    .replace("%", "\\%")
+    .replace("_", "\\_")
+
+private fun limpiar(valor: String?): String? = valor?.trim()?.takeIf { it.isNotEmpty() }

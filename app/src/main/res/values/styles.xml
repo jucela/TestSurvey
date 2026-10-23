@@ -20,6 +20,23 @@
         <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
     </style>
 
+    <style name="TextAppearance.AppPrueba.MarcoCabecera" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingStart">@dimen/dp_8</item>
+        <item name="android:paddingEnd">@dimen/dp_8</item>
+        <item name="android:singleLine">true</item>
+    </style>
+
+    <style name="TextAppearance.AppPrueba.MarcoCelda" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingStart">@dimen/dp_8</item>
+        <item name="android:paddingEnd">@dimen/dp_8</item>
+        <item name="android:maxLines">2</item>
+    </style>
+
     <style name="TextAppearance.AppPrueba.Mensaje" parent="TextAppearance.Material3.BodyMedium" />
 
     <style name="TextAppearance.AppPrueba.Error" parent="TextAppearance.Material3.LabelMedium">

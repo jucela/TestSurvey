@@ -1,13 +1,24 @@
-  * Quiero que en el pantalla de marco:
-  * carga las 2 tablas CAMPO_VIVIENDA y CAMPO_HOGAR. crealas y carga los datos desde docs/entities/VIVIENDA_HOGAR.sql
+
+  Quiero realizar la funcionalidad de marco en el menu lateral principal.
+  * Crea las 2 tablas CAMPO_VIVIENDA y CAMPO_HOGAR desde docs/entities/VIVIENDA_HOGAR.sql, estas tablas NO deben tener data de prueba, solo se crearan.
+  * La interfaz de marco tendra la siguiente estructura de los componentes:
+    - TextView Titulo.
+    - CardView Filtros solo contiene en modo tablet o movil (Fila 1: TextFiel de busqueda Outlined y Switch de Activos, Fila 2: Menú desplegable ODEI y Menú desplegable MES, Fila 3: Menú desplegable PERIODO y Menú desplegable CONGLOMERADO).
+    - 3 TextView Estrato,Tipo Selección y Viviendas seleccionadas (todos en una sola fila).
+    - CardViews de cabezera de adapatable con los datos de la tabla detalle marco.
+    - 1 RecyclerView con la tabla detalle marco.
   * TextView Titulo con la etiqueta "Relacion de Viviendas del Conglomerado" en la parte superior centrada, elegir un diseño que determien que se trata del titulo principal.
-  * Debajo del Titulo debe tener un CardView A con switch con icono de check de material design 3 y la etiqueta de 'Activos', este switch estara en la parte superior derecha (esquina) las condiciones de este componente es:
-   - Cuando se haga click y se habilite  mostrara las viviendas activas del campo activo=1 de la tabla CAMPO_VIVINEDA_MARCO, este switch dependera tbn de los filtros ODEI,MES,PERIODO Y CONGLOMERADO.
-  * Debajo del Switch y dentro del CardView A se visualizara 4 menú desplegable expuesto con variacion delineada de material design, estos son ODEI,MES,PERIODO y CONGLOMERADO.
-  * el menú desplegable (ODEI) tendra que tener  como primer item la etiqueta --Seleccione-- despues los demas items tendran la etiqueta la union de CODODEI+"-"+NOMODEI (01-AMAZONAS,....,26-UCAYALI), los datos sera desde la tabla ODEI.
-  * el menú desplegable (MES) tendra que tener  como primer item la etiqueta --Seleccione-- despues los demas items tendran la etiqueta la union de CODIGO+"-"+NOMBRE (01-ENERO,...,12-DICIEMBRE), los datos sera desde la tabla MES.
-  * el menú desplegable (PERIODO) tendra que tener  como primer item la etiqueta --Seleccione-- despues los demas items tendran la etiqueta la union de NOMPER (Periodo 1,...,Periodo 5), los datos sera desde la tabla PERIODO.
-  * el menú desplegable (CONGLOMERADO) tendra que tener  como primer item la etiqueta --Seleccione-- despues los demas items tendran la etiqueta la union de CONGLOME +"->"+AREA_GEOGRAFICA, los datos de CONGLOME  sera desde la tabla CAMPO_CONGLOMERADO y la etiqueta de AREA_GEOGRAFICA dependera de la combinacion de los campos TIPOSELECCION y ESTRATO, la codiciones son:
+  * El TextFiel de busqueda Outlined debe tener icono de lupa al inicio y al final X de limpieza, debera cumplir con las siguientes condiciones:
+    - cuando se digite hara una busqueda dinamica y debera mostrar en la tabla detalle todas las viviendas que pertenecen al conglomerado ingresado, tbn tener en cuenta en la busqueda las viviendas activas o inactivas del Switch de activos.
+    - cuando se digite debera bloquear los 4 filtros (ODEI,MES, PERIODO, CONGLOMERADO).
+    - cuando el texto sea borrado o se presione la X debera desbloquear los 4 filtros (ODEI,MES, PERIODO, CONGLOMERADO).
+  * El Switch de Activos con icono de check de material design 3 y la etiqueta de 'Activos', las condiciones de este componente es:
+   - Cuando se haga click y se habilite  mostrara las viviendas activas del campo activo=1 de la tabla CAMPO_VIVINEDA_MARCO, este switch dependera tbn de los filtros ODEI,MES,PERIODO Y CONGLOMERADO o SI SE INGRESO UN TEXTO EN EL TextFiel de busqueda .
+  * El CardView Filtros que contiene los 4 menú desplegable expuesto con variacion delineada de material design, son ODEI,MES,PERIODO y CONGLOMERADO.
+  * el menú desplegable (ODEI) tendra que tener  como primer item la etiqueta --Seleccione-- despues los demas items tendran la etiqueta la union de CODODEI+"-"+NOMODEI (01-AMAZONAS,....,26-UCAYALI), la lista de items se obtienen desde la tabla ODEI.
+  * el menú desplegable (MES) tendra que tener  como primer item la etiqueta --Seleccione-- despues los demas items tendran la etiqueta la union de CODIGO+"-"+NOMBRE (01-ENERO,...,12-DICIEMBRE), la lista de items se obtienen  desde la tabla MES.
+  * el menú desplegable (PERIODO) tendra que tener  como primer item la etiqueta --Seleccione-- despues los demas items tendran la etiqueta la union de NOMPER (Periodo 1,...,Periodo 5), la lista de items se obtienen  desde la tabla PERIODO.
+  * el menú desplegable (CONGLOMERADO) tendra que tener  como primer item la etiqueta --Seleccione-- despues los demas items tendran la etiqueta la union de CONGLOME +"->"+AREA_GEOGRAFICA, los datos de CONGLOME  se obtienen  desde la tabla CAMPO_CONGLOMERADO y la etiqueta de AREA_GEOGRAFICA dependera de la combinacion de los campos TIPOSELECCION y ESTRATO, la codiciones son:
     - TIPOSELECCION=1,2 => "URBANO->NO PANEL"
     - TIPOSELECCION=3 y ESTRATO=6 => "SEMI-RURAL->PANEL"
     - TIPOSELECCION=3 y ESTRATO=1,2,3,4,5 => "URBANO->PANEL"
@@ -15,19 +26,20 @@
     - TIPOSELECCION=4 => "SEMI-RURAL->NO PANEL"
     - TIPOSELECCION=5 => "RURAL->NO PANEL"
   * los Items del menú desplegable (CONGLOMERADO) seran completado de acuerdo a los filtros de ODEI,MES y PERIODO, las condiciones son:
-    - SI SE SELECCIONA FILTRO ODEI 01-AMAZONAS DEBERA MOSTRAR EN EL FILTRO CONGLOMERADO SOLO CONGLOMERADOS DE LA ODEI 01-AMAZONAS y EN LA TABLA DETALLE TODAS LAS VIVIENDAS DE LA ODEI 01-AMAZONAS
-    - SI SE SELECCIONA FILTRO MES 06-JUNIO DEBERA MOSTRAR EN EL FILTRO CONGLOMERADO SOLO CONGLOMERADOS DEL MES 06-JUNIO y EN LA TABLA DETALLE TODAS LAS VIVIENDAS DE LA ODEI 06-JUNIO
+    - SI SE SELECCIONA FILTRO ODEI 01-AMAZONAS DEBERA MOSTRAR EN EL FILTRO CONGLOMERADO SOLO CONGLOMERADOS DE LA ODEI 01-AMAZONAS y EN LA TABLA DETALLE TODAS LAS VIVIENDAS DE LA ODEI 01-AMAZONAS.
+    - SI SE SELECCIONA FILTRO MES 06-JUNIO DEBERA MOSTRAR EN EL FILTRO CONGLOMERADO SOLO CONGLOMERADOS DEL MES 06-JUNIO y EN LA TABLA DETALLE TODAS LAS VIVIENDAS DE LA ODEI 06-JUNIO.
     - SI SE SELECCIONA FILTRO PERIODO Periodo 1 DEBERA MOSTRAR EN EL FILTRO CONGLOMERADO SOLO CONGLOMERADOS DEL Periodo 1 y EN LA TABLA DETALLE TODAS LAS VIVIENDAS DEL PERIODO 1.
     - SI SE SELECCIONA FILTRO CONGLOMERADO 016335  DEBERA MOSTRAR EN LA TABLA DETALLE TODAS LAS VIVIENDAS QUE PERTENECEN A ESE CONGLOMERADO.
-  * los 4 menú desplegable  solo se visualizara en 2 columnas de 2 menus desplegable, columna 1 (ODEI,PERIODO) Y columna 2 (MES,CONGLOMERADO)
-  * los item o lista de valores de los 4 menú desplegables y los datos de la tabla detalle deberan mostrarse de menor a mayor
-  * debajo de los menus desplegables y fuera del CardView A debera haber 3 etiquetas informativas de lo que se esta seleccionado en los 4 menú desplegables,las etiquetas son: Estrato:1;Tipo Selección:3;Viviendas:6 seleccionadas / 1 reemplazo .
+  * Se debera guardar el estado del Switch  de activos y  los 4 filtros  (ODEI, MES, PERIODO, CONGLOMERADO) usando DataStore para cuando se cambie de pantalla o se cierre sesion vuelva a los ultimos filtros guardados en datastore.
+  * los item o lista de valores de los 4 menú desplegables y los datos de la tabla detalle deberan mostrarse de menor a mayor.
+  * En tablet (sw600dp) el CardView de filtros se muestra expandido. En móvil (<600dp) es un acordeón colapsable (MaterialCardView + ExpandableLayout) que se expande al tocar.
+  * los 3 TextView de etiquetas informativas, dependeran de las combinaciones de los 4 filtros de (ODEI,MES,PERIODO,CONGLOMERADO),las etiquetas son: Estrato:4;Tipo Selección:1;Viviendas:6 seleccionadas / 1 reemplazo .
   - la etiqueta ESTRATO: la obtiene del campo ESTRATO de la tabla CAMPO_CONGLOMERADO, este se visualiza cuando se selecciona un conglomerado.
   - la etiqueta TIPO SELECCION: la obtiene del campo TIPOSELECCION de la tabla CAMPO_CONGLOMERADO, este se visualiza cuando se selecciona un conglomerado.
-  - la etiqueta VIVIENDAS: los datos los obtiene del campo TIPOVIVIENDA de la tabla CAMPO_VIVIENDA_MARCO, si es 1 = seleccionada o si es 2= reemplazo,
+  - la etiqueta VIVIENDAS: los datos los obtiene del campo TIPOVIVIENDA de la tabla CAMPO_VIVIENDA_MARCO, si es 1 = seleccionada o si es 2= reemplazo.
   * si se selecciona el primer item de ODEI,MES,periodo y conglomerado,debera contar todas las viviendad seleccionadas y de reemplazo y colocarla en la etiqueta viviendas:6 seleccionadas / 1 reemplazo.
   * luego mostrara la etiqueta de viviendas de acuerdo al filtrado de los menus desplegables.
-  * debajo de de las 3 etiquetas informativas y fuera del CardView A, se visualizara una tabla marco con la siguiente cabezera de columnas: Activo,Conglomerado,N°,Selección,Hogar,Reemplazo,Resultado,Detalle
+  * La tabla marco con la siguiente cabezera de columnas: Activo,Conglomerado,N°,Selección,Hogar,Reemplazo,Resultado,Detalle.
   * los campos de la tabla detalle marco seran completados con las siguientes condiciones:
      - Activo:Esto lo trae del campo activo de la tabla CAMPO_VIVIENDA_MARCO.
      - Conglomerado:Esto lo trae del campo CONGLOME de la tabla CAMPO_VIVIENDA_MARCO.
@@ -44,14 +56,22 @@
      - Piso: Esto lo trae del campo PISO de la tabla CAMPO_VIVIENDA, Si el campo PISO es NULL O BLANCO debera mostrar el campo PISO de la tabla CAMPO_VIVIENDA_MARCO.
      - Mz: Esto lo trae del campo MZ de la tabla CAMPO_VIVIENDA, Si el campo MZ es NULL O BLANCO debera traer el campo MZ de la tabla CAMPO_VIVIENDA_MARCO.
      - Lote: Esto lo trae del campo LOTE de la tabla CAMPO_VIVIENDA, Si el campo LOTE es NULL O BLANCO debera traer el campo LOTE de la tabla CAMPO_VIVIENDA_MARCO.
-
   * el campo ESREEMPLAZO de la tabla CAMPO_VIVIENDA si es 1= REEMPLAZO y 2 o NULL = NO REEMPLAZO, si es REEMPLAZO DEBERA MOSTRAR EL COLOR DE LA FILA DE COLOR ROJO PASTEL Y SI ES DIFERENTE DE REEMPLAZO DEBE SER CELESTE PASTEL.
-  * BUSQUEDA DINAMICA
 
-
-
-
-
+  PRUEBAS
+  -------
+  * para realizar pruebas, ten en cuenta estos dos casos:
+    caso 1:
+     - entra al modulo cargar muestra , luego al modo automatico carga la muestra de viviendas(odei:13 y mes:04) y personal.
+     - No cargues data en las tablas CAMPO_VIVIENDA y CAMPO_HOGAR
+     - luego al modulo marco y hace pruebas con los filtros y demas componentes del marco, recuerda que el aplicativo debe mostrar datos en la tabla detalle asi no haya data en las tablas CAMPO_VIVIENDA,CAMPO_HOGAR ya que estas tablas se llenan en el trasncurso de la encuesta.
+    caso 2:
+     - entra al modulo cargar muestra , luego al modo automatico carga la muestra de viviendas(odei:13 y mes:04) y personal.
+     - Inserta data en tablas CAMPO_VIVIENDA y CAMPO_HOGAR desde docs/entities/VIVIENDA_HOGAR.sql
+     - luego al modulo marco y hace pruebas con los filtros y demas componentes del marco, recuerda que el aplicativo debe mostrar datos en la tabla detalle cuando haya data en las tablas CAMPO_VIVIENDA,CAMPO_HOGAR.
+     - Las columnas Hogar,Reemplazo,Resultado deben mostrar data de la tabla CAMPO_VIVIENDA,CAMPO_HOGAR.
+     - Los datos del Dialog del camopo detalle Direccion,Puerta,Interior,Piso,Mz,Lote deben mostrar data de la tabla CAMPO_VIVIENDA.
+   * No solo ejecutes esos dos casos puedes hacer N CASOS si crees conveniente para que el aplicativon quede solido y sin errores de nullpointerexception u otros.
 
 
 
