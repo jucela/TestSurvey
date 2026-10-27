@@ -141,12 +141,12 @@ fun ConglomeradoMarcoRow.toOpcionConglomerado() = OpcionConglomerado(
 )
 
 fun DetalleMarcoRow.toDetalleViviendaMarco() = DetalleViviendaMarco(
-    nombreVia = ReglasMarco.campo(marcoNombreVia, viviendaNombreVia),
-    puerta = ReglasMarco.campo(marcoPuerta, viviendaPuerta),
-    interior = ReglasMarco.campo(marcoInterior, viviendaInterior),
-    piso = ReglasMarco.campo(marcoPiso, viviendaPiso),
-    manzana = ReglasMarco.campo(marcoMz, viviendaMz),
-    lote = ReglasMarco.campo(marcoLote, viviendaLote)
+    nombreVia = ReglasMarco.campo(viviendaNombreVia, marcoNombreVia),
+    puerta = ReglasMarco.campo(viviendaPuerta, marcoPuerta),
+    interior = ReglasMarco.campo(viviendaInterior, marcoInterior),
+    piso = ReglasMarco.campo(viviendaPiso, marcoPiso),
+    manzana = ReglasMarco.campo(viviendaMz, marcoMz),
+    lote = ReglasMarco.campo(viviendaLote, marcoLote)
 )
 
 fun List<MarcoFilaRow>.toIndicadoresMarco(

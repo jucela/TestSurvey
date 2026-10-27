@@ -73,6 +73,11 @@ class MarcoAdapter(
                     else R.color.marcoFilaSinReemplazo
                 )
             )
+            detalle.contentDescription = itemView.context.getString(
+                R.string.marco_detalle_descripcion_fila,
+                texto.numero,
+                texto.conglomerado
+            )
             detalle.setOnClickListener { onDetalle(fila) }
         }
     }

@@ -84,10 +84,30 @@ class MarcoMappersTest {
             viviendaMz = null,
             viviendaLote = null
         ).toDetalleViviendaMarco()
-        assertEquals("MARCO 1", detalle.nombreVia)
+        assertEquals("REAL 1", detalle.nombreVia)
         assertEquals("10", detalle.puerta)
         assertEquals("A", detalle.interior)
         assertNull(detalle.piso)
+    }
+
+    @Test
+    fun `detalle usa marco cuando vivienda esta vacia`() {
+        val detalle = DetalleMarcoRow(
+            marcoNombreVia = "MARCO 1",
+            marcoPuerta = "5",
+            marcoInterior = null,
+            marcoPiso = null,
+            marcoMz = null,
+            marcoLote = null,
+            viviendaNombreVia = "   ",
+            viviendaPuerta = null,
+            viviendaInterior = null,
+            viviendaPiso = null,
+            viviendaMz = null,
+            viviendaLote = null
+        ).toDetalleViviendaMarco()
+        assertEquals("MARCO 1", detalle.nombreVia)
+        assertEquals("5", detalle.puerta)
     }
 
     @Test

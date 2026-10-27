@@ -82,6 +82,10 @@ class MainActivity : AppCompatActivity() {
 
                 R.id.action_marco -> startActivity(Intent(this, MarcoActivity::class.java))
 
+                R.id.action_close_session -> lifecycleScope.launch {
+                    logout()
+                    irALogin()
+                }
                 else -> startActivity(
                     Intent(this, SectionPlaceholderActivity::class.java)
                         .putExtra(

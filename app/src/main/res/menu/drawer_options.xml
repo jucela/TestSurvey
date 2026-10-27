@@ -21,5 +21,9 @@
             android:id="@+id/action_cargar_muestra"
             android:icon="@drawable/ic_menu_cargar_muestra"
             android:title="@string/menu_cargar_muestra" />
+        <item
+            android:id="@+id/action_close_session"
+            android:icon="@drawable/ic_logout"
+            android:title="@string/menu_close_session" />
     </group>
 </menu>

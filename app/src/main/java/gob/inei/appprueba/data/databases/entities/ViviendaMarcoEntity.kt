@@ -48,7 +48,7 @@ data class ViviendaMarcoEntity(
     @ColumnInfo(name = "FECHADIG") val fechaDig: String?,
     @ColumnInfo(name = "USUARIOMOD") val usuarioMod: String?,
     @ColumnInfo(name = "FECHAMOD") val fechaMod: String?,
-    @ColumnInfo(name = "activo") val activo: Int?,
+    @ColumnInfo(name = "activo") val activo: Int? = 1,
     @ColumnInfo(name = "USUCRE") val usuCre: String?,
     @ColumnInfo(name = "FECCRE") val fecCre: String?,
     @ColumnInfo(name = "USUREG") val usuReg: String?,

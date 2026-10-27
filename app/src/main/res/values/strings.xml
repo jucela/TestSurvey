@@ -40,6 +40,7 @@
     <string name="menu_cobertura">Cobertura</string>
     <string name="menu_exportacion">Exportación</string>
     <string name="menu_cargar_muestra">Cargar muestra</string>
+    <string name="menu_close_session">Cerrar sesion</string>
     <string name="section_placeholder_detalle">Esta sección estará disponible en una próxima versión.</string>
     <string name="cargar_muestra_descripcion">Cargue una o varias muestras (personal o viviendas) desde archivos ZIP. La app identifica el tipo por el nombre y los datos quedan almacenados en este dispositivo.</string>
     <string name="cargar_muestra_restriccion">Deben seleccionarse archivos ZIP de muestra. No se permite cargar directamente el XML ni el CFG.</string>
@@ -116,6 +117,8 @@
     <!-- Marco de viviendas (RF-01..RF-22) -->
     <string name="marco_titulo">Relacion de Viviendas del Conglomerado</string>
     <string name="marco_filtros_titulo">Filtros</string>
+    <string name="marco_filtros_expandir">Expandir filtros</string>
+    <string name="marco_filtros_contraer">Contraer filtros</string>
     <string name="marco_busqueda_hint">Buscar por conglomerado</string>
     <string name="marco_busqueda_descripcion">Buscar por conglomerado</string>
     <string name="marco_switch_activos">Activos</string>
@@ -137,6 +140,7 @@
     <string name="marco_col_resultado">Resultado</string>
     <string name="marco_col_detalle">Detalle</string>
     <string name="marco_detalle_descripcion">Ver detalle de la vivienda</string>
+    <string name="marco_detalle_descripcion_fila">Ver detalle de la vivienda %1$s del conglomerado %2$s</string>
     <string name="marco_detalle_titulo">Detalle de vivienda</string>
     <string name="marco_detalle_direccion">Direccion</string>
     <string name="marco_detalle_puerta">Puerta</string>

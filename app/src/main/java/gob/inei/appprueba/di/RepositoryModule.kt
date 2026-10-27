@@ -10,6 +10,8 @@ import gob.inei.appprueba.data.repositories.MarcoRepositoryImpl
 import gob.inei.appprueba.data.repositories.MuestraOnlineRepositoryImpl
 import gob.inei.appprueba.data.repositories.MuestraRepositoryImpl
 import gob.inei.appprueba.data.repositories.SurveyRepositoryImpl
+import gob.inei.appprueba.data.sources.MarcoFiltrosDataStore
+import gob.inei.appprueba.data.sources.MarcoFiltrosStore
 import gob.inei.appprueba.data.sources.RawCatalogDataSource
 import gob.inei.appprueba.data.sources.ResRawCatalogDataSource
 import gob.inei.appprueba.domain.repositories.AuthRepository
@@ -35,6 +37,11 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindMarcoRepository(impl: MarcoRepositoryImpl): MarcoRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindMarcoFiltrosStore(impl: MarcoFiltrosDataStore): MarcoFiltrosStore
+
     @Binds
     @Singleton
     abstract fun bindMuestraRepository(impl: MuestraRepositoryImpl): MuestraRepository

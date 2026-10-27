@@ -12,6 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import dagger.hilt.android.AndroidEntryPoint
 import gob.inei.appprueba.R
 import gob.inei.appprueba.databinding.ActivityMarcoBinding
@@ -118,11 +119,16 @@ class MarcoActivity : AppCompatActivity() {
             binding.etBusqueda.setSelection(binding.etBusqueda.text?.length ?: 0)
         }
         binding.switchActivos.isChecked = state.filtros.soloActivos
+        renderEtiquetas(state)
 
         val tablet = resources.getBoolean(R.bool.marco_es_tablet)
         binding.btnExpandir.visibility = if (tablet) View.GONE else View.VISIBLE
         binding.btnExpandir.setImageResource(
             if (state.expandido) R.drawable.ic_expand_less else R.drawable.ic_expand_more
+        )
+        binding.btnExpandir.contentDescription = getString(
+            if (state.expandido) R.string.marco_filtros_contraer
+            else R.string.marco_filtros_expandir
         )
         val visibilidadContenido = if (tablet || state.expandido) View.VISIBLE else View.GONE
         if (binding.contenidoFiltros.visibility != visibilidadContenido) {
@@ -166,6 +172,18 @@ class MarcoActivity : AppCompatActivity() {
             state.sinResultados -> getString(R.string.marco_sin_resultados)
             else -> ""
         }
+    }
+
+    private fun renderEtiquetas(state: MarcoUiState) {
+        actualizarCampo(binding.spOdei, state.etiquetas.odei)
+        actualizarCampo(binding.spMes, state.etiquetas.mes)
+        actualizarCampo(binding.spPeriodo, state.etiquetas.periodo)
+        actualizarCampo(binding.spConglomerado, state.etiquetas.conglomerado)
+    }
+
+    private fun actualizarCampo(campo: MaterialAutoCompleteTextView, etiqueta: String?) {
+        val texto = etiqueta ?: getString(R.string.marco_seleccione)
+        if (campo.text?.toString() != texto) campo.setText(texto, false)
     }
 
     private fun renderCatalogo(

@@ -12,7 +12,7 @@ import gob.inei.appprueba.data.databases.toOpcionConglomerado
 import gob.inei.appprueba.data.databases.toOpcionMuestraMarco
 import gob.inei.appprueba.data.databases.toPeriodoMarco
 import gob.inei.appprueba.data.databases.escaparLike
-import gob.inei.appprueba.data.sources.MarcoFiltrosDataStore
+import gob.inei.appprueba.data.sources.MarcoFiltrosStore
 import gob.inei.appprueba.domain.entities.CatalogoMarco
 import gob.inei.appprueba.domain.entities.DetalleViviendaMarco
 import gob.inei.appprueba.domain.entities.MarcoFiltros
@@ -31,7 +31,7 @@ class MarcoRepositoryImpl @Inject constructor(
     private val odeiDao: OdeiDao,
     private val mesDao: MesDao,
     private val periodoDao: PeriodoDao,
-    private val filtrosDataStore: MarcoFiltrosDataStore
+    private val filtrosDataStore: MarcoFiltrosStore
 ) : MarcoRepository {
 
     override fun observarFiltros(): Flow<MarcoFiltros> = filtrosDataStore.observar()

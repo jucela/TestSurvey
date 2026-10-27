@@ -18,10 +18,10 @@ import javax.inject.Inject
 class MarcoFiltrosDataStore @Inject constructor(
     private val dataStore: DataStore<Preferences>,
     private val sessionDataStore: SessionDataStore
-) {
+) : MarcoFiltrosStore {
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun observar(): Flow<MarcoFiltros> =
+    override fun observar(): Flow<MarcoFiltros> =
         sessionDataStore.observeUltimoUsuario()
             .flatMapLatest { usuario ->
                 val claveUsuario = usuario?.trim().orEmpty()
@@ -33,7 +33,7 @@ class MarcoFiltrosDataStore @Inject constructor(
             }
             .distinctUntilChanged()
 
-    suspend fun guardar(filtros: MarcoFiltros) {
+    override suspend fun guardar(filtros: MarcoFiltros) {
         val usuario = sessionDataStore.getUltimoUsuario()?.trim().orEmpty()
         if (usuario.isEmpty()) return
         dataStore.edit { preferencias ->

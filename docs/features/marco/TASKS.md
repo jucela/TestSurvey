@@ -68,7 +68,7 @@ Los identificadores usan el prefijo `MA-` (Marco) para no colisionar con
   - **Alcance:** `data/databases/Mappers.kt`; pruebas en `app/src/test/java/gob/inei/appprueba/data/databases/MarcoMappersTest.kt`.
   - **Dependencias:** MA-01, MA-04.
   - **Criterios:** RF-11, RF-14..RF-18; CA-13, CA-16, CA-17, CA-20, CA-21, CA-22.
-  - **Validación:** `.\gradlew.bat :app:testDebugUnitTest --tests "gob.inei.appprueba.data.databases.MarcoMappersTest"` cubre valores vacíos, nulos, espacios y etiquetas; 0 fallos. **Ejecutada 2026-10-22: 0 fallos.**
+  - **Validación:** `.\gradlew.bat :app:testDebugUnitTest --tests "gob.inei.appprueba.data.databases.MarcoMappersTest"` cubre valores vacíos, nulos, espacios y etiquetas; 0 fallos. **Ejecutada 2026-10-22: 0 fallos.** **Actualizada 2026-10-26: 7/7; se corrigió la prioridad del detalle (ahora `CAMPO_VIVIENDA` y respaldo `CAMPO_VIVIENDA_MARCO`, RF-17/CA-21) y se añadió el caso de respaldo.**
 
 - [x] **MA-08 · DataStore de filtros por usuario**
   - **Objetivo:** persistir `solo_activos`, `odei`, `mes`, `periodo` y `conglomerado` con claves `marco_<usuario>_...`, eliminar claves con valor nulo y normalizar el usuario; no persistir la búsqueda.
@@ -77,12 +77,12 @@ Los identificadores usan el prefijo `MA-` (Marco) para no colisionar con
   - **Criterios:** RF-13; CA-15.
   - **Validación:** `.\gradlew.bat :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=gob.inei.appprueba.data.sources.MarcoFiltrosDataStoreTest` verifica aislamiento entre usuarios, persistencia, limpieza de nulos y ausencia de la búsqueda. **Ejecutada 2026-10-22: 3/3 en `TB311XU - 16`.**
 
-- [ ] **MA-09 · Implementar `MarcoRepositoryImpl` y binding Hilt**
+- [x] **MA-09 · Implementar `MarcoRepositoryImpl` y binding Hilt**
   - **Objetivo:** implementar el contrato combinando DataStore y DAOs, aplicar filtros efectivos, suspenderlos durante la búsqueda, escapar `\`, `%` y `_`, mapear resultados y registrar el binding en `RepositoryModule`.
   - **Alcance:** `data/repositories/MarcoRepositoryImpl.kt`, `di/RepositoryModule.kt`; pruebas en `app/src/test/java/gob/inei/appprueba/data/repositories/MarcoRepositoryTest.kt`.
   - **Dependencias:** MA-02, MA-04, MA-07, MA-08.
   - **Criterios:** RF-06, RF-12..RF-19; CA-07, CA-08, CA-14..CA-17, CA-23.
-  - **Validación:** `.\gradlew.bat :app:assembleDebug` y `.\gradlew.bat :app:testDebugUnitTest --tests "gob.inei.appprueba.data.repositories.MarcoRepositoryTest"` verifican búsqueda, filtros suspendidos, escape de comodines y combinación de conteos; 0 fallos.
+  - **Validación:** `.\gradlew.bat :app:assembleDebug` y `.\gradlew.bat :app:testDebugUnitTest --tests "gob.inei.appprueba.data.repositories.MarcoRepositoryTest"` verifican búsqueda, filtros suspendidos, escape de comodines y combinación de conteos; 0 fallos. **Ejecutada 2026-10-26: `MarcoRepositoryTest` 13/13, 0 fallos; `assembleDebug` OK.** Se extrajo la interfaz `MarcoFiltrosStore` para inyectar un doble en JVM; `MarcoRepositoryImpl` depende de esa interfaz y `RepositoryModule` la enlaza a `MarcoFiltrosDataStore`.
 
 ## Fase 3 — Presentación
 
@@ -137,33 +137,42 @@ Los identificadores usan el prefijo `MA-` (Marco) para no colisionar con
 
 ## Fase 4 — Integración y validación
 
-- [ ] **MA-17 · Infraestructura de pruebas Hilt y datos de Marco**
+- [x] **MA-17 · Infraestructura de pruebas Hilt y datos de Marco**
   - **Objetivo:** configurar un módulo Hilt de test que sustituya la base por Room in-memory v8 y DataStore temporal, con fixtures de conglomerados/viviendas/hogares y sesión de prueba; no tocar la base de la app.
   - **Alcance:** `app/src/androidTest/java/gob/inei/appprueba/di/MarcoTestModule.kt`, `MarcoTestData.kt`, configuración de `androidTest` en `app/build.gradle.kts`.
   - **Dependencias:** MA-05, MA-16.
   - **Criterios:** RF-01, RF-13, RF-21; CA-01, CA-06, CA-15, CA-25.
-  - **Validación:** `.\gradlew.bat :app:assembleDebugAndroidTest`; la app de prueba arranca sin depender de datos locales ni de la base de producción. **Pendiente:** se optó por Room in-memory/DataStore temporal dentro de cada test (MA-06/MA-08) en lugar de un `MarcoTestModule`/`MarcoTestData` compartido; `assembleDebugAndroidTest` ya compila todo el `androidTest`.
+  - **Validación:** `.\gradlew.bat :app:assembleDebugAndroidTest`; la app de prueba arranca sin depender de datos locales ni de la base de producción. **Ejecutada 2026-10-26:** `MarcoTestModule` (`@TestInstallIn` que reemplaza `DatabaseModule`) provee Room in-memory sembrada por `MarcoTestData` y un `DataStore<Preferences>` temporal con archivo único por componente; la suite Hilt completa (Marco, Login, CargarMuestra) pasó sin usar la base ni las preferencias reales. `assembleDebugAndroidTest` OK y 55/55 pruebas conectadas verdes (1 omitida por tablet).
 
-- [ ] **MA-18 · Pruebas Espresso de Marco**
+- [x] **MA-18 · Pruebas Espresso de Marco**
   - **Objetivo:** automatizar apertura/restricción SIS, filtros, switch, búsqueda y suspensión de filtros, orden, tabla, colores de reemplazo, detalle, estados vacío/error y colapso; usar `MarcoTestData`.
   - **Alcance:** `app/src/androidTest/java/gob/inei/appprueba/presentation/activities/MarcoEspressoTest.kt`.
   - **Dependencias:** MA-17.
   - **Criterios:** RF-03..RF-18, RF-21; CA-01, CA-03..CA-22, CA-25.
-  - **Validación:** `.\gradlew.bat :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=gob.inei.appprueba.presentation.activities.MarcoEspressoTest` en dispositivo/emulador; 0 fallos. **Ejecutada 2026-10-22: 1/1 en `TB311XU - 16` (smoke: título, búsqueda, dropdowns e indicadores).** Cobertura parcial: falta automatizar filtros, switch, suspensión de filtros, orden/colores de tabla, detalle, estados vacío/error y colapso.
+  - **Validación:** `.\gradlew.bat :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=gob.inei.appprueba.presentation.activities.MarcoEspressoTest` en dispositivo/emulador; 0 fallos. **Ejecutada 2026-10-26: 11 casos (10 ejecutados + 1 omitido en tablet), 0 fallos, con `MarcoTestData`:** título/filtros/indicadores; búsqueda suspende y restaura los cuatro filtros; switch de activos reduce filas (4→3) y conteos; tabla con una fila por hogar y estado vacío; colores de fila con/sin reemplazo; detalle prioriza `CAMPO_VIVIENDA` y usa `MARCO` como respaldo; colapso móvil (omitido en tablet); **filtro ODEI** (02-ANCASH deja la tabla vacía y 01-AMAZONAS restaura las 4 filas, seleccionando en el popup real del `MaterialAutoCompleteTextView` con `onData(...).inRoot(isPlatformPopup())` y reintentos); **estado de error** cerrando la base tras la carga y comprobando mensaje/reintento; **apertura desde el drawer** con sesión PERSONAL mediante `Intents`. La restricción SIS de `action_marco` está cubierta por `LoginPersonalEspressoTest.ca03`. **Re-ejecutada tras MA-20: 12 casos (11 ejecutados + 1 omitido en tablet), 0 fallos**, incluido `restaura_las_etiquetas_de_los_filtros_al_recrear_la_pantalla` y las descripciones accesibles del botón de detalle y del colapso.
 
 - [x] **MA-19 · Verificación automatizada integral**
   - **Objetivo:** ejecutar la batería completa y corregir regresiones de compilación, tests o lint; registrar comandos y resultados.
   - **Alcance:** proyecto completo.
   - **Dependencias:** MA-01..MA-18.
   - **Criterios:** CA-01..CA-26 (regresión automatizada donde aplique).
-  - **Validación:** `.\gradlew.bat :app:assembleDebug`, `.\gradlew.bat :app:testDebugUnitTest`, `.\gradlew.bat :app:lintDebug`, `.\gradlew.bat :app:assembleDebugAndroidTest` y `.\gradlew.bat :app:connectedDebugAndroidTest`; registrar pruebas/fallos y warnings nuevos. **Ejecutada 2026-10-22 (todo verde):** `assembleDebug` OK; `testDebugUnitTest` 0 fallos; `lintDebug` 0 errores / 53 warnings; `assembleDebugAndroidTest` OK; `connectedDebugAndroidTest` **48/48** en `TB311XU - 16`. Correcciones durante la batería: `layout_height` faltante en la cabecera de `activity_marco.xml`; se retiraron 2 aserciones obsoletas de `CargarMuestraEspressoTest` sobre `R.id.tvRestriccion` (ausente ya en HEAD), necesarias para compilar el `androidTest`.
+  - **Validación:** `.\gradlew.bat :app:assembleDebug`, `.\gradlew.bat :app:testDebugUnitTest`, `.\gradlew.bat :app:lintDebug`, `.\gradlew.bat :app:assembleDebugAndroidTest` y `.\gradlew.bat :app:connectedDebugAndroidTest`; registrar pruebas/fallos y warnings nuevos. **Ejecutada 2026-10-22 (todo verde):** `assembleDebug` OK; `testDebugUnitTest` 0 fallos; `lintDebug` 0 errores / 53 warnings; `assembleDebugAndroidTest` OK; `connectedDebugAndroidTest` **48/48** en `TB311XU - 16`. Correcciones durante la batería: `layout_height` faltante en la cabecera de `activity_marco.xml`; se retiraron 2 aserciones obsoletas de `CargarMuestraEspressoTest` sobre `R.id.tvRestriccion` (ausente ya en HEAD), necesarias para compilar el `androidTest`. **Re-ejecutada 2026-10-26 (todo verde):** `assembleDebug` OK; `testDebugUnitTest` **151/151**, 0 fallos; `lintDebug` 0 errores / 54 warnings; `assembleDebugAndroidTest` OK; `connectedDebugAndroidTest` **57 ejecutadas + 1 omitida (58 casos)**, 0 fallos, en `TB311XU - 16`. Incluye `MarcoRepositoryTest` 13/13, `MarcoMappersTest` 7/7 y `MarcoEspressoTest` 11 casos; sin regresiones en las suites previas. Se añadió la cadena `menu_close_session` para que `drawer_options.xml` (ítem presente en el árbol de trabajo) pudiera enlazar recursos. **Re-ejecutada 2026-10-26 tras las correcciones de MA-20 (CA-15 y accesibilidad):** `assembleDebug` OK; `testDebugUnitTest` **151/151**, 0 fallos; `lintDebug` 0 errores / 53 warnings; `assembleDebugAndroidTest` OK; `connectedDebugAndroidTest` **58 ejecutadas + 1 omitida (59 casos)**, 0 fallos, en `TB311XU - 16`.
 
-- [ ] **MA-20 · Validación manual y evidencia final**
+- [x] **MA-20 · Validación manual y evidencia final**
   - **Objetivo:** verificar en tablet y teléfono, claro/oscuro, rotación, fuente 200 %, colapso, búsqueda, diálogo, contraste y TalkBack; registrar evidencia y pendientes en `TASKS.md`.
   - **Alcance:** `docs/features/marco/TASKS.md`; dispositivo/emulador.
   - **Dependencias:** MA-19.
   - **Criterios:** CA-05, CA-06, CA-15, CA-21, CA-22, CA-25.
-  - **Validación:** checklist manual con dispositivo, configuración y resultado; contrastar tokens con `DESIGN_SYSTEM.md` y no declarar CA como cumplido sin evidencia.
+  - **Validación:** checklist manual ejecutado 2026-10-26 en `TB311XU - 16` (API 36, `1200x1920`, 240 dpi), con la muestra real importada (`Personal` + ODEI 11/mes 08; 173 filas de marco, 6 viviendas para `016865`). Resultado:
+    - **CA-05 PASS:** en tablet se muestran tarjeta de filtros, una fila por vivienda y contadores coherentes; en ancho de teléfono (411 dp, `wm size 1080x1920`/`wm density 420`) los filtros inician expandidos, `Contraer/Expandir filtros` alterna el contenido y conserva las etiquetas.
+    - **CA-06 PASS:** rotación tablet `1200x1920` ↔ `1920x1200` y rotación en teléfono conservan filtros, búsqueda, switch y estado de colapso; sin pérdida de selección. Áreas táctiles de 48 dp verificadas en botón de filtros, filas, detalle y cierre del diálogo.
+    - **CA-15 PASS (con defecto corregido):** la consulta restauraba `016865->URBANO->PANEL`, `11-ICA`, `08-Agosto` y `PERIODO 1`, pero los `MaterialAutoCompleteTextView` no mostraban las etiquetas. Se corrigió `MarcoActivity` con `renderEtiquetas(...)`/`actualizarCampo(...)`; verificado al volver a la pantalla y tras cerrar/reabrir sesión. Regresión cubierta por `restaura_las_etiquetas_de_los_filtros_al_recrear_la_pantalla`.
+    - **CA-21 PASS:** con datos de `CAMPO_VIVIENDA` el diálogo prioriza esos valores (`P02`, `I02`, `2`, `M02`, `L02`) sobre el respaldo de marco; sin fila de vivienda muestra el respaldo `MARCO`; campos ausentes se muestran como `--` (también cubierto por `MarcoEspressoTest`).
+    - **CA-22 PASS:** con filas controladas `ESREEMPLAZO` `1`, `2`, `NULL`, `3` y una vivienda sin fila en una copia desechable de la base (respaldada y restaurada al final): solo `1` usa rojo (`#F9DEDC` claro, `#5C2B28` oscuro); `2`, `NULL`, `3` y sin fila usan celeste (`#D7E9F7` claro, `#24394A` oscuro). La columna textual `Reemplazo` mantiene la información sin depender solo del color.
+    - **CA-25 PASS:** búsqueda sin coincidencias muestra el estado vacío y su acción de limpiar; estados de error y reintento cubiertos por la suite Espresso.
+    - **Tipografía/contraste PASS:** fuente al 200 % (densidad 1.5) sin solapamientos ni cortes en filtros, filas, diálogo y botones; tokens de color confrontados con `DESIGN_SYSTEM.md` y sin pares AA incumplidos en la revisión manual de claro/oscuro.
+    - **TalkBack PASS:** servicio activo, foco y doble toque verificados; anuncios/descripciones incluyen `Filtros`, `Expandir filtros`/`Contraer filtros`, campo de búsqueda, flechas de desplegables y `Ver detalle de la vivienda 01 del conglomerado 016865`. Las dos últimas descripciones se añadieron en `MarcoActivity`/`MarcoAdapter`: la del detalle quedó cubierta por Espresso y la del colapso se verificó manualmente en 411 dp (`Contraer filtros` → `Expandir filtros`).
+  - **Evidencia:** capturas y dumps en `C:\Users\JUCE\AppData\Local\Temp\opencode\marco_validation\`; la base de la app se respaldó y se restauró a su estado original al terminar. La validación móvil se hizo con override de tamaño porque el AVD de teléfono no arrancó por falta de hipervisor; no quedan criterios de MA-20 sin evidencia.
 
 ---
 
@@ -174,9 +183,22 @@ registro se completará durante la implementación.
 
 Resumen 2026-10-22: implementación completa y batería automatizada en verde
 (build debug, suite unitaria, lint sin errores, `androidTest` compilado y
-48/48 pruebas conectadas en `TB311XU - 16`). Quedan abiertos: pruebas
-dedicadas de repositorio (MA-09), infraestructura Hilt de test (MA-17),
-cobertura Espresso ampliada (MA-18) y la validación manual (MA-20).
+48/48 pruebas conectadas en `TB311XU - 16`).
+
+Resumen 2026-10-26: se completaron las brechas automatizadas: `MarcoRepositoryTest`
+(13/13) con doble de filtros, corrección de prioridad del detalle, módulo Hilt
+de test con Room in-memory y DataStore temporal (`MarcoTestModule`/`MarcoTestData`)
+y `MarcoEspressoTest` ampliado a 11 casos, incluidos filtro ODEI, estado de error
+y apertura desde el drawer. Batería completa: unitarios 151/151,
+conectadas 57 ejecutadas + 1 omitida (58 casos), lint 0 errores / 54 warnings.
+
+Resumen final 2026-10-26: MA-20 completada en `TB311XU - 16`. Se validaron
+CA-05, CA-06, CA-15, CA-21, CA-22 y CA-25 en claro/oscuro, rotación, fuente
+200 %, Teléfono (411 dp), contraste y TalkBack. Se corrigió la restauración de
+etiquetas de filtros (CA-15) y se añadieron descripciones accesibles dinámicas
+para colapso y detalle. Re-ejecución final: build debug y `androidTest` OK;
+unitarios 151/151; conectadas 58 ejecutadas + 1 omitida (59 casos), 0 fallos;
+lint 0 errores / 53 warnings.
 
 | Tarea | Estado | Evidencia | Pendiente |
 | --- | --- | --- | --- |
@@ -186,9 +208,9 @@ cobertura Espresso ampliada (MA-18) y la validación manual (MA-20).
 | MA-04 | Completada | Room valida consultas en `assembleDebug` | Proyecciones en `projections/` (no `entities/`) |
 | MA-05 | Completada | `MarcoMigrationTest` 1/1 | — |
 | MA-06 | Completada | `MarcoDaoTest` 6/6 | — |
-| MA-07 | Completada | `MarcoMappersTest` 0 fallos | — |
+| MA-07 | Completada | `MarcoMappersTest` 7/7 (2026-10-26) | — |
 | MA-08 | Completada | `MarcoFiltrosDataStoreTest` 3/3 | — |
-| MA-09 | Implementada, sin test dedicado | `assembleDebug` OK | Falta `MarcoRepositoryTest` (escape de `LIKE`, filtros suspendidos) |
+| MA-09 | Completada | `MarcoRepositoryTest` 13/13 + `assembleDebug` | — |
 | MA-10 | Completada | `assembleDebug` OK | Eventos viven en `MarcoUiState.kt` |
 | MA-11 | Completada | `assembleDebug` + `MarcoViewModelTest` | — |
 | MA-12 | Completada | `MarcoViewModelTest` 0 fallos | Fake definido dentro del test (sin `FakeMarcoRepository.kt`) |
@@ -196,7 +218,7 @@ cobertura Espresso ampliada (MA-18) y la validación manual (MA-20).
 | MA-14 | Completada | `MarcoEspressoTest` infla la pantalla | — |
 | MA-15 | Completada | `assembleDebug` OK | — |
 | MA-16 | Completada | `assembleDebug` + `MarcoEspressoTest` | Apertura desde drawer/SIS a validación manual |
-| MA-17 | Parcial | `assembleDebugAndroidTest` OK | Sin `MarcoTestModule`/`MarcoTestData` compartidos |
-| MA-18 | Parcial | `MarcoEspressoTest` 1/1 (smoke) | Filtros, switch, tabla, detalle, vacío/error, colapso |
-| MA-19 | Completada | suite completa verde, connected 48/48 | Warnings de lint nuevos (strings sin usar) |
-| MA-20 | Pendiente | Sin ejecutar | Validación manual en dispositivo (claro/oscuro, rotación, 200 %, TalkBack) |
+| MA-17 | Completada | `MarcoTestModule`/`MarcoTestData`; suite Hilt verde | Archivos DataStore temporales únicos por componente (no se borran) |
+| MA-18 | Completada | `MarcoEspressoTest` 12 casos, 0 fallos (2026-10-26) | — |
+| MA-19 | Completada | unitarios 151/151; conectadas 58+1 omitida (59); lint 0 errores/53 warnings (2026-10-26) | — |
+| MA-20 | Completada | CA-05/06/15/21/22/25 + claro/oscuro, rotación, 200 %, TalkBack; evidencia en la tarea (2026-10-26) | Validación móvil con override de tamaño por AVD sin hipervisor |
