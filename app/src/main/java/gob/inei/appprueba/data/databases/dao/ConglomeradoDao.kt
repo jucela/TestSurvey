@@ -23,6 +23,12 @@ interface ConglomeradoDao {
     @Query("DELETE FROM CAMPO_CONGLOMERADO WHERE ANHO = :anho AND MES = :mes AND ODEI = :odei")
     suspend fun deleteCombinacion(anho: String, mes: String, odei: String)
 
+    @Query("SELECT * FROM CAMPO_CONGLOMERADO WHERE ANHO = :anho AND MES = :mes AND ODEI = :odei")
+    suspend fun obtenerPorCombinacion(anho: String, mes: String, odei: String): List<ConglomeradoEntity>
+
+    @Query("DELETE FROM CAMPO_CONGLOMERADO WHERE CONGLOME IN (:conglomes)")
+    suspend fun eliminarPorConglomes(conglomes: List<String>)
+
     @Query("SELECT COUNT(*) FROM CAMPO_CONGLOMERADO WHERE ANHO = :anho AND MES = :mes AND ODEI = :odei")
     suspend fun contarCombinacion(anho: String, mes: String, odei: String): Int
 

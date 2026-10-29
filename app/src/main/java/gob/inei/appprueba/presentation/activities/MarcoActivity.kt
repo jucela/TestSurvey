@@ -19,7 +19,6 @@ import gob.inei.appprueba.databinding.ActivityMarcoBinding
 import gob.inei.appprueba.databinding.DialogDetalleViviendaBinding
 import gob.inei.appprueba.domain.entities.CatalogoMarco
 import gob.inei.appprueba.domain.entities.DetalleViviendaMarco
-import gob.inei.appprueba.domain.entities.FilaMarco
 import gob.inei.appprueba.domain.entities.OpcionConglomerado
 import gob.inei.appprueba.domain.entities.OpcionMuestra
 import gob.inei.appprueba.presentation.adapters.FilaMarcoUi
@@ -45,7 +44,7 @@ class MarcoActivity : AppCompatActivity() {
                 },
                 conglomerado = fila.conglome,
                 numero = fila.nroVivienda ?: getString(R.string.marco_valor_vacio),
-                seleccion = fila.seleccion ?: getString(R.string.marco_valor_vacio),
+                vivienda = fila.vivienda ?: getString(R.string.marco_valor_vacio),
                 hogar = fila.hogar ?: getString(R.string.marco_valor_vacio),
                 reemplazo = fila.nroReemplazo ?: getString(R.string.marco_valor_vacio),
                 resultado = fila.resultado.etiqueta

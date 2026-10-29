@@ -15,7 +15,7 @@ data class FilaMarcoUi(
     val activo: String,
     val conglomerado: String,
     val numero: String,
-    val seleccion: String,
+    val vivienda: String,
     val hogar: String,
     val reemplazo: String,
     val resultado: String
@@ -62,7 +62,7 @@ class MarcoAdapter(
             activo.text = texto.activo
             conglomerado.text = texto.conglomerado
             numero.text = texto.numero
-            seleccion.text = texto.seleccion
+            seleccion.text = texto.vivienda
             hogar.text = texto.hogar
             reemplazo.text = texto.reemplazo
             resultado.text = texto.resultado

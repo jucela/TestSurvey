@@ -215,33 +215,83 @@ class MuestraRepositoryImpl @Inject constructor(
                 )
             }
             val existia = conglomeradoDao.contarCombinacion(muestra.anio, muestra.mes, muestra.odei) > 0
-            database.withTransaction {
-                personaPanelDao.deleteCombinacion(muestra.anio, muestra.mes, muestra.odei)
-                cap100PanelDao.deleteCombinacion(muestra.anio, muestra.mes, muestra.odei)
-                viviendaReemplazoDao.deleteCombinacion(muestra.anio, muestra.mes, muestra.odei)
-                viviendaMarcoDao.deleteCombinacion(muestra.anio, muestra.mes, muestra.odei)
-                conglomeradoDao.deleteCombinacion(muestra.anio, muestra.mes, muestra.odei)
-                conglomeradoDao.insertAll(muestra.conglomerados)
-                viviendaMarcoDao.insertAll(muestra.viviendas)
-                viviendaReemplazoDao.insertAll(muestra.reemplazos)
-                personaPanelDao.insertAll(muestra.personas)
-                cap100PanelDao.insertAll(muestra.cap100)
-                cargaMuestraDao.deleteCombinacion(
-                    TipoMuestra.VIVIENDAS.name,
-                    muestra.anio,
-                    muestra.odei,
-                    muestra.mes
-                )
-                cargaMuestraDao.insert(
-                    CargaMuestraEntity(
-                        tipo = TipoMuestra.VIVIENDAS.name,
-                        anho = muestra.anio,
-                        odei = muestra.odei,
-                        mes = muestra.mes,
-                        fechaHora = ahora(),
-                        modo = modo.name
+            try {
+                database.withTransaction {
+                    val viviendasExistentes = viviendaMarcoDao.obtenerPorMuestra(
+                        muestra.anio,
+                        muestra.mes,
+                        muestra.odei
                     )
-                )
+                    val viviendasNuevas = muestra.viviendas.map { it.copy(activo = 1, id = 0) }
+                    val clavesNuevas = viviendasNuevas.map { it.conglome to it.vivienda }.toHashSet()
+                    val conglomeradosRequeridos = mutableSetOf<String>()
+                    viviendasExistentes.forEach { viviendaExistente ->
+                        val clave = viviendaExistente.conglome to viviendaExistente.vivienda
+                        if (clave !in clavesNuevas) {
+                            viviendaMarcoDao.actualizarActivo(viviendaExistente.conglome, viviendaExistente.vivienda, 0)
+                            conglomeradosRequeridos.add(viviendaExistente.conglome)
+                        } else {
+                            viviendaMarcoDao.actualizarActivo(viviendaExistente.conglome, viviendaExistente.vivienda, 1)
+                            conglomeradosRequeridos.add(viviendaExistente.conglome)
+                        }
+                    }
+                    viviendasNuevas.forEach { vn ->
+                        conglomeradosRequeridos.add(vn.conglome)
+                    }
+                    personaPanelDao.deleteCombinacion(muestra.anio, muestra.mes, muestra.odei)
+                    cap100PanelDao.deleteCombinacion(muestra.anio, muestra.mes, muestra.odei)
+                    viviendaReemplazoDao.deleteCombinacion(muestra.anio, muestra.mes, muestra.odei)
+                    val conglomeradosExistentes = conglomeradoDao.obtenerPorCombinacion(muestra.anio, muestra.mes, muestra.odei)
+                    val aEliminarConglomes = conglomeradosExistentes
+                        .map { it.conglome }
+                        .filter { it !in conglomeradosRequeridos }
+                    if (aEliminarConglomes.isNotEmpty()) {
+                        try {
+                            conglomeradoDao.eliminarPorConglomes(aEliminarConglomes)
+                        } catch (_: Exception) {
+                        }
+                    }
+                    for (c in muestra.conglomerados) {
+                        try {
+                            conglomeradoDao.insertAll(listOf(c))
+                        } catch (_: Exception) {
+                        }
+                    }
+                    val viviendasExistentesMap = viviendasExistentes.associateBy { it.conglome to it.vivienda }
+                    val paraInsertar = mutableListOf<gob.inei.appprueba.data.databases.entities.ViviendaMarcoEntity>()
+                    for (vn in viviendasNuevas) {
+                        val existente = viviendasExistentesMap[vn.conglome to vn.vivienda]
+                        if (existente == null) {
+                            paraInsertar.add(vn)
+                        }
+                    }
+                    if (paraInsertar.isNotEmpty()) {
+                        viviendaMarcoDao.insertAll(paraInsertar)
+                    }
+                    viviendaReemplazoDao.insertAll(muestra.reemplazos)
+                    personaPanelDao.insertAll(muestra.personas)
+                    cap100PanelDao.insertAll(muestra.cap100)
+                    cargaMuestraDao.deleteCombinacion(
+                        TipoMuestra.VIVIENDAS.name,
+                        muestra.anio,
+                        muestra.odei,
+                        muestra.mes
+                    )
+                    cargaMuestraDao.insert(
+                        CargaMuestraEntity(
+                            tipo = TipoMuestra.VIVIENDAS.name,
+                            anho = muestra.anio,
+                            odei = muestra.odei,
+                            mes = muestra.mes,
+                            fechaHora = ahora(),
+                            modo = modo.name
+                        )
+                    )
+                }
+            } catch (e: MuestraException) {
+                throw e
+            } catch (e: Exception) {
+                throw MuestraException(TipoError.ERROR_ESCRITURA, e.message ?: "No se pudo guardar la muestra en el dispositivo", e)
             }
             val estado = if (existia) EstadoArchivo.REEMPLAZADO else EstadoArchivo.CARGADO
             return ResultadoArchivo(nombre, estado, TipoMuestra.VIVIENDAS)

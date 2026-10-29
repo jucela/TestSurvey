@@ -241,10 +241,20 @@ Discrepancias detectadas (se reportan; **no se asumen soluciones no acordadas**)
   existan para esa combinación y **no** se duplica información ya presente. Los
   campos que identifican un registro existente se toman de las claves/relaciones
   definidas en el SQL, no por comparaciones arbitrarias.
-- **RF-24:** La carga de cada archivo de viviendas es **transaccional**: la
-  eliminación de la muestra previa de la misma combinación y la inserción de la
-  nueva se confirman juntas; un fallo no debe dejar eliminada la muestra anterior
+- **RF-24:** La carga de cada archivo de viviendas es **transaccional**: los cambios
+  se confirman juntos; un fallo no debe dejar la muestra anterior inconsistente
   ni las cinco tablas inconsistentes entre sí.
+- **RF-49:** Al cargar una muestra de viviendas (Manual o Automática), se debe
+  actualizar `CAMPO_VIVIENDA_MARCO.activo` comparando la nueva muestra con las
+  viviendas existentes de la misma combinación **Año + ODEI + Mes**. Las viviendas
+  presentes en la nueva muestra quedan con `activo = 1`. Las viviendas que
+  existían para esa combinación pero ya no aparecen en la nueva muestra quedan
+  con `activo = 0` **sin eliminarse físicamente**. Si una vivienda con `activo = 0`
+  vuelve a aparecer en una nueva versión de la misma combinación, se actualiza a
+  `activo = 1` (actualizando el registro existente). El valor de `activo` **no**
+  se toma del XML de la muestra; se determina exclusivamente por comparación. La
+  identificación de la vivienda se realiza por su clave lógica `(CONGLOME, VIVIENDA)`
+  dentro del ámbito de la combinación.
 - **RF-25:** **Procesamiento independiente por archivo dentro de la operación**:
   cada ZIP seleccionado se identifica, valida, procesa y confirma por separado
   (DP-10). Un archivo rechazado o con error **no** impide procesar los demás y

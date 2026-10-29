@@ -310,6 +310,18 @@ Validación manual en tablet **TB311XU** contra el FTP real
   `EncuestaDatabase` v7 + `MIGRATION_6_7`, `DatabaseModule`,
   `MuestraRepositoryImpl`. Criterios: RF-44, DP-23. Validación: migración v6→v7 +
   `MuestraViviendasDaoTest`.
+- **T-340: Actualizar activo en CAMPO_VIVIENDA_MARCO al cargar viviendas (RF-49).**
+  - **Objective:** Implementar lógica para marcar `activo = 1` a viviendas presentes
+    en la nueva muestra y `activo = 0` a las que desaparecen (sin eliminar)
+    dentro de la misma combinación AÑO+ODEI+MES; reactivar si vuelven a aparecer.
+    No tomar `activo` del XML.
+  - **Scope:** `ViviendaMarcoDao` (métodos para obtener/actualizar activo),
+    `ViviendaXmlParser.aViviendaMarco()` (forzar `activo = 1`), `MuestraRepositoryImpl.cargarViviendas()`
+    (lógica transaccional).
+  - **Dependencies:** T-331.
+  - **Spec criteria:** RF-49.
+  - **Validation method:** `.\gradlew.bat :app:assembleDebug`, `.\gradlew.bat :app:testDebugUnitTest`,
+    revisión manual del comportamiento según los ejemplos del prompt.
 - **T-332: Selector de tipo y visibilidad.** Scope: `activity_cargar_muestra.xml`
   (`cardTipoAutomatico` + `rgTipoAutomatico`), `CargaMuestraUiState`,
   `CargaMuestraViewModel` (`onTipoAutomatico`), `CargarMuestraActivity`,

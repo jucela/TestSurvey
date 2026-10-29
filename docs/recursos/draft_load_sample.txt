@@ -77,7 +77,13 @@ quiero hacer una actualización en el modulo de cargar muestra, como ya esta imp
 * tambien quiero que los cardview tenga un icono de informacion en la parte superior derecha (esquina), que cuando se haga click muestre un dialog informativo (mensaje informativo del modo manual/automatico y boton de cerrar el dialog).los cardView que tendra esta funcion son: android:id="@+id/cardTipoManual" y android:id="@+id/cardTipoAutomatico"
 
 
-
+//ACTUALIZACION 28/10/26
+ * Quiero hacer una actualizacion en el modulo de carga de muestra, solo en el caso de carga de muestra de viviendas ya sea manual o automatica
+ * Nesecito que cuando se cargue la muestra de viviendas (manual o automatica) se asigne en el campo 'activo' de la tabla CAMPO_VIVIENDA_MARCO el valor 1 y
+  cuando se vuelva a cargar la muestra actualizada de viviendas si no encuentra una vivienda que anteriormente no se habia cargado le asigne le valor 0
+ * Ejemplo cargo la muestra de la ODEI 13 y mes 04, el cual tiene 100 viviendas, quiero que se le asigne el campo 'activo' de la tabla CAMPO_VIVIENDA_MARCO el valor 1 a las 100 viviendas.
+   pero si en unos dias vuelvo a cargar la muestra la ODEI 13 y mes 04 actualizada con 99 viviendas quiero que las 99 viviendas mantengan el valor 1 y que la vivienda que no esta en la muestra actaulizada se le asigne el valor 0, no quiero que elimine esa vivienda solo que cambie su estado
+ * Recuerda que la muestra Enaho2026_Muestra_Odei_13_Mes_04.zip en el XML nunca trae la etiqueta <activo></activo>, por ello la logica de seteo de ese campo debe ser basado en la logica que te comente anteriormente.
 
 
 

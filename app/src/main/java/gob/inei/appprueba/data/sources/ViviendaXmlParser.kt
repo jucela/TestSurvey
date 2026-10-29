@@ -225,7 +225,7 @@ class ViviendaXmlParser @Inject constructor() {
         fechaDig = fila["FECHADIG"],
         usuarioMod = fila["USUARIOMOD"],
         fechaMod = fila["FECHAMOD"],
-        activo = entero(fila["activo"] ?: fila["ACTIVO"]),
+        activo = 1,
         usuCre = fila["USUCRE"],
         fecCre = fila["FECCRE"],
         usuReg = fila["USUREG"],

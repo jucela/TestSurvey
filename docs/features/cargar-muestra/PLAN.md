@@ -114,16 +114,24 @@ tipo y observación del estado para las tarjetas.
   referencias `PERFIL`, `CARGO` y `ODEI` (RF-07/RF-18): una única transacción
   `deleteAll(PERSONAL)` + `INSERT OR REPLACE` de `CARGO`/`PERFIL` (semillas SQL +
   DP-3) + `INSERT` de `PERSONAL`. Cualquier fallo revierte todo.
-- **Viviendas (RF-21..RF-24):** una transacción por archivo que:
+- **Viviendas (RF-21..RF-24, RF-49):** una transacción por archivo que:
   1. calcula la combinación `(anho, odei, mes)` del contenido/nombre;
-  2. borra **solo** los dependientes de los `CONGLOME` de esa combinación y
+  2. obtiene las viviendas existentes en `CAMPO_VIVIENDA_MARCO` para esa combinación
+     y marca como `activo = 0` las que ya no aparecen en la nueva muestra (sin
+     eliminarlas). Las viviendas que reaparecen se marcan como `activo = 1`.
+  3. borra **solo** los dependientes de los `CONGLOME` de esa combinación y
      luego `CAMPO_CONGLOMERADO` de esa combinación
      (`DELETE ... WHERE CONGLOME IN (SELECT CONGLOME FROM CAMPO_CONGLOMERADO
-     WHERE ANHO=:a AND MES=:m AND ODEI=:o)`), en orden FK;
-  3. inserta en orden FK: `CAMPO_CONGLOMERADO` → `CAMPO_VIVIENDA_MARCO` →
-     (`CAMPO_VIVIENDA_REEMPLAZO`, `PERSONA_PANEL`) → `CAP100PANEL`.
-  Las inserciones usan `ABORT` ante conflicto de clave para **no** sobrescribir
-  otra combinación (RF-23). Otras combinaciones no se tocan (RF-21).
+     WHERE ANHO=:a AND MES=:m AND ODEI=:o)`), en orden FK (manteniendo el
+     reemplazo completo de conglomerados/reemplazos/personas/cap100 para esa
+     combinación).
+  4. inserta en orden FK: `CAMPO_CONGLOMERADO` → `CAMPO_VIVIENDA_MARCO` →
+     (`CAMPO_VIVIENDA_REEMPLAZO`, `PERSONA_PANEL`) → `CAP100PANEL`. Las
+     viviendas del marco se insertan/actualizan con `activo = 1` (el parser no
+     toma `activo` del XML). Las inserciones usan `ABORT` ante conflicto de clave
+     para **no** sobrescribir otra combinación (RF-23). Otras combinaciones no se
+     tocan (RF-21). Todos los cambios se realizan dentro de la misma transacción
+     y solo tras validar que la muestra es correcta.
 - **OEI/maestras (RF-20):** `ODEI` es fuente de verdad de códigos; se crean y
   siembran `ODEI/DPTO/PROV/DISTRITO/PAIS/PERIODO` durante la migración/creación
   (DP-13/DP-14) mediante un `MaestrasSeeder` que ejecuta los `INSERT` de los SQL
