@@ -8,7 +8,7 @@ All paths in this document are relative to the repository root.
 Before planning, reviewing, or modifying this project, read the following
 documents in full and apply them alongside this file:
 1. [docs/GENERIC_RULES.md](docs/GENERIC_RULES.md)
-2. [docs/design/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md)
+2. [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md)
 
 These links are explicit reading requirements; do not assume the tool
 automatically imports linked Markdown files.
@@ -77,10 +77,10 @@ Each template carries its own instructions for the agent, its section
 structure, and its identifier scheme. Read the template in full and follow it;
 this file does not restate its content and must not contradict it.
 
-- `docs/SPEC_TEMPLATE.md`: copy to the feature's `SPEC.md` when creating or
+- `docs/templates/SPEC_TEMPLATE.md`: copy to the feature's `SPEC.md` when creating or
   updating a specification. It owns the spec's sections, its `RF-` requirement
   and `CA-` acceptance-criteria identifiers, and its approval states.
-- `docs/PLAN_TEMPLATE.md`: copy to the feature's `PLAN.md` once the
+- `docs/templates/PLAN_TEMPLATE.md`: copy to the feature's `PLAN.md` once the
   specification is approved. It owns the plan's sections and approval states.
   Reference requirements and criteria by their spec identifiers.
 - `docs/MOBILE_GUIDELINES.md`: consult when writing or reviewing requirements,
@@ -109,10 +109,10 @@ Each stage is gated by the previous document's state. A document is only
 `Aprobada`/`Aprobado` when the user says so: a complete document is not an
 approved one, and the agent never changes that state on its own.
 
-1. **Specification:** complete `SPEC.md` from `docs/SPEC_TEMPLATE.md`,
+1. **Specification:** complete `SPEC.md` from `docs/templates/SPEC_TEMPLATE.md`,
    collaboratively and section by section, following the template's own
    instructions. Do not start the plan until the user approves the spec.
-2. **Plan:** write `PLAN.md` from `docs/PLAN_TEMPLATE.md` for the approved
+2. **Plan:** write `PLAN.md` from `docs/templates/PLAN_TEMPLATE.md` for the approved
    specification, following the template's own instructions. Additionally,
    record whether subagents are needed and their bounded responsibilities; do
    not assume delegation is required or available. Do not start tasks until
@@ -183,6 +183,72 @@ Markdown table format quirks documented in `CatalogParser`:
 
 The app uses a `SurveyGraph` built from parsed questions and flow rules
 (`flujo.md`). Navigation follows conditions evaluated by `ConditionEvaluator`.
+
+## Gestión de cambios y trazabilidad (CR)
+
+Todo cambio significativo debe quedar registrado para mantener trazabilidad entre requisitos, documentación SDD y código.
+
+### Cuándo crear un Change Request
+- **Requiere CR:** Nuevas funcionalidades, modificaciones de requisitos funcionales (RF), correcciones con impacto funcional, eliminaciones o cambios de comportamiento.
+- **No requiere CR:** Ajustes menores de formato, renombrado de variables, refactor interno sin cambio de comportamiento, correcciones tipográficas o limpieza de comentarios.
+
+### Estructura
+- `docs/CHANGELOG.md`: historial general y resumido.
+- `docs/changes/`: solicitudes de cambio individuales. Usar `CR-NNN-descripcion-del-cambio.md` a partir de `docs/templates/CR-TEMPLATE.md`.
+
+### Flujo con SDD
+1. **Identificar** si el cambio es significativo. Si lo es, crear/actualizar el CR antes o en paralelo con la planificación.
+2. **Documentar** motivo, alcance, comportamiento anterior/nuevo e impacto.
+3. **Si modifica RF:** actualizar el `SPEC.md` correspondiente. No perder trazabilidad de RF existentes.
+4. **Actualizar incrementalmente** `PLAN.md` y `TASKS.md` cuando aplique.
+5. **Implementar** solo tras tener claro el alcance acordado.
+6. **Tras validar:** actualizar el estado del CR a `Implementado`, registrar pruebas y resultados, vincular `RF-XXX`/`CR-XXX` y añadir un resumen conciso en `CHANGELOG.md`.
+7. **Mantener coherencia** entre `SPEC.md`, `PLAN.md`, `TASKS.md`, CR y comportamiento implementado.
+
+### Estados y transiciones del Change Request
+
+Todo CR debe utilizar los siguientes estados:
+
+| Estado | Descripción | Condición |
+|---|---|---|
+| `Propuesto` | Cambio registrado y pendiente de aprobación. | Se crea el CR con el alcance inicial. |
+| `Aprobado` | Cambio aceptado por el usuario. | El usuario aprueba explícitamente el alcance y la actualización documental. |
+| `En desarrollo` | Cambio en proceso de implementación. | El usuario autoriza explícitamente la implementación. |
+| `Implementado` | Cambio implementado y validado satisfactoriamente. | Código, pruebas y criterios de aceptación verificados. |
+| `Rechazado` | Cambio que el usuario decide no aceptar. | Rechazo explícito del usuario. |
+| `Cancelado` | Cambio aprobado o propuesto que ya no continuará. | Cancelación explícita y justificada. |
+
+#### Reglas de transición
+
+1. Todo CR comienza en `Propuesto`.
+2. El agente nunca debe cambiar un CR a `Aprobado` por iniciativa propia. Se requiere aprobación explícita del usuario.
+3. La aprobación de los documentos SPEC, PLAN y TASKS no implica automáticamente autorización para modificar el código.
+4. El CR pasa a `En desarrollo` únicamente cuando el usuario autoriza la implementación.
+5. El CR pasa a `Implementado` únicamente después de completar las tareas obligatorias y verificar satisfactoriamente las pruebas y criterios de aceptación.
+6. Si existen pruebas fallidas, tareas pendientes o validaciones sin ejecutar, el CR no puede marcarse como `Implementado`.
+7. Un CR puede pasar a `Rechazado` o `Cancelado` únicamente cuando exista una decisión explícita del usuario. Registrar el motivo.
+8. Si durante el desarrollo se descubre que el alcance aprobado debe cambiar, detener la parte afectada, documentar la modificación y solicitar nuevamente la aprobación del usuario antes de continuar.
+9. Toda transición debe registrar la fecha, el estado anterior, el nuevo estado y el motivo.
+10. No eliminar ni sobrescribir el historial de estados anteriores.
+
+#### Flujo obligatorio
+
+`Propuesto → Aprobado → En desarrollo → Implementado`
+
+Los estados `Rechazado` y `Cancelado` son estados alternativos y no forman parte del flujo normal de implementación.
+
+El estado del CR debe mantenerse sincronizado con el avance real del cambio, las tareas y las validaciones documentadas.
+
+### Integración con Git
+- Usar mensajes de commit descriptivos.
+- Relacionar commits con CR cuando corresponda, por ejemplo: `fix(cargar-muestra): actualizar estado activo de viviendas [CR-001]`
+- **No** ejecutar commits automáticamente ni modificar la configuración del repositorio Git.
+
+### Reglas
+- No marcar un CR como `Implementado` sin haberlo validado.
+- Evitar duplicar información entre `CHANGELOG.md` y los documentos CR.
+- No inventar historial de cambios no documentado.
+- Respetar las plantillas y la estructura existente.
 
 ## Completion report
 
