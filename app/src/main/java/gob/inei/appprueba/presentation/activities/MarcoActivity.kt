@@ -17,12 +17,15 @@ import dagger.hilt.android.AndroidEntryPoint
 import gob.inei.appprueba.R
 import gob.inei.appprueba.databinding.ActivityMarcoBinding
 import gob.inei.appprueba.databinding.DialogDetalleViviendaBinding
+import gob.inei.appprueba.databinding.DialogMarcoAccionBinding
 import gob.inei.appprueba.domain.entities.CatalogoMarco
 import gob.inei.appprueba.domain.entities.DetalleViviendaMarco
+import gob.inei.appprueba.domain.entities.FilaMarco
 import gob.inei.appprueba.domain.entities.OpcionConglomerado
 import gob.inei.appprueba.domain.entities.OpcionMuestra
 import gob.inei.appprueba.presentation.adapters.FilaMarcoUi
 import gob.inei.appprueba.presentation.adapters.MarcoAdapter
+import gob.inei.appprueba.presentation.viewmodel.AccionMarco
 import gob.inei.appprueba.presentation.viewmodel.MarcoEvento
 import gob.inei.appprueba.presentation.viewmodel.MarcoUiState
 import gob.inei.appprueba.presentation.viewmodel.MarcoViewModel
@@ -50,7 +53,8 @@ class MarcoActivity : AppCompatActivity() {
                 resultado = fila.resultado.etiqueta
             )
         },
-        onDetalle = { fila -> viewModel.onDetalle(fila.conglome, fila.vivienda) }
+        onDetalle = { fila -> viewModel.onDetalle(fila.conglome, fila.vivienda) },
+        onAccion = { accion, fila -> viewModel.onAccion(accion, fila) }
     )
 
     private var actualizandoUi = false
@@ -80,7 +84,10 @@ class MarcoActivity : AppCompatActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.eventosState.collect { evento ->
-                    if (evento is MarcoEvento.MostrarDetalle) mostrarDetalle(evento.detalle)
+                    when (evento) {
+                        is MarcoEvento.MostrarDetalle -> mostrarDetalle(evento.detalle)
+                        is MarcoEvento.MostrarAccion -> mostrarAccion(evento.accion, evento.fila)
+                    }
                 }
             }
         }
@@ -233,6 +240,9 @@ class MarcoActivity : AppCompatActivity() {
 
     private fun mostrarDetalle(detalle: DetalleViviendaMarco) {
         val vista = DialogDetalleViviendaBinding.inflate(layoutInflater)
+        vista.tvDetalleConglomerado.text = valor(detalle.conglome)
+        vista.tvDetalleNumero.text = valor(detalle.nroVivienda)
+        vista.tvDetalleVivienda.text = valor(detalle.vivienda)
         vista.tvDetalleDireccion.text = valor(detalle.nombreVia)
         vista.tvDetallePuerta.text = valor(detalle.puerta)
         vista.tvDetalleInterior.text = valor(detalle.interior)
@@ -241,6 +251,23 @@ class MarcoActivity : AppCompatActivity() {
         vista.tvDetalleLote.text = valor(detalle.lote)
         MaterialAlertDialogBuilder(this)
             .setTitle(R.string.marco_detalle_titulo)
+            .setView(vista.root)
+            .setPositiveButton(R.string.marco_detalle_cerrar, null)
+            .show()
+    }
+
+    private fun mostrarAccion(accion: AccionMarco, fila: FilaMarco) {
+        val vista = DialogMarcoAccionBinding.inflate(layoutInflater)
+        vista.tvAccionConglomerado.text = valor(fila.conglome)
+        vista.tvAccionNumero.text = valor(fila.nroVivienda)
+        vista.tvAccionVivienda.text = valor(fila.vivienda)
+        val titulo = when (accion) {
+            AccionMarco.APERTURAR -> R.string.marco_accion_aperturar
+            AccionMarco.EXPORTAR -> R.string.marco_accion_exportar
+            AccionMarco.ACCION -> R.string.marco_accion_accion
+        }
+        MaterialAlertDialogBuilder(this)
+            .setTitle(titulo)
             .setView(vista.root)
             .setPositiveButton(R.string.marco_detalle_cerrar, null)
             .show()

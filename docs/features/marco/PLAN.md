@@ -90,7 +90,10 @@ Flujo de datos:
    tabla se actualiza. La búsqueda no se persiste.
 5. El detalle se pide al pulsar el icono de información de una fila y se
    entrega a la Activity mediante un evento de un solo consumo. El diálogo es
-   de solo lectura.
+   de solo lectura. Las acciones Aperturar, Exportar y Acción siguen el mismo
+   patrón: un evento por acción entrega la identificación de la fila y la
+   Activity muestra un diálogo informativo reutilizable, sin ejecutar
+   operaciones reales.
 
 Se usa `LEFT JOIN` desde `CAMPO_VIVIENDA_MARCO` para conservar viviendas sin
 `CAMPO_VIVIENDA` o sin `CAMPO_HOGAR` (RF-19). No se usa `DISTINCT` en las filas:
@@ -117,7 +120,7 @@ Señala impacto sobre modelos, contratos o componentes compartidos. -->
 | `domain/entities/MarcoFiltros.kt` | Crear | `FiltrosMarco` y `ConsultaMarco`; construye la consulta efectiva según búsqueda. | RF-06, RF-12, RF-13 |
 | `domain/entities/MarcoCatalogo.kt` | Crear | `CatalogoMarco`; reutiliza `OpcionMuestra` para los tres catálogos. | RF-08, RF-09, RF-10 |
 | `domain/entities/MarcoResultado.kt` | Crear | `OpcionConglomerado`, `AreaGeografica`, `FilaMarco`, `ResultadoVisita`, `IndicadoresMarco`, `ResultadoMarco`. | RF-11, RF-14..RF-20 |
-| `domain/entities/DetalleViviendaMarco.kt` | Crear | Modelo de solo lectura con los seis campos resueltos. | RF-17 |
+| `domain/entities/DetalleViviendaMarco.kt` | Modificar | Modelo de solo lectura con los seis campos de dirección resueltos e identificación de fila (`conglome`, `nroVivienda`, `vivienda`). | RF-17, RF-23 |
 | `domain/repositories/MarcoRepository.kt` | Crear | Contrato de catálogo, conglomerados, resultado, total, detalle y filtros persistidos. | RF-08..RF-18 |
 | `domain/usecases/ObtenerCatalogoMarcoUseCase.kt` y siete casos de uso de Marco | Crear | Orquestan el repositorio y mantienen la capa de presentación sin acceso a datos. | RF-08..RF-18 |
 | `data/databases/entities/ViviendaEntity.kt` | Crear | Tabla `CAMPO_VIVIENDA` con las 47 columnas del SQL, FG y claves exactas. | RF-02 |
@@ -132,15 +135,16 @@ Señala impacto sobre modelos, contratos o componentes compartidos. -->
 | `data/repositories/MarcoRepositoryImpl.kt` | Crear | Coordina DAO y DataStore; escapa `LIKE`; combina filas e indicadores. | RF-06, RF-12, RF-19 |
 | `di/RepositoryModule.kt` | Modificar | Binding `MarcoRepositoryImpl` → `MarcoRepository`. | RF-22 |
 | `presentation/viewmodel/MarcoViewModel.kt` | Crear | Carga, validación, filtros, búsqueda, debounce, estado, eventos y reintento. | RF-05..RF-21 |
-| `presentation/viewmodel/MarcoUiState.kt` | Crear | Estado inmutable y estados derivados de la UI. | RF-05..RF-21 |
-| `presentation/adapters/MarcoAdapter.kt` | Crear | `ListAdapter`/`DiffUtil`, textos, colores y detalle por fila. | RF-15..RF-18 |
-| `presentation/activities/MarcoActivity.kt` | Crear | Render, dropdowns, Switch, colapso, lista, diálogo y reintento. | RF-03..RF-18, RF-21 |
+| `presentation/viewmodel/MarcoUiState.kt` | Modificar | Estado inmutable, estados derivados y eventos de detalle y acciones por fila. | RF-05..RF-23 |
+| `presentation/adapters/MarcoAdapter.kt` | Modificar | Textos, colores, detalle y callbacks de Aperturar, Exportar y Acción por fila. | RF-15..RF-18, RF-23 |
+| `presentation/activities/MarcoActivity.kt` | Modificar | Render, dropdowns, Switch, colapso, lista, diálogo de detalle y diálogos de acciones por fila. | RF-03..RF-18, RF-21, RF-23 |
 | `presentation/activities/MainActivity.kt` | Modificar | Abrir `MarcoActivity` para `action_marco`; mantener el placeholder para el resto. | RF-01 |
 | `app/src/main/AndroidManifest.xml` | Modificar | Registrar `MarcoActivity` no exportada y con padre `MainActivity`. | RF-01 |
-| `res/layout/activity_marco.xml` | Crear | Toolbar, título exacto centrado con `TextAppearance.AppPrueba.TopBar`, tarjeta de filtros, indicadores y tabla adaptable. | RF-03..RF-15 |
-| `res/layout/layout_marco_tabla_header.xml`, `item_marco_vivienda.xml` | Crear | Cabecera y fila con las ocho columnas alineadas. | RF-15, RF-18 |
-| `res/layout/dialog_marco_detalle.xml` | Crear | Diálogo de los seis campos y botón Cerrar. | RF-17 |
-| `res/values/{strings,colors,dimens,styles}.xml`, `values-night/colors.xml`, `values/bools.xml`, `values-sw600dp/bools.xml`, `res/drawable/{ic_search,ic_expand_more}.xml` | Crear/Modificar | Textos, tokens de fila, dimensiones de tabla, bandera de colapso e iconos. | RF-03..RF-18 |
+| `res/layout/activity_marco.xml` | Modificar | Toolbar, título exacto centrado con `TextAppearance.AppPrueba.TopBar`, tarjeta de filtros, indicadores y tabla adaptable con once columnas. | RF-03..RF-15 |
+| `res/layout/item_marco_fila.xml` | Modificar | Fila con once columnas, incluidos los tres iconos de acción con área táctil y descripción accesible. | RF-15, RF-18, RF-23 |
+| `res/layout/dialog_detalle_vivienda.xml` | Modificar | Identificación de fila (Conglomerado, `NROVIVIENDA`, `VIVIENDA`), seis campos de dirección y botón Cerrar. | RF-17, RF-23 |
+| `res/layout/dialog_marco_accion.xml` | Crear | Diálogo informativo reutilizable para Aperturar, Exportar y Acción con identificación de fila. | RF-23 |
+| `res/values/{strings,colors,dimens,styles}.xml`, `values-night/colors.xml`, `values/bools.xml`, `values-sw600dp/bools.xml`, `res/drawable/{ic_search,ic_expand_more,ic_aperturar,ic_exportar,ic_accion}.xml` | Crear/Modificar | Textos, tokens de fila, dimensiones de tabla, bandera de colapso e iconos de acciones. | RF-03..RF-18, RF-23 |
 | `docs/design/DESIGN_SYSTEM.md` | Modificar | Documentar los dos tokens nuevos de fila (claro/oscuro) y su uso. | RF-18 |
 
 ## Datos y contratos
@@ -156,11 +160,11 @@ Señala impacto sobre modelos, contratos o componentes compartidos. -->
   - `ResultadoVisita` (`COMPLETA`, `INCOMPLETA`, `RECHAZO`, `AUSENTE`, `VIV_DESOCUPADA`, `NO_SE_INICIO`, `OTRO`, `SIN_VISITAR`). La UI traduce el enum a strings; el dominio no depende de recursos Android.
   - `IndicadoresMarco(estrato: String?, tipoSeleccion: String?, seleccionadas: Int, reemplazos: Int)`.
   - `ResultadoMarco(filas: List<FilaMarco>, indicadores: IndicadoresMarco)`.
-  - `DetalleViviendaMarco(direccion, puerta, interior, piso, mz, lote)` con valores ya resueltos o `null`; la UI muestra `--`.
+  - `DetalleViviendaMarco(conglome, nroVivienda, vivienda, direccion, puerta, interior, piso, mz, lote)` con valores ya resueltos o `null`; la UI muestra `--`. `conglome`, `nroVivienda` y `vivienda` identifican la fila en todos los diálogos.
   - `MarcoUiState`: carga, error, sin muestra, sin resultados, búsqueda, filtros, expandido, catálogo, conglomerados, filas e indicadores. `conglomeradoSeleccionado` y `estratos/tipo` se derivan; con búsqueda activa no hay conglomerado aplicado y Estrato/Tipo muestran `--`.
 - **Identificadores, relaciones y restricciones:** `CAMPO_VIVIENDA` PK(`CONGLOME`,`VIVIENDA`), FK `CONGLOME` → `CAMPO_CONGLOMERADO`; `CAMPO_HOGAR` PK(`CONGLOME`,`VIVIENDA`,`HOGAR`), FK compuesta → `CAMPO_VIVIENDA`. `CAMPO_VIVIENDA_MARCO` se conserva como base y se une por la clave compuesta, nunca solo por `CONGLOME`. `CAMPO_CONGLOMERADO.CONGLOME` es único. Se añaden índices Room en `CAMPO_VIVIENDA(CONGLOME)` y `CAMPO_HOGAR(CONGLOME,VIVIENDA)` para las FK, sin tocar tablas existentes.
 - **Origen de los datos mostrados y transformaciones:**
-  - Tabla: `CAMPO_VIVIENDA_MARCO` LEFT JOIN `CAMPO_CONGLOMERADO`, LEFT JOIN `CAMPO_VIVIENDA`, LEFT JOIN `CAMPO_HOGAR`. Una fila por hogar; si no hay hogar, `HOGAR` nulo y la UI muestra `--`. Orden `CONGLOME`, `VIVIENDA`, `COALESCE(HOGAR, '')`.
+  - Tabla: `CAMPO_VIVIENDA_MARCO` LEFT JOIN `CAMPO_CONGLOMERADO`, LEFT JOIN `CAMPO_VIVIENDA`, LEFT JOIN `CAMPO_HOGAR`. Una fila por hogar; si no hay hogar, `HOGAR` nulo y la UI muestra `--`. Orden `CONGLOME`, `COALESCE(NULLIF(TRIM(NROVIVIENDA), ''), '')`, `VIVIENDA`, `COALESCE(HOGAR, '')` para un orden determinista y estable con múltiples hogares.
   - `RESFIN`: `trim`; nulo/vacío → `SIN_VISITAR`; `"1".."7"` → textos de RF-16; otro → `OTRO`. Nunca se muestra `null`.
   - `TIPOVIVIENDA` (color de fila): `trim in {"1", "4"}` → celeste; `{"2", "3"}`, nulo, vacío o cualquier otro valor → rojo. El color no depende de `ESREEMPLAZO` ni de la existencia de `CAMPO_VIVIENDA`.
   - `TIPOVIVIENDA`: `trim in {"1", "4"}` seleccionada, `trim in {"2", "3"}` reemplazo; otro/nulo no suma. `activo` solo `== 1` cuenta como activo.
@@ -217,7 +221,7 @@ CREATE INDEX IF NOT EXISTS `index_CAMPO_HOGAR_CONGLOME_VIVIENDA`
 Consultas de Marco (`MarcoDao`):
 
 - Filas y conteos comparten estos predicados: `(:soloActivos = 0 OR m.activo = 1)`, búsqueda `(:busqueda = '' OR LOWER(m.CONGLOME) LIKE '%' || LOWER(:busqueda) || '%' ESCAPE '\')`, y filtros `(:odei IS NULL OR c.ODEI = :odei)`, `(:mes IS NULL OR c.MES = :mes)`, `(:periodo IS NULL OR c.PERIODO = :periodo)`, `(:conglomerado IS NULL OR m.CONGLOME = :conglomerado)`.
-- Filas: `SELECT m.CONGLOME, m.VIVIENDA, m.NROVIVIENDA, m.activo, h.HOGAR, v.NROREEMPLAZO, h.RESFIN, m.TIPOVIVIENDA AS seleccion FROM CAMPO_VIVIENDA_MARCO m LEFT JOIN CAMPO_CONGLOMERADO c ... LEFT JOIN CAMPO_VIVIENDA v ON v.CONGLOME=m.CONGLOME AND v.VIVIENDA=m.VIVIENDA LEFT JOIN CAMPO_HOGAR h ON h.CONGLOME=m.CONGLOME AND h.VIVIENDA=m.VIVIENDA WHERE ... ORDER BY m.CONGLOME, m.VIVIENDA, COALESCE(h.HOGAR, '')`. El color se deriva de `m.TIPOVIVIENDA`; `v.ESREEMPLAZO` no se proyecta.
+- Filas: `SELECT m.CONGLOME, m.VIVIENDA, m.NROVIVIENDA, m.activo, h.HOGAR, v.NROREEMPLAZO, h.RESFIN, m.TIPOVIVIENDA AS seleccion FROM CAMPO_VIVIENDA_MARCO m LEFT JOIN CAMPO_CONGLOMERADO c ... LEFT JOIN CAMPO_VIVIENDA v ON v.CONGLOME=m.CONGLOME AND v.VIVIENDA=m.VIVIENDA LEFT JOIN CAMPO_HOGAR h ON h.CONGLOME=m.CONGLOME AND h.VIVIENDA=m.VIVIENDA WHERE ... ORDER BY m.CONGLOME, COALESCE(NULLIF(TRIM(v.NROVIVIENDA), ''), NULLIF(TRIM(m.NROVIVIENDA), ''), ''), m.VIVIENDA, COALESCE(h.HOGAR, '')`. El color se deriva de `m.TIPOVIVIENDA`; `v.ESREEMPLAZO` no se proyecta.
 - Indicadores: `COUNT(DISTINCT CASE WHEN TRIM(m.TIPOVIVIENDA) IN ('1','4') THEN m.CONGLOME || CHAR(31) || m.VIVIENDA END)` y la misma expresión para `('2','3')`, sobre la base `m` y los mismos predicados. No se une `CAMPO_HOGAR` para no inflar conteos.
 - Conglomerados: `SELECT c.CONGLOME, c.ESTRATO, c.TIPOSELECCION FROM CAMPO_CONGLOMERADO c WHERE (:odei IS NULL OR c.ODEI=:odei) ... ORDER BY c.CONGLOME`. La etiqueta se calcula en el mapper.
 - Total de muestra: `SELECT COUNT(*) FROM CAMPO_CONGLOMERADO` como Flow.
@@ -238,7 +242,7 @@ Referencia RF/CA y aplica las consideraciones relevantes de MOBILE_GUIDELINES.md
   - **Sin muestra/sin resultados:** `sinMuestra` se deriva de `totalConglomerados == 0`; `sinResultados` de filas vacías con muestra existente. Son mensajes informativos, no errores. Indicadores en `0`/`--` cuando no hay datos.
   - **Formularios:** búsqueda de texto libre con `trim`; no hay validación de formato. Caracteres especiales se tratan literalmente mediante escape de `LIKE`.
   - **Pantalla y orientación:** `CoordinatorLayout` con `AppBarLayout` desplazable para título/filtros/indicadores y tabla con `HorizontalScrollView` + `RecyclerView` que ocupa el resto; la cabecera de tabla queda fija sobre la lista. En `sw600dp` se muestran las tres filas; en móvil el contenido de filtros se colapsa con `TransitionManager`/`AutoTransition`. Se usan dimensiones tokenizadas para columnas y áreas táctiles de 48dp.
-  - **Accesibilidad:** `TextInputLayout` con hints; Switch con etiqueta; icono de detalle con `contentDescription` que incluye vivienda y conglomerado; cabecera con textos; el resultado y la columna Reemplazo comunican la información además del color; contraste verificado en claro/oscuro; el botón de colapso actualiza su descripción.
+  - **Accesibilidad:** `TextInputLayout` con hints; Switch con etiqueta; iconos de detalle, Aperturar, Exportar y Acción con `contentDescription` que incluye la acción, vivienda y conglomerado; cabecera con textos; el resultado y la columna Reemplazo comunican la información además del color; contraste verificado en claro/oscuro; el botón de colapso actualiza su descripción.
   - **Ciclo de vida:** no se guardan referencias a vistas en el ViewModel; el diálogo se muestra desde la Activity al recibir un evento. El canal de eventos es `BUFFERED`.
   - **Privacidad/red/permisos:** no aplica; no hay red, permisos, cámara ni GPS.
 
@@ -279,15 +283,17 @@ Una captura aislada no demuestra persistencia ni ausencia de peticiones de red. 
 | CA-15 | Instrumentado: `MarcoFiltrosDataStoreTest` + UI/VM | Dos usuarios, filtros válidos e inválidos | Restauración por usuario; inválidos a `--`; búsqueda no persistida |
 | CA-16 | VM + UI | Conglomerado único y sin selección | Estrato/Tipo reales o `--`; conteos coherentes |
 | CA-17 | DAO/integración: conteos + UI | Vivienda con varios hogares, `TIPOVIVIENDA` 1/2/null/3; Switch | Conteo distinto por vivienda; coincide con tabla visible |
-| CA-18 | UI: `MarcoEspressoTest` + manual | Ocho columnas, móvil y tablet | Orden/alineación; scroll horizontal; sin columnas recortadas |
+| CA-18 | UI: `MarcoEspressoTest` + manual | Once columnas, móvil y tablet; `NROVIVIENDA` nulo/vacío y empates | Orden/alineación; scroll horizontal; sin columnas recortadas |
 | CA-19 | DAO/integración: `MarcoDaoTest` | Vivienda con 3 hogares y vivienda sin hogar | Una fila por hogar; fila con Hogar `--`; conteo sin inflar |
 | CA-20 | Unitario de mapper + UI | `RESFIN` 1..7, null, `""`, `"  "`, `"8"` | Textos RF-16; SIN VISITAR/OTRO; nunca `null` |
-| CA-21 | Unitario de detalle + UI de diálogo | Datos en ambas tablas, solo Marco y ninguno | Prioridad, fallback y `--`; Cerrar no modifica datos |
+| CA-21 | Unitario de detalle + UI de diálogo | Datos en ambas tablas, solo Marco y ninguno; identificación | Identificación, prioridad, fallback y `--`; Cerrar no modifica datos |
 | CA-22 | Unitario de mapper + UI con matcher de color + manual oscuro | `TIPOVIVIENDA` 1, 4, 2, 3, null, vacío, otro (5); sin vivienda | `{1,4}` celeste; resto rojo desde tokens; contraste en claro/oscuro |
 | CA-23 | DAO/integración: joins | Tablas vacías y datos parciales; dos conglomerados | Todas las viviendas del Marco; asociación por claves compuestas; sin mezclas |
 | CA-24 | DAO/integración + unitario de mapper | Nulos, vacíos y espacios en campos usados | Sin excepciones; celdas `--`; valores seguros |
 | CA-25 | VM con repo fake + UI | Total 0, filtros sin coincidencia, repo que lanza error | Mensajes informativos; error seguro con reintento; sin cierre |
 | CA-26 | Unitario de VM (debounce/flatMapLatest) + manual de fluidez | Texto rápido, cambios de filtro, muestra representativa | Sin bloqueo ni recreación; consultas parametrizadas y canceladas |
+| CA-27 | UI: `MarcoEspressoTest` + unitario de VM | Filas con `NROVIVIENDA`/`VIVIENDA` distintas; pulsar cada acción | Diálogos con Conglomerado, `NROVIVIENDA` y `VIVIENDA`; sin cambios de datos |
+| CA-28 | UI + manual con TalkBack | Iconos de acción y diálogos | Descripciones accesibles, área táctil, cierre correcto; sin operaciones reales |
 
 **Comprobaciones de regresión:** ejecutar la suite unitaria completa (121 tests actuales + nuevos), la suite instrumentada completa (37 actuales + nuevas), `assembleDebug` y `lintDebug`. Verificar que login, drawer, `CargarMuestraActivity`, restricción SIS y encuesta no cambian. No debe aparecer `fallbackToDestructiveMigration` ni una versión distinta de 8.
 
@@ -327,6 +333,7 @@ Incluye puntos de comprobación para avanzar con cambios pequeños. -->
 5. **Recursos y UI:** strings, colores claro/oscuro, dimensiones, bools, drawables, `activity_marco.xml`, cabecera/fila, diálogo y `MarcoAdapter`. Comprobación: `assembleDebug` y preview/compilación de recursos.
 6. **Integración de pantalla:** `MarcoActivity`, registro en Manifest y rama `action_marco` en `MainActivity`. Comprobación: `MarcoEspressoTest` de navegación, título, filtros, búsqueda, tabla, diálogo y estados.
 7. **Validación final:** suite unitaria e instrumentada completa, `lintDebug`, prueba manual en tablet/móvil, claro/oscuro, rotación y TalkBack; documentar tokens en `DESIGN_SYSTEM.md` y registrar evidencias/limitaciones en `TASKS.md` durante la implementación.
+8. **CR-003 (RF-15/RF-17/RF-23):** actualizar `ORDER BY` a `CONGLOME`, `NROVIVIENDA`, `VIVIENDA`, `HOGAR`; añadir las tres columnas/iconos de acción; extender `DetalleViviendaMarco` y los eventos/UI con identificación de fila; crear el diálogo reutilizable de acciones; actualizar pruebas. Comprobación: `MarcoDaoTest`, `MarcoViewModelTest`, `MarcoEspressoTest` y batería completa.
 
 ## Riesgos y decisiones pendientes
 
@@ -342,6 +349,8 @@ Escribe Ninguna en las decisiones pendientes cuando estén resueltas. -->
   - **Tabla en pantallas estrechas:** dimensiones tokenizadas, scroll horizontal y cabecera fija; prueba en móvil y tablet, rotación y fuente grande.
   - **Contraste de los tokens nuevos:** rojo/celeste pastel claro y oscuro con texto `?attr/colorOnSurface`; revisión visual en ambos temas y uso de texto/columnas como indicador adicional.
   - **Complejidad de pruebas Hilt aisladas:** módulo de test que sustituye `DatabaseModule` por Room in-memory y DataStore temporal; no se escriben fixtures en la base de la app.
+  - **Orden con `NROVIVIENDA` nulo o duplicado:** se ordena con `COALESCE`/`NULLIF` y se conservan `VIVIENDA` y `HOGAR` como desempate para mantener el orden determinista y la fila por hogar; tests con nulos, vacíos y empates.
+  - **Ancho y alineación de once columnas:** pesos/dimensiones tokenizadas, scroll horizontal y prueba en móvil/tablet; los iconos de acción mantienen área táctil de 48dp y descripción accesible.
 - **Decisiones pendientes:** Ninguna. Las decisiones de producto y de alcance están resueltas en la SPEC aprobada; las elecciones técnicas de este plan no cambian el comportamiento.
 
 <!-- ANTES DE SOLICITAR APROBACIÓN

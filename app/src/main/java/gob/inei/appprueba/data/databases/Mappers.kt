@@ -146,7 +146,10 @@ fun DetalleMarcoRow.toDetalleViviendaMarco() = DetalleViviendaMarco(
     interior = ReglasMarco.campo(viviendaInterior, marcoInterior),
     piso = ReglasMarco.campo(viviendaPiso, marcoPiso),
     manzana = ReglasMarco.campo(viviendaMz, marcoMz),
-    lote = ReglasMarco.campo(viviendaLote, marcoLote)
+    lote = ReglasMarco.campo(viviendaLote, marcoLote),
+    conglome = limpiar(conglome),
+    nroVivienda = limpiar(nroVivienda),
+    vivienda = limpiar(vivienda)
 )
 
 fun List<MarcoFilaRow>.toIndicadoresMarco(

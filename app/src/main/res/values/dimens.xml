@@ -12,6 +12,15 @@
     <dimen name="dp_48">48dp</dimen>
     <dimen name="dp_56">56dp</dimen>
     <dimen name="marco_tabla_alto_minimo">240dp</dimen>
+    <dimen name="marco_col_activo_ancho">36dp</dimen>
+    <dimen name="marco_col_conglomerado_ancho">80dp</dimen>
+    <dimen name="marco_col_numero_ancho">36dp</dimen>
+    <dimen name="marco_col_seleccion_ancho">64dp</dimen>
+    <dimen name="marco_col_hogar_ancho">64dp</dimen>
+    <dimen name="marco_col_reemplazo_ancho">64dp</dimen>
+    <dimen name="marco_col_resultado_ancho">96dp</dimen>
+    <dimen name="marco_col_accion_ancho">64dp</dimen>
+    <dimen name="marco_tabla_ancho">896dp</dimen>
     <dimen name="login_max_width">320dp</dimen>
     <dimen name="login_logo_size">64dp</dimen>
     <dimen name="drawer_width">280dp</dimen>

@@ -145,6 +145,31 @@ class MarcoViewModelTest {
     }
 
     @Test
+    fun `onAccion emite el evento con la accion y la fila`() = runTest {
+        val vm = crear(FakeMarcoRepository())
+        advanceUntilIdle()
+        val fila = FilaMarco(
+            conglome = "016335",
+            vivienda = "001",
+            nroVivienda = "01",
+            activo = true,
+            hogar = "1",
+            seleccion = "1",
+            nroReemplazo = null,
+            resultado = ResultadoVisita.COMPLETA,
+            esReemplazo = false
+        )
+        val evento = async { vm.eventosState.first() }
+        advanceUntilIdle()
+        vm.onAccion(AccionMarco.EXPORTAR, fila)
+        advanceUntilIdle()
+        val recibido = evento.await() as MarcoEvento.MostrarAccion
+        assertEquals(AccionMarco.EXPORTAR, recibido.accion)
+        assertEquals("001", recibido.fila.vivienda)
+        assertEquals("01", recibido.fila.nroVivienda)
+    }
+
+    @Test
     fun `filas e indicadores llegan al estado`() = runTest {
         val repo = FakeMarcoRepository().apply {
             total.value = 1

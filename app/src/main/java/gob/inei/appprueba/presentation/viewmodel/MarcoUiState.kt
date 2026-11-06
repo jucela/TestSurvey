@@ -7,10 +7,15 @@ import gob.inei.appprueba.domain.entities.IndicadoresMarco
 import gob.inei.appprueba.domain.entities.MarcoFiltros
 import gob.inei.appprueba.domain.entities.OpcionConglomerado
 
+/** Acciones informativas disponibles por fila (RF-23). */
+enum class AccionMarco { APERTURAR, EXPORTAR, ACCION }
+
 /** Eventos puntuales de la pantalla Marco. */
 sealed interface MarcoEvento {
     data class MostrarDetalle(val detalle: gob.inei.appprueba.domain.entities.DetalleViviendaMarco) :
         MarcoEvento
+
+    data class MostrarAccion(val accion: AccionMarco, val fila: FilaMarco) : MarcoEvento
 }
 
 /** Estado de la pantalla Marco. */

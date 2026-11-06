@@ -9,6 +9,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import gob.inei.appprueba.R
 import gob.inei.appprueba.domain.entities.FilaMarco
+import gob.inei.appprueba.presentation.viewmodel.AccionMarco
 
 /** Textos ya formateados de una fila de Marco. */
 data class FilaMarcoUi(
@@ -23,7 +24,8 @@ data class FilaMarcoUi(
 
 class MarcoAdapter(
     private val formato: (FilaMarco) -> FilaMarcoUi,
-    private val onDetalle: (FilaMarco) -> Unit
+    private val onDetalle: (FilaMarco) -> Unit,
+    private val onAccion: (AccionMarco, FilaMarco) -> Unit
 ) : RecyclerView.Adapter<MarcoAdapter.Holder>() {
 
     private var items: List<FilaMarco> = emptyList()
@@ -56,6 +58,9 @@ class MarcoAdapter(
         private val reemplazo: TextView = itemView.findViewById(R.id.tvReemplazo)
         private val resultado: TextView = itemView.findViewById(R.id.tvResultado)
         private val detalle: ImageButton = itemView.findViewById(R.id.btnDetalle)
+        private val aperturar: ImageButton = itemView.findViewById(R.id.btnAperturar)
+        private val exportar: ImageButton = itemView.findViewById(R.id.btnExportar)
+        private val accion: ImageButton = itemView.findViewById(R.id.btnAccion)
 
         fun bind(fila: FilaMarco) {
             val texto = formato(fila)
@@ -78,7 +83,25 @@ class MarcoAdapter(
                 texto.numero,
                 texto.conglomerado
             )
+            aperturar.contentDescription = itemView.context.getString(
+                R.string.marco_accion_descripcion_aperturar_fila,
+                texto.numero,
+                texto.conglomerado
+            )
+            exportar.contentDescription = itemView.context.getString(
+                R.string.marco_accion_descripcion_exportar_fila,
+                texto.numero,
+                texto.conglomerado
+            )
+            accion.contentDescription = itemView.context.getString(
+                R.string.marco_accion_descripcion_accion_fila,
+                texto.numero,
+                texto.conglomerado
+            )
             detalle.setOnClickListener { onDetalle(fila) }
+            aperturar.setOnClickListener { onAccion(AccionMarco.APERTURAR, fila) }
+            exportar.setOnClickListener { onAccion(AccionMarco.EXPORTAR, fila) }
+            accion.setOnClickListener { onAccion(AccionMarco.ACCION, fila) }
         }
     }
 }

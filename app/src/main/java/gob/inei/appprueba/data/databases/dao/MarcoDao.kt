@@ -33,7 +33,10 @@ interface MarcoDao {
           AND (:mes IS NULL OR c.MES = :mes)
           AND (:periodo IS NULL OR c.PERIODO = :periodo)
           AND (:conglomerado IS NULL OR m.CONGLOME = :conglomerado)
-        ORDER BY m.CONGLOME, m.VIVIENDA, h.HOGAR
+        ORDER BY m.CONGLOME,
+                 COALESCE(NULLIF(TRIM(v.NROVIVIENDA), ''), NULLIF(TRIM(m.NROVIVIENDA), ''), ''),
+                 m.VIVIENDA,
+                 COALESCE(h.HOGAR, '')
         """
     )
     fun observarFilas(
@@ -92,7 +95,10 @@ interface MarcoDao {
             v.INTERIOR AS viviendaInterior,
             v.PISO AS viviendaPiso,
             v.MZ AS viviendaMz,
-            v.LOTE AS viviendaLote
+            v.LOTE AS viviendaLote,
+            m.CONGLOME AS conglome,
+            COALESCE(NULLIF(TRIM(v.NROVIVIENDA), ''), m.NROVIVIENDA) AS nroVivienda,
+            m.VIVIENDA AS vivienda
         FROM CAMPO_VIVIENDA_MARCO m
         LEFT JOIN CAMPO_VIVIENDA v
             ON v.CONGLOME = m.CONGLOME AND v.VIVIENDA = m.VIVIENDA

@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/filaMarco"
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:minHeight="48dp"
     android:orientation="horizontal"
@@ -13,66 +13,85 @@
     <TextView
         android:id="@+id/tvActivo"
         style="@style/TextAppearance.AppPrueba.MarcoCelda"
-        android:layout_width="0dp"
+        android:layout_width="@dimen/marco_col_activo_ancho"
         android:layout_height="wrap_content"
-        android:layout_weight="0.5"
         tools:text="1" />
 
     <TextView
         android:id="@+id/tvConglomerado"
         style="@style/TextAppearance.AppPrueba.MarcoCelda"
-        android:layout_width="0dp"
+        android:layout_width="@dimen/marco_col_conglomerado_ancho"
         android:layout_height="wrap_content"
-        android:layout_weight="2"
         tools:text="016335" />
 
     <TextView
         android:id="@+id/tvNumero"
         style="@style/TextAppearance.AppPrueba.MarcoCelda"
-        android:layout_width="0dp"
+        android:layout_width="@dimen/marco_col_numero_ancho"
         android:layout_height="wrap_content"
-        android:layout_weight="0.5"
         tools:text="001" />
 
     <TextView
         android:id="@+id/tvSeleccion"
         style="@style/TextAppearance.AppPrueba.MarcoCelda"
-        android:layout_width="0dp"
+        android:layout_width="@dimen/marco_col_seleccion_ancho"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
         tools:text="1" />
 
     <TextView
         android:id="@+id/tvHogar"
         style="@style/TextAppearance.AppPrueba.MarcoCelda"
-        android:layout_width="0dp"
+        android:layout_width="@dimen/marco_col_hogar_ancho"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
         tools:text="1" />
 
     <TextView
         android:id="@+id/tvReemplazo"
         style="@style/TextAppearance.AppPrueba.MarcoCelda"
-        android:layout_width="0dp"
+        android:layout_width="@dimen/marco_col_reemplazo_ancho"
         android:layout_height="wrap_content"
-        android:layout_weight="1.5"
         tools:text="002" />
 
     <TextView
         android:id="@+id/tvResultado"
         style="@style/TextAppearance.AppPrueba.MarcoCelda"
-        android:layout_width="0dp"
+        android:layout_width="@dimen/marco_col_resultado_ancho"
         android:layout_height="wrap_content"
-        android:layout_weight="2"
         tools:text="COMPLETA" />
 
     <ImageButton
         android:id="@+id/btnDetalle"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
+        android:layout_width="@dimen/marco_col_accion_ancho"
+        android:layout_height="48dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="@string/marco_detalle_descripcion"
         android:src="@drawable/ic_info"
+        app:tint="?attr/colorPrimary" />
+
+    <ImageButton
+        android:id="@+id/btnAperturar"
+        android:layout_width="@dimen/marco_col_accion_ancho"
+        android:layout_height="48dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/marco_accion_aperturar"
+        android:src="@drawable/ic_aperturar"
+        app:tint="?attr/colorPrimary" />
+
+    <ImageButton
+        android:id="@+id/btnExportar"
+        android:layout_width="@dimen/marco_col_accion_ancho"
+        android:layout_height="48dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/marco_accion_exportar"
+        android:src="@drawable/ic_exportar"
+        app:tint="?attr/colorPrimary" />
+
+    <ImageButton
+        android:id="@+id/btnAccion"
+        android:layout_width="@dimen/marco_col_accion_ancho"
+        android:layout_height="48dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/marco_accion_accion"
+        android:src="@drawable/ic_accion"
         app:tint="?attr/colorPrimary" />
 </LinearLayout>

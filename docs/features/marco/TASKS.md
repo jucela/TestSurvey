@@ -2,7 +2,7 @@
 
 **SPEC:** docs/features/marco/SPEC.md (Aprobada 2026-10-22)
 **PLAN:** docs/features/marco/PLAN.md (Aprobado 2026-10-22)
-**Estado general:** En curso <!-- Pendiente | En curso | Completada -->
+**Estado general:** Completada <!-- Pendiente | En curso | Completada -->
 
 Tareas derivadas del PLAN aprobado. El orden respeta las dependencias
 técnicas; no se inicia una tarea hasta completar y validar sus dependencias.
@@ -190,12 +190,54 @@ Los identificadores usan el prefijo `MA-` (Marco) para no colisionar con
   - **Criterios:** RF-18; CA-22.
   - **Validación:** `.\gradlew.bat :app:assembleDebug`, `.\gradlew.bat :app:testDebugUnitTest`, `.\gradlew.bat :app:lintDebug` y `.\gradlew.bat :app:connectedDebugAndroidTest` en `TB311XU - 16`; actualizar la evidencia al completar. **Ejecutada 2026-11-05:** `assembleDebug` OK; `testDebugUnitTest` **152/152**, 0 fallos; `lintDebug` 0 errores / 53 warnings; `connectedDebugAndroidTest` **61 casos (60 ejecutados + 1 omitido), 0 fallos** en `TB311XU - 16`. El test de color `las_filas_usan_el_color_segun_tipovivienda` pasó además con `cmd uimode night yes` (tokens oscuros).
 
+- [x] **MA-23 · CR-003: recursos e iconos de acciones por fila (RF-15/RF-23)**
+  - **Objetivo:** añadir strings de columnas, títulos/etiquetas de identificación y descripciones accesibles, además de tres iconos vectoriales distintos para Aperturar, Exportar y Acción; ajustar dimensiones de tabla si hace falta.
+  - **Alcance:** `res/values/strings.xml`, `res/values/dimens.xml`, `res/drawable/ic_aperturar.xml`, `ic_exportar.xml`, `ic_accion.xml`.
+  - **Dependencias:** Ninguna.
+  - **Criterios:** RF-15, RF-23; CA-18, CA-27, CA-28.
+  - **Validación:** `.\gradlew.bat :app:assembleDebug` y revisión de que los iconos son distintos, coherentes con el DS y con `contentDescription` prevista; sin dependencias nuevas. **Ejecutada 2026-11-06:** `assembleDebug` OK; `ic_aperturar`, `ic_exportar` e `ic_accion` son vectores distintos con tintado del tema; strings y tokens de ancho documentados en `DESIGN_SYSTEM.md`; sin dependencias nuevas.
+
+- [x] **MA-24 · CR-003: cabecera, fila y diálogos con once columnas e identificación (RF-15/RF-17/RF-23)**
+  - **Objetivo:** ampliar la cabecera y la fila a once columnas alineadas, agregar los tres iconos de acción y crear un diálogo informativo reutilizable; incluir Conglomerado, `NROVIVIENDA` y `VIVIENDA` en Detalle y en los diálogos de acción.
+  - **Alcance:** `res/layout/activity_marco.xml`, `res/layout/item_marco_fila.xml`, `res/layout/dialog_detalle_vivienda.xml`, `res/layout/dialog_marco_accion.xml`.
+  - **Dependencias:** MA-23.
+  - **Criterios:** RF-15, RF-17, RF-23; CA-18, CA-21, CA-27, CA-28.
+  - **Validación:** `.\gradlew.bat :app:assembleDebug`; inspección de jerarquía, alineación, scroll horizontal, áreas táctiles de 48dp y ausencia de recortes. **Ejecutada 2026-11-06:** `assembleDebug` OK; cabecera y fila con 11 celdas alineadas, tabla de 896dp con scroll horizontal, botones de acción de 48dp y diálogos con identificación; `MarcoEspressoTest` verifica columnas y diálogos en dispositivo.
+
+- [x] **MA-25 · CR-003: orden por NROVIVIENDA e identificación en dominio/datos (RF-15/RF-17)**
+  - **Objetivo:** actualizar el `ORDER BY` a `CONGLOME`, `NROVIVIENDA`, `VIVIENDA`, `HOGAR` con manejo seguro de nulos/vacíos; extender `DetalleViviendaMarco` y los mappers/proyecciones con la identificación de fila.
+  - **Alcance:** `data/databases/dao/MarcoDao.kt`, `data/databases/projections/MarcoProjections.kt`, `data/databases/Mappers.kt`, `domain/entities/DetalleViviendaMarco.kt`, `domain/entities/MarcoResultado.kt` (si aplica).
+  - **Dependencias:** MA-24.
+  - **Criterios:** RF-15, RF-17, RF-23; CA-18, CA-19, CA-21, CA-27.
+  - **Validación:** `.\gradlew.bat :app:assembleDebug`; `MarcoDaoTest` con nulos/vacíos, empates y varios hogares; sin migración Room. **Ejecutada 2026-11-06:** `assembleDebug` OK; `MarcoDaoTest` de orden por `NROVIVIENDA` con nulos/vacíos y varios hogares pasó en la suite conectada; el detalle incluye `conglome`, `nroVivienda` y `vivienda`; sin cambios de esquema.
+
+- [x] **MA-26 · CR-003: eventos, adaptador y diálogos en presentación (RF-23)**
+  - **Objetivo:** agregar callbacks y eventos para Aperturar, Exportar y Acción; renderizar los diálogos en la Activity con la identificación de la fila; conservar el detalle y la accesibilidad existentes.
+  - **Alcance:** `presentation/adapters/MarcoAdapter.kt`, `presentation/viewmodel/MarcoUiState.kt`, `presentation/viewmodel/MarcoViewModel.kt`, `presentation/activities/MarcoActivity.kt`.
+  - **Dependencias:** MA-24, MA-25.
+  - **Criterios:** RF-17, RF-23; CA-21, CA-27, CA-28.
+  - **Validación:** `.\gradlew.bat :app:assembleDebug` y `MarcoEspressoTest` de acciones/detalle; sin operaciones reales ni cambios de datos. **Ejecutada 2026-11-06:** `assembleDebug` OK; `MarcoEspressoTest` abre Detalle, Aperturar, Exportar y Acción y verifica la identificación; los diálogos son informativos y no ejecutan operaciones.
+
+- [x] **MA-27 · CR-003: pruebas de orden, columnas y acciones**
+  - **Objetivo:** actualizar y ampliar las pruebas para el nuevo orden, las once columnas, la identificación en diálogos y los tres iconos/acciones.
+  - **Alcance:** `MarcoDaoTest`, `MarcoEspressoTest`, `MarcoViewModelTest`, `MarcoMappersTest`/`MarcoReglasTest` según aplique.
+  - **Dependencias:** MA-26.
+  - **Criterios:** RF-15, RF-17, RF-23; CA-18, CA-19, CA-21, CA-27, CA-28.
+  - **Validación:** `.\gradlew.bat :app:testDebugUnitTest` y `.\gradlew.bat :app:connectedDebugAndroidTest`; 0 fallos y evidencia de orden/identificación/acciones. **Ejecutada 2026-11-06:** unitarios **154/154**, 0 fallos; conectadas **65 casos (64 ejecutados + 1 omitido), 0 fallos**; cubiertos orden, once columnas, identificación y acciones.
+
+- [x] **MA-28 · CR-003: validación integral y cierre**
+  - **Objetivo:** ejecutar la batería completa y registrar resultados; actualizar CR-003 y CHANGELOG solo si todas las validaciones pasan.
+  - **Alcance:** proyecto completo, `docs/changes/CR-003-...md`, `docs/CHANGELOG.md`, este archivo.
+  - **Dependencias:** MA-23..MA-27.
+  - **Criterios:** CA-18, CA-19, CA-21, CA-27, CA-28 y regresión de CA-01..CA-26.
+  - **Validación:** `.\gradlew.bat :app:assembleDebug`, `.\gradlew.bat :app:testDebugUnitTest`, `.\gradlew.bat :app:lintDebug`, `.\gradlew.bat :app:assembleDebugAndroidTest` y `.\gradlew.bat :app:connectedDebugAndroidTest`; registrar evidencias y pendientes. **Ejecutada 2026-11-06:** `assembleDebug` OK; unitarios **154/154**; `lintDebug` **0 errores / 53 warnings**; `assembleDebugAndroidTest` OK; conectadas **65 casos (64 ejecutados + 1 omitido), 0 fallos** en `TB311XU - 15`; CR-003 y `CHANGELOG.md` actualizados.
+
 ---
 
 ## Registro de evidencia
 
-Las tareas se marcarán aquí solo después de ejecutar su validación. Este
-registro se completará durante la implementación.
+Las tareas se marcan aquí solo después de ejecutar su validación. Este
+registro consolida la evidencia de la implementación.
 
 Resumen 2026-10-22: implementación completa y batería automatizada en verde
 (build debug, suite unitaria, lint sin errores, `androidTest` compilado y
@@ -246,3 +288,9 @@ lint 0 errores / 53 warnings.
 | MA-20 | Completada | CA-05/06/15/21/22/25 + claro/oscuro, rotación, 200 %, TalkBack; evidencia en la tarea (2026-10-26) | Validación móvil con override de tamaño por AVD sin hipervisor |
 | MA-21 | Completada | CR-001: indicadores cuentan TIPOVIVIENDA {1,4} (seleccionadas) y {2,3} (reemplazos); unitarios 151/151, conectadas 60+1, lint 0 errores (2026-11-05) | — |
 | MA-22 | Completada | CR-002: color de fila por `TIPOVIVIENDA` (`{1,4}` celeste; resto rojo); unitarios 152/152, conectadas 60+1 omitida, lint 0 errores; matcher de color en claro y oscuro (2026-11-05) | — |
+| MA-23 | Completada | CR-003: strings, dimensiones e iconos de acciones; tokens en `DESIGN_SYSTEM.md` (2026-11-06) | — |
+| MA-24 | Completada | CR-003: cabecera/fila de 11 columnas, tabla de 896dp con scroll y diálogos con identificación (2026-11-06) | — |
+| MA-25 | Completada | CR-003: `ORDER BY` por `NROVIVIENDA` e identificación en detalle; `MarcoDaoTest` verde (2026-11-06) | — |
+| MA-26 | Completada | CR-003: `AccionMarco`/`MostrarAccion` y diálogos informativos en `MarcoActivity` (2026-11-06) | — |
+| MA-27 | Completada | CR-003: unitarios 154/154; conectadas 65 (64+1 omitida), 0 fallos (2026-11-06) | — |
+| MA-28 | Completada | CR-003: build, unitarios, lint 0 errores/53 warnings, androidTest y conectadas 0 fallos (2026-11-06) | — |

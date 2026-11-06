@@ -124,6 +124,31 @@ class MarcoMappersTest {
     }
 
     @Test
+    fun `detalle mapea la identificacion de la fila`() {
+        val detalle = DetalleMarcoRow(
+            marcoNombreVia = null,
+            marcoPuerta = null,
+            marcoInterior = null,
+            marcoPiso = null,
+            marcoMz = null,
+            marcoLote = null,
+            viviendaNombreVia = null,
+            viviendaPuerta = null,
+            viviendaInterior = null,
+            viviendaPiso = null,
+            viviendaMz = null,
+            viviendaLote = null,
+            conglome = " 016335 ",
+            nroVivienda = " 01 ",
+            vivienda = " 001 "
+        ).toDetalleViviendaMarco()
+
+        assertEquals("016335", detalle.conglome)
+        assertEquals("01", detalle.nroVivienda)
+        assertEquals("001", detalle.vivienda)
+    }
+
+    @Test
     fun `escapar like neutraliza comodines`() {
         assertEquals("50\\%", escaparLike("50%"))
         assertEquals("a\\_b", escaparLike("a_b"))

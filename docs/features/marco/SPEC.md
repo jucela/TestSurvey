@@ -60,14 +60,15 @@ criterios, decisiones del plan y tareas. -->
 - **RF-12:** Filtros individuales y combinados; `--Seleccione--` en los cuatro = toda la muestra. Cada cambio actualiza conglomerados disponibles, tabla e indicadores. Consultas parametrizadas; nunca concatenar texto del usuario.
 - **RF-13:** Persistir en DataStore, por usuario autenticado: Switch + ODEI + MES + PERIODO + CONGLOMERADO, con identificadores reales. Recuperar al cambiar de pantalla, regresar, cerrar sesión y volver a iniciar sesión. Al restaurar: cargar catálogos, validar existencia, restaurar válidos, resetear inexistentes a `--Seleccione--` y actualizar la tabla.
 - **RF-14:** Mostrar en una fila tres indicadores: Estrato (`ESTRATO`), Tipo Selección (`TIPOSELECCION`) y Viviendas (`TIPOVIVIENDA`). Estrato/Tipo solo con un conglomerado seleccionado y existente; si no hay uno único, `--`. Viviendas: contar viviendas distintas (no filas) con `TIPOVIVIENDA` en `{1, 4}` (seleccionadas) y en `{2, 3}` (reemplazo); otros/nulos no suman. Con filtros, contar según resultados; con todo en `--Seleccione--`, total. El Switch afecta los conteos. Misma base de filtros para tabla e indicadores.
-- **RF-15:** Tabla con RecyclerView y cabecera adaptable, ocho columnas en orden: Activo, Conglomerado, N°, Selección, Hogar, Reemplazo, Resultado, Detalle. Cabecera y filas alineadas; scroll horizontal cuando haga falta; sin recortes. Orden ascendente por `CONGLOME`, `VIVIENDA` y `HOGAR`. Una fila por hogar; si no hay hogar, una fila con Hogar `--`. La vivienda se repite intencionalmente por hogar; no es un duplicado incorrecto.
+- **RF-15:** Tabla con RecyclerView y cabecera adaptable, once columnas en orden: Activo, Conglomerado, N°, Selección, Hogar, Reemplazo, Resultado, Detalle, Aperturar, Exportar, Acción. Cabecera y filas alineadas; scroll horizontal cuando haga falta; sin recortes. Orden ascendente por `CONGLOME`, `NROVIVIENDA`, `VIVIENDA` y `HOGAR` (valores nulos o vacíos se ordenan de forma segura y determinista). Una fila por hogar; si no hay hogar, una fila con Hogar `--`. La vivienda se repite intencionalmente por hogar; no es un duplicado incorrecto.
 - **RF-16:** Resultado desde `RESFIN`: 1 COMPLETA, 2 INCOMPLETA, 3 RECHAZO, 4 AUSENTE, 5 VIV.DESOCUPADA, 6 NO SE INICIO, 7 OTRO; nulo/vacío/espacios → SIN VISITAR; inesperado → OTRO. Nunca mostrar "null".
-- **RF-17:** Detalle: icono de información por fila; diálogo con Dirección, Puerta, Interior, Piso, Mz y Lote. Cada campo prioriza `CAMPO_VIVIENDA`; si es nulo/vacío/solo espacios, usa `CAMPO_VIVIENDA_MARCO`; si ambos están vacíos, `--`. Botón "Cerrar"; no modifica datos ni estado. Icono con descripción accesible y área táctil adecuada.
+- **RF-17:** Detalle: icono de información por fila; diálogo con identificación de la fila (Conglomerado, `NROVIVIENDA` y `VIVIENDA`) y Dirección, Puerta, Interior, Piso, Mz y Lote. Cada campo de dirección prioriza `CAMPO_VIVIENDA`; si es nulo/vacío/solo espacios, usa `CAMPO_VIVIENDA_MARCO`; si ambos están vacíos, `--`. Botón "Cerrar"; no modifica datos ni estado. Icono con descripción accesible y área táctil adecuada.
 - **RF-18:** Color de fila según `CAMPO_VIVIENDA_MARCO.TIPOVIVIENDA`: `{1, 4}` → celeste pastel; `{2, 3}`, nulo, vacío o cualquier otro valor → rojo pastel. Usar tokens del Design System (claro/oscuro), sin hardcodear. Si no existe `CAMPO_VIVIENDA`, mostrar la fila con datos del Marco y derivar el color igualmente de `TIPOVIVIENDA`. No confundir con `CAMPO_VIVIENDA.ESREEMPLAZO`, que no determina el color.
 - **RF-19:** Conservar todas las viviendas del Marco aunque no existan registros en `CAMPO_VIVIENDA` o `CAMPO_HOGAR`; no mezclar hogares entre viviendas, ni ODEI/meses, ni conglomerados; no usar `DISTINCT` para ocultar cardinalidad. Las relaciones usan las claves reales verificadas (no solo `CONGLOME`).
 - **RF-20:** Funcionar con `CAMPO_VIVIENDA`/`CAMPO_HOGAR` vacías y con datos; tolerar nulos y espacios en blanco sin excepciones ni cierres.
 - **RF-21:** Estados seguros: sin muestra/conglomerados y sin resultados → mensaje informativo sin error; carga → indicador sin bloquear; error de consulta → estado seguro sin cerrar la app.
 - **RF-22:** Mantener UI, estado de filtros, reglas, consultas, modelos y persistencia separados; sin SQL en Activity/Fragment; consultas fuera del hilo principal; búsqueda reactiva; no recrear toda la pantalla por cada cambio.
+- **RF-23:** Acciones por fila: columnas Aperturar, Exportar y Acción, cada una con un icono distinto por fila. Al pulsar el icono se abre un diálogo informativo con la identificación de la fila (Conglomerado, `NROVIVIENDA` y `VIVIENDA`). Los diálogos de Aperturar, Exportar y Acción no ejecutan operaciones ni modifican datos en este alcance. Iconos con descripción accesible y área táctil adecuada; los diálogos se cierran sin cambios.
 
 ## Fuera de alcance
 
@@ -75,7 +76,8 @@ criterios, decisiones del plan y tareas. -->
 adicionales, indícalo tras revisarlo con la persona. -->
 
 - Edición, alta o baja de viviendas/hogares y registro de encuestas; `CAMPO_VIVIENDA`/`CAMPO_HOGAR` se llenan en el trabajo de campo.
-- Exportación, cobertura, FTP y sincronización.
+- Exportación real, cobertura, FTP y sincronización. La columna/acción "Exportar" de RF-23 solo abre un diálogo informativo en este alcance.
+- Operaciones reales de apertura o gestión de encuestas desde Aperturar/Acción; por ahora solo muestran identificación de la fila.
 - Insertar datos de prueba o seeds; incluido no ejecutar los INSERT del SQL.
 - Cambiar la restricción SIS existente.
 - Cambios al menú lateral, a otras pantallas o al esquema de las tablas existentes.
@@ -91,9 +93,10 @@ Incluye pantallas afectadas, navegación y alternativas relevantes. -->
 3. El usuario elige ODEI/MES/PERIODO; el menú de conglomerados se recalcula; si el conglomerado elegido deja de existir, se restablece.
 4. El usuario elige un conglomerado y ve Estrato/Tipo; ajusta el Switch y/o escribe en la búsqueda; tabla e indicadores se actualizan.
 5. Al limpiar la búsqueda, se rehabilitan los cuatro menús y se restauran las selecciones previas.
-6. El usuario pulsa el icono de detalle y revisa la dirección; cierra el diálogo sin cambios.
-7. Al salir y volver, o tras cerrar/iniciar sesión, se recuperan los filtros del usuario.
-8. "Atrás" vuelve al menú principal.
+6. El usuario pulsa el icono de detalle y revisa la identificación y la dirección; cierra el diálogo sin cambios.
+7. El usuario pulsa los iconos de Aperturar, Exportar o Acción y revisa la identificación de la fila; cierra el diálogo sin que se ejecute ninguna operación.
+8. Al salir y volver, o tras cerrar/iniciar sesión, se recuperan los filtros del usuario.
+9. "Atrás" vuelve al menú principal.
 
 ## Datos y reglas de negocio
 
@@ -114,7 +117,8 @@ y comportamiento, sin diseñar tablas, DTO, DAO ni almacenamiento. -->
 - Conteos e indicadores usan exactamente los mismos filtros que la tabla (incluido Switch y búsqueda).
 - Persistencia por usuario autenticado, con IDs reales; filtros inexistentes se restablecen a `--Seleccione--`.
 - La búsqueda no se persiste (no forma parte de los cinco datos solicitados); tras reiniciar el proceso puede iniciar vacía.
-- Orden de tabla: `CONGLOME`, `VIVIENDA`, `HOGAR` ascendente.
+- Orden de tabla: `CONGLOME`, `NROVIVIENDA`, `VIVIENDA`, `HOGAR` ascendente, con nulos/vacíos ordenados de forma segura y determinista.
+- Identificación de fila en diálogos (Detalle, Aperturar, Exportar y Acción): Conglomerado, `NROVIVIENDA` (o `--` si no hay valor) y `VIVIENDA`; no se muestran cadenas vacías ni "null".
 
 ## Comportamiento mobile y casos alternativos
 
@@ -183,15 +187,17 @@ Repite el formato según sea necesario. -->
 - **CA-15 · RF-13:** Al cambiar de pantalla, volver, cerrar sesión y volver a entrar, se restauran Switch y los cuatro filtros del mismo usuario; un filtro inexistente vuelve a `--Seleccione--`.
 - **CA-16 · RF-14:** Con un conglomerado seleccionado, Estrato y Tipo Selección muestran sus valores; sin uno único muestran `--`; los conteos usan la misma base filtrada.
 - **CA-17 · RF-14:** "Viviendas" cuenta viviendas distintas con `TIPOVIVIENDA` en `{1, 4}` (seleccionadas) y en `{2, 3}` (reemplazos); el Switch afecta los conteos y estos coinciden con la tabla visible.
-- **CA-18 · RF-15:** La tabla muestra las ocho columnas en orden, con cabecera y filas alineadas, scroll horizontal si hace falta y orden ascendente por conglomerado, vivienda y hogar.
+- **CA-18 · RF-15:** La tabla muestra las once columnas en orden, con cabecera y filas alineadas, scroll horizontal si hace falta y orden ascendente por conglomerado, número de vivienda (`NROVIVIENDA`), vivienda y hogar, con nulos/vacíos en orden seguro.
 - **CA-19 · RF-15:** Una vivienda con varios hogares muestra una fila por hogar; una sin hogar muestra una fila con Hogar `--`; el conteo de viviendas no se infla por filas.
 - **CA-20 · RF-16:** `RESFIN` 1..7 muestra los textos definidos; nulo/vacío/espacios muestra SIN VISITAR; un valor no contemplado muestra OTRO; nunca se lee "null".
-- **CA-21 · RF-17:** El diálogo muestra los seis campos priorizando `CAMPO_VIVIENDA`, usa Marco si el principal está vacío y `--` si ambos lo están; "Cerrar" no cambia datos ni estado; el icono es accesible.
+- **CA-21 · RF-17:** El diálogo muestra la identificación de la fila (Conglomerado, `NROVIVIENDA` y `VIVIENDA`) y los seis campos de dirección priorizando `CAMPO_VIVIENDA`, usa Marco si el principal está vacío y `--` si ambos lo están; "Cerrar" no cambia datos ni estado; el icono es accesible.
 - **CA-22 · RF-18:** Filas con `TIPOVIVIENDA` en `{1,4}` usan celeste pastel; con `{2,3}`, nulo, vacío u otro valor, o sin `CAMPO_VIVIENDA`, rojo pastel; los colores salen de tokens del DS.
 - **CA-23 · RF-19:** Con `CAMPO_VIVIENDA`/`CAMPO_HOGAR` vacías se ven todas las viviendas del Marco; con datos, cada hogar se asocia a su vivienda, sin pérdidas ni mezclas de ODEI/mes/conglomerado y sin duplicados incorrectos.
 - **CA-24 · RF-20:** Con tablas vacías, datos parciales, nulos y espacios, la pantalla muestra valores seguros y no produce excepciones ni cierres.
 - **CA-25 · RF-21:** Sin muestra o sin resultados se muestra un mensaje informativo; durante la carga la UI responde; ante un error de consulta no se cierra la app.
 - **CA-26 · RF-22:** La búsqueda y los filtros no bloquean la UI; las consultas son parametrizadas y no se ejecutan en el hilo principal; cambiar un filtro no recrea toda la pantalla.
+- **CA-27 · RF-23:** Las columnas Aperturar, Exportar y Acción muestran iconos distintos por fila; al pulsar cada uno se abre un diálogo con Conglomerado, `NROVIVIENDA` y `VIVIENDA` de esa fila; cerrar no modifica datos ni estado.
+- **CA-28 · RF-23:** Los iconos de Aperturar, Exportar y Acción tienen descripción accesible y área táctil adecuada; los diálogos son legibles y cerrables sin ejecutar operaciones reales.
 
 ## Cómo se comprueba el comportamiento
 
@@ -222,22 +228,24 @@ No marques los criterios como superados durante la especificación. -->
 | CA-15 | Salir/volver, cerrar/iniciar sesión, cambiar usuario. | Filtros del usuario restaurados; inválidos reseteados. |
 | CA-16 | Seleccionar/no seleccionar conglomerado. | Valores o `--`; conteos coherentes. |
 | CA-17 | Comparar conteo con filas visibles; Switch on/off. | Conteos por vivienda y coherentes. |
-| CA-18 | Revisar columnas, alineación, orden y scroll. | Ocho columnas correctas y alineadas. |
+| CA-18 | Revisar columnas, alineación, orden y scroll. | Once columnas correctas y alineadas; orden por `CONGLOME`, `NROVIVIENDA`, `VIVIENDA`, `HOGAR`. |
 | CA-19 | Caso 2 con varios hogares y vivienda sin hogar. | Una fila por hogar / fila con `--`. |
 | CA-20 | Caso 2 con RESFIN 1..7, nulo, vacío, 8. | Textos correctos; sin "null". |
-| CA-21 | Abrir detalle con datos en ambas tablas, solo Marco y ninguno. | Prioridad, fallback y `--`; sin cambios. |
+| CA-21 | Abrir detalle con datos en ambas tablas, solo Marco y ninguno. | Identificación + prioridad, fallback y `--`; sin cambios. |
 | CA-22 | Caso 2 con TIPOVIVIENDA 1, 4, 2, 3, nulo, vacío, otro (5) y sin Vivienda. | `{1,4}` celeste; el resto rojo, con tokens claro/oscuro. |
 | CA-23 | Caso 1 y Caso 2; revisar asociaciones. | Sin pérdidas, mezclas ni duplicados incorrectos. |
 | CA-24 | Insertar nulos/espacios en campos usados. | Sin excepciones; valores seguros. |
 | CA-25 | Sin muestra; filtros sin coincidencia; forzar error. | Mensajes seguros; sin cierre. |
 | CA-26 | Escribir rápido y cambiar filtros; revisar fluidez. | Sin bloqueo ni recreación completa. |
+| CA-27 | Pulsar Aperturar, Exportar y Acción en varias filas. | Diálogos con Conglomerado, `NROVIVIENDA` y `VIVIENDA`; sin cambios de datos. |
+| CA-28 | Revisar iconos y diálogos con TalkBack. | Descripciones accesibles, área táctil y cierre correctos; sin operaciones reales. |
 
 ## Decisiones pendientes
 
 <!-- Al resolverlas, actualiza las secciones afectadas. Escribe Ninguna cuando
 no queden pendientes funcionales ni restricciones por decidir. -->
 
-Ninguna. Quedaron confirmadas: una fila por hogar (conteo por vivienda), Switch afecta conteos, DataStore por usuario, búsqueda por contenido sin distinguir mayúsculas, criterios seguros para valores inesperados, tokens nuevos de color, colapso sin dependencias, `--` sin conglomerado único, datos reales + SIN CLASIFICAR y restricción SIS. La búsqueda suspende los cuatro filtros y los restaura al limpiar.
+Ninguna. Quedaron confirmadas: una fila por hogar (conteo por vivienda), Switch afecta conteos, DataStore por usuario, búsqueda por contenido sin distinguir mayúsculas, criterios seguros para valores inesperados, tokens nuevos de color, colapso sin dependencias, `--` sin conglomerado único, datos reales + SIN CLASIFICAR y restricción SIS. La búsqueda suspende los cuatro filtros y los restaura al limpiar. Para CR-003 se confirmó: orden por `CONGLOME`, `NROVIVIENDA`, `VIVIENDA` y `HOGAR`; identificación con `NROVIVIENDA` y `VIVIENDA` en todos los diálogos; acciones registradas como RF-23; iconos propuestos por el agente.
 
 <!-- ANTES DE SOLICITAR APROBACIÓN
 Comprueba que el alcance está acordado, los flujos son coherentes, los puntos
