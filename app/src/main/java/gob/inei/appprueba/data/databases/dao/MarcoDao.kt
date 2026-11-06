@@ -20,8 +20,7 @@ interface MarcoDao {
             h.HOGAR AS hogar,
             m.TIPOVIVIENDA AS seleccion,
             v.NROREEMPLAZO AS nroReemplazo,
-            h.RESFIN AS resfin,
-            v.ESREEMPLAZO AS esReemplazo
+            h.RESFIN AS resfin
         FROM CAMPO_VIVIENDA_MARCO m
         INNER JOIN CAMPO_CONGLOMERADO c ON c.CONGLOME = m.CONGLOME
         LEFT JOIN CAMPO_VIVIENDA v

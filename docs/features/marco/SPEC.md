@@ -59,11 +59,11 @@ criterios, decisiones del plan y tareas. -->
 - **RF-11:** CONGLOMERADO: desplegable Outlined desde `CAMPO_CONGLOMERADO`, `--Seleccione--` primero, resto `CONGLOME + "->" + AREA_GEOGRAFICA` según reglas; `--Seleccione--` sin filtro. Las opciones dependen de ODEI, MES y PERIODO, en orden ascendente y sin duplicados. Si al cambiar un filtro superior la selección deja de existir, volver a `--Seleccione--` y actualizar la tabla.
 - **RF-12:** Filtros individuales y combinados; `--Seleccione--` en los cuatro = toda la muestra. Cada cambio actualiza conglomerados disponibles, tabla e indicadores. Consultas parametrizadas; nunca concatenar texto del usuario.
 - **RF-13:** Persistir en DataStore, por usuario autenticado: Switch + ODEI + MES + PERIODO + CONGLOMERADO, con identificadores reales. Recuperar al cambiar de pantalla, regresar, cerrar sesión y volver a iniciar sesión. Al restaurar: cargar catálogos, validar existencia, restaurar válidos, resetear inexistentes a `--Seleccione--` y actualizar la tabla.
-- **RF-14:** Mostrar en una fila tres indicadores: Estrato (`ESTRATO`), Tipo Selección (`TIPOSELECCION`) y Viviendas (`TIPOVIVIENDA`). Estrato/Tipo solo con un conglomerado seleccionado y existente; si no hay uno único, `--`. Viviendas: contar viviendas distintas (no filas) con `TIPOVIVIENDA = 1` (seleccionadas) y `= 2` (reemplazo); otros/nulos no suman. Con filtros, contar según resultados; con todo en `--Seleccione--`, total. El Switch afecta los conteos. Misma base de filtros para tabla e indicadores.
+- **RF-14:** Mostrar en una fila tres indicadores: Estrato (`ESTRATO`), Tipo Selección (`TIPOSELECCION`) y Viviendas (`TIPOVIVIENDA`). Estrato/Tipo solo con un conglomerado seleccionado y existente; si no hay uno único, `--`. Viviendas: contar viviendas distintas (no filas) con `TIPOVIVIENDA` en `{1, 4}` (seleccionadas) y en `{2, 3}` (reemplazo); otros/nulos no suman. Con filtros, contar según resultados; con todo en `--Seleccione--`, total. El Switch afecta los conteos. Misma base de filtros para tabla e indicadores.
 - **RF-15:** Tabla con RecyclerView y cabecera adaptable, ocho columnas en orden: Activo, Conglomerado, N°, Selección, Hogar, Reemplazo, Resultado, Detalle. Cabecera y filas alineadas; scroll horizontal cuando haga falta; sin recortes. Orden ascendente por `CONGLOME`, `VIVIENDA` y `HOGAR`. Una fila por hogar; si no hay hogar, una fila con Hogar `--`. La vivienda se repite intencionalmente por hogar; no es un duplicado incorrecto.
 - **RF-16:** Resultado desde `RESFIN`: 1 COMPLETA, 2 INCOMPLETA, 3 RECHAZO, 4 AUSENTE, 5 VIV.DESOCUPADA, 6 NO SE INICIO, 7 OTRO; nulo/vacío/espacios → SIN VISITAR; inesperado → OTRO. Nunca mostrar "null".
 - **RF-17:** Detalle: icono de información por fila; diálogo con Dirección, Puerta, Interior, Piso, Mz y Lote. Cada campo prioriza `CAMPO_VIVIENDA`; si es nulo/vacío/solo espacios, usa `CAMPO_VIVIENDA_MARCO`; si ambos están vacíos, `--`. Botón "Cerrar"; no modifica datos ni estado. Icono con descripción accesible y área táctil adecuada.
-- **RF-18:** Color de fila según `CAMPO_VIVIENDA.ESREEMPLAZO`: 1 → rojo pastel; 2, nulo, vacío o distinto de 1 → celeste pastel. Usar tokens nuevos del Design System (claro/oscuro), sin hardcodear. Si no existe `CAMPO_VIVIENDA`, mostrar la fila con datos del Marco y tratar `ESREEMPLAZO` como nulo. No confundir con `TIPOVIVIENDA`.
+- **RF-18:** Color de fila según `CAMPO_VIVIENDA_MARCO.TIPOVIVIENDA`: `{1, 4}` → celeste pastel; `{2, 3}`, nulo, vacío o cualquier otro valor → rojo pastel. Usar tokens del Design System (claro/oscuro), sin hardcodear. Si no existe `CAMPO_VIVIENDA`, mostrar la fila con datos del Marco y derivar el color igualmente de `TIPOVIVIENDA`. No confundir con `CAMPO_VIVIENDA.ESREEMPLAZO`, que no determina el color.
 - **RF-19:** Conservar todas las viviendas del Marco aunque no existan registros en `CAMPO_VIVIENDA` o `CAMPO_HOGAR`; no mezclar hogares entre viviendas, ni ODEI/meses, ni conglomerados; no usar `DISTINCT` para ocultar cardinalidad. Las relaciones usan las claves reales verificadas (no solo `CONGLOME`).
 - **RF-20:** Funcionar con `CAMPO_VIVIENDA`/`CAMPO_HOGAR` vacías y con datos; tolerar nulos y espacios en blanco sin excepciones ni cierres.
 - **RF-21:** Estados seguros: sin muestra/conglomerados y sin resultados → mensaje informativo sin error; carga → indicador sin bloquear; error de consulta → estado seguro sin cerrar la app.
@@ -104,8 +104,8 @@ y comportamiento, sin diseñar tablas, DTO, DAO ni almacenamiento. -->
 - Base de la tabla: `CAMPO_VIVIENDA_MARCO`. Claves verificadas: Marco UNIQUE(`CONGLOME`,`VIVIENDA`); `CAMPO_VIVIENDA` PK(`CONGLOME`,`VIVIENDA`); `CAMPO_HOGAR` PK(`CONGLOME`,`VIVIENDA`,`HOGAR`) y FK a `CAMPO_VIVIENDA`. `CAMPO_CONGLOMERADO` se relaciona por `CONGLOME`; ODEI por `ODEI.CODODEI`; MES por código; PERIODO por `CAMPO_CONGLOMERADO.PERIODO` → `PERIODO.CODPER`.
 - `activo` existe solo en `CAMPO_VIVIENDA_MARCO` (minúsculas, entero); `CAMPO_VIVIENDA` no tiene activo. Switch activado = `activo = 1` estricto; otro valor o nulo = inactivo.
 - Una vivienda con varios hogares produce una fila por hogar. Una vivienda sin hogar produce una fila con Hogar `--`. El conteo "Viviendas" cuenta viviendas distintas, no filas.
-- `TIPOVIVIENDA = 1` seleccionada; `= 2` reemplazo; nulo u otro no suma a ninguno.
-- `ESREEMPLAZO = 1` rojo pastel; `2`, nulo, vacío u otro valor → celeste pastel. Sin `CAMPO_VIVIENDA` → celeste.
+- `TIPOVIVIENDA` en `{1, 4}` seleccionada; en `{2, 3}` reemplazo; nulo u otro no suma a ninguno.
+- `TIPOVIVIENDA` en `{1, 4}` → celeste pastel; `{2, 3}`, nulo, vacío u otro valor → rojo pastel. Sin `CAMPO_VIVIENDA` también se deriva de `TIPOVIVIENDA`. `ESREEMPLAZO` no determina el color.
 - `RESFIN`: aplicar RF-16; trim antes de evaluar; nulo/vacío → SIN VISITAR; no contemplado → OTRO.
 - Área geográfica: TIPOSELECCION 1/2 → URBANO->NO PANEL; 3 + ESTRATO 6 → SEMI-RURAL->PANEL; 3 + ESTRATO 1-5 → URBANO->PANEL; 3 + ESTRATO ≥7 → RURAL->PANEL; 4 → SEMI-RURAL->NO PANEL; 5 → RURAL->NO PANEL; cualquier otro caso (incl. nulos, 0, no contemplados) → SIN CLASIFICAR. Etiqueta `CONGLOME->AREA_GEOGRAFICA` (ej. `016335->URBANO->PANEL`).
 - Etiquetas con el dato real: ODEI `01-AMAZONAS`; MES `01-Enero` (el dato real no está en mayúsculas); PERIODO `PERIODO 1`. No se normaliza el texto fuente.
@@ -135,7 +135,7 @@ ni conservación de todo el estado. Expresa resultados, no mecanismos técnicos.
 | Recrear la pantalla (rotación) | Conserva filtros, búsqueda, Switch, estado expandido y posición razonable de la lista. |
 | Reabrir después de terminarse el proceso | Restaura los cinco filtros desde DataStore; la búsqueda puede iniciar vacía. |
 | Varios hogares por vivienda | Una fila por hogar; la vivienda se repite intencionalmente; el conteo no se infla. |
-| Valores inesperados | Aplicar los criterios seguros de RESFIN/ESREEMPLAZO/TIPOVIVIENDA/activo; sin excepciones. |
+| Valores inesperados | Aplicar los criterios seguros de RESFIN/TIPOVIVIENDA/activo; sin excepciones. |
 | Accesibilidad | Etiquetas y descripciones; área táctil adecuada; contraste; el color no es el único indicador. |
 
 **Puntos de la guía no aplicables y motivo:** sin conexión (datos locales); permisos, cámara, GPS, notificaciones, trabajo en segundo plano y multi-idioma no forman parte del alcance.
@@ -182,12 +182,12 @@ Repite el formato según sea necesario. -->
 - **CA-14 · RF-12:** Cada combinación de filtros produce las viviendas que cumplen todas las condiciones; con todo en `--Seleccione--` se ve toda la muestra; tabla, lista de conglomerados e indicadores se actualizan juntos.
 - **CA-15 · RF-13:** Al cambiar de pantalla, volver, cerrar sesión y volver a entrar, se restauran Switch y los cuatro filtros del mismo usuario; un filtro inexistente vuelve a `--Seleccione--`.
 - **CA-16 · RF-14:** Con un conglomerado seleccionado, Estrato y Tipo Selección muestran sus valores; sin uno único muestran `--`; los conteos usan la misma base filtrada.
-- **CA-17 · RF-14:** "Viviendas" cuenta viviendas distintas con `TIPOVIVIENDA=1` y `=2`; el Switch afecta los conteos y estos coinciden con la tabla visible.
+- **CA-17 · RF-14:** "Viviendas" cuenta viviendas distintas con `TIPOVIVIENDA` en `{1, 4}` (seleccionadas) y en `{2, 3}` (reemplazos); el Switch afecta los conteos y estos coinciden con la tabla visible.
 - **CA-18 · RF-15:** La tabla muestra las ocho columnas en orden, con cabecera y filas alineadas, scroll horizontal si hace falta y orden ascendente por conglomerado, vivienda y hogar.
 - **CA-19 · RF-15:** Una vivienda con varios hogares muestra una fila por hogar; una sin hogar muestra una fila con Hogar `--`; el conteo de viviendas no se infla por filas.
 - **CA-20 · RF-16:** `RESFIN` 1..7 muestra los textos definidos; nulo/vacío/espacios muestra SIN VISITAR; un valor no contemplado muestra OTRO; nunca se lee "null".
 - **CA-21 · RF-17:** El diálogo muestra los seis campos priorizando `CAMPO_VIVIENDA`, usa Marco si el principal está vacío y `--` si ambos lo están; "Cerrar" no cambia datos ni estado; el icono es accesible.
-- **CA-22 · RF-18:** Filas con `ESREEMPLAZO=1` usan rojo pastel; con 2/nulo/otro o sin `CAMPO_VIVIENDA`, celeste pastel; los colores salen de tokens del DS.
+- **CA-22 · RF-18:** Filas con `TIPOVIVIENDA` en `{1,4}` usan celeste pastel; con `{2,3}`, nulo, vacío u otro valor, o sin `CAMPO_VIVIENDA`, rojo pastel; los colores salen de tokens del DS.
 - **CA-23 · RF-19:** Con `CAMPO_VIVIENDA`/`CAMPO_HOGAR` vacías se ven todas las viviendas del Marco; con datos, cada hogar se asocia a su vivienda, sin pérdidas ni mezclas de ODEI/mes/conglomerado y sin duplicados incorrectos.
 - **CA-24 · RF-20:** Con tablas vacías, datos parciales, nulos y espacios, la pantalla muestra valores seguros y no produce excepciones ni cierres.
 - **CA-25 · RF-21:** Sin muestra o sin resultados se muestra un mensaje informativo; durante la carga la UI responde; ante un error de consulta no se cierra la app.
@@ -226,7 +226,7 @@ No marques los criterios como superados durante la especificación. -->
 | CA-19 | Caso 2 con varios hogares y vivienda sin hogar. | Una fila por hogar / fila con `--`. |
 | CA-20 | Caso 2 con RESFIN 1..7, nulo, vacío, 8. | Textos correctos; sin "null". |
 | CA-21 | Abrir detalle con datos en ambas tablas, solo Marco y ninguno. | Prioridad, fallback y `--`; sin cambios. |
-| CA-22 | Caso 2 con ESREEMPLAZO 1, 2, nulo, 3 y sin Vivienda. | Colores correctos por tokens. |
+| CA-22 | Caso 2 con TIPOVIVIENDA 1, 4, 2, 3, nulo, vacío, otro (5) y sin Vivienda. | `{1,4}` celeste; el resto rojo, con tokens claro/oscuro. |
 | CA-23 | Caso 1 y Caso 2; revisar asociaciones. | Sin pérdidas, mezclas ni duplicados incorrectos. |
 | CA-24 | Insertar nulos/espacios en campos usados. | Sin excepciones; valores seguros. |
 | CA-25 | Sin muestra; filtros sin coincidencia; forzar error. | Mensajes seguros; sin cierre. |

@@ -38,12 +38,14 @@ class MarcoReglasTest {
     }
 
     @Test
-    fun `es reemplazo solo con uno estricto`() {
-        assertTrue(ReglasMarco.esReemplazo("1"))
-        assertTrue(ReglasMarco.esReemplazo(" 1 "))
-        assertFalse(ReglasMarco.esReemplazo("2"))
-        assertFalse(ReglasMarco.esReemplazo(""))
-        assertFalse(ReglasMarco.esReemplazo(null))
+    fun `fila de reemplazo se deriva de tipovivienda`() {
+        assertFalse(ReglasMarco.filaReemplazo("1"))
+        assertFalse(ReglasMarco.filaReemplazo(" 4 "))
+        assertTrue(ReglasMarco.filaReemplazo("2"))
+        assertTrue(ReglasMarco.filaReemplazo("3"))
+        assertTrue(ReglasMarco.filaReemplazo("5"))
+        assertTrue(ReglasMarco.filaReemplazo(""))
+        assertTrue(ReglasMarco.filaReemplazo(null))
     }
 
     @Test

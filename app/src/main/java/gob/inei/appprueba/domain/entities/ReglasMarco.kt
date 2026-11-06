@@ -32,9 +32,13 @@ object ReglasMarco {
         }
     }
 
-    fun esReemplazo(valor: String?): Boolean = valor?.trim() == "1"
+    /** Fila en rojo pastel: cualquier TIPOVIVIENDA fuera de {1, 4} (incluye nulo y vacio). */
+    fun filaReemplazo(tipoVivienda: String?): Boolean {
+        val tipo = seleccion(tipoVivienda)
+        return tipo != "1" && tipo != "4"
+    }
 
-    /** Valor visible de Selección; el conteo solo considera 1 y 2. */
+    /** Valor visible de Seleccion; el conteo considera 1 y 4 (seleccionadas) y 2 y 3 (reemplazo). */
     fun seleccion(tipoVivienda: String?): String? =
         tipoVivienda?.trim()?.takeIf { it.isNotEmpty() }
 

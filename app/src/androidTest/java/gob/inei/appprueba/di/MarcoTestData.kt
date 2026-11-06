@@ -35,7 +35,7 @@ object MarcoTestData {
                 "(CONGLOME, VIVIENDA, NROVIVIENDA, TIPOVIVIENDA, NOMBREVIA, PUERTA, activo) VALUES " +
                 "('016335', '001', '01', '1', 'MARCO UNO', '1', 1), " +
                 "('016335', '002', '02', '2', 'MARCO DOS', '2', 0), " +
-                "('016335', '003', '03', '1', 'MARCO TRES', '3', 1)"
+                "('016335', '003', '03', '4', 'MARCO TRES', '3', 1)"
         )
         db.execSQL(
             "INSERT INTO CAMPO_VIVIENDA " +

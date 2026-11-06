@@ -174,6 +174,22 @@ Los identificadores usan el prefijo `MA-` (Marco) para no colisionar con
     - **TalkBack PASS:** servicio activo, foco y doble toque verificados; anuncios/descripciones incluyen `Filtros`, `Expandir filtros`/`Contraer filtros`, campo de búsqueda, flechas de desplegables y `Ver detalle de la vivienda 01 del conglomerado 016865`. Las dos últimas descripciones se añadieron en `MarcoActivity`/`MarcoAdapter`: la del detalle quedó cubierta por Espresso y la del colapso se verificó manualmente en 411 dp (`Contraer filtros` → `Expandir filtros`).
   - **Evidencia:** capturas y dumps en `C:\Users\JUCE\AppData\Local\Temp\opencode\marco_validation\`; la base de la app se respaldó y se restauró a su estado original al terminar. La validación móvil se hizo con override de tamaño porque el AVD de teléfono no arrancó por falta de hipervisor; no quedan criterios de MA-20 sin evidencia.
 
+## Fase 5 — Cambios posteriores (CR)
+
+- [x] **MA-21 · CR-001: actualizar valores de TIPOVIVIENDA en indicadores (RF-14)**
+  - **Objetivo:** cambiar el conteo de indicadores de `TIPOVIVIENDA = 1/2` a `1` y `4` (seleccionadas) y `2` y `3` (reemplazo), actualizando código y pruebas.
+  - **Alcance:** `data/databases/Mappers.kt` (`toIndicadoresMarco`), `domain/entities/ReglasMarco.kt` (documentación), tests `MarcoMappersTest`, `MarcoRepositoryTest`, `MarcoDaoTest`, `MarcoEspressoTest` y `MarcoTestData`.
+  - **Dependencias:** MA-07, MA-09, MA-18.
+  - **Criterios:** RF-14; CA-16, CA-17.
+  - **Validación:** `.\gradlew.bat :app:assembleDebug`, `.\gradlew.bat :app:testDebugUnitTest`, `.\gradlew.bat :app:lintDebug` y `.\gradlew.bat :app:connectedDebugAndroidTest`. **Ejecutada 2026-11-05:** `assembleDebug` OK; `testDebugUnitTest` 151/151, 0 fallos; `lintDebug` 0 errores; `connectedDebugAndroidTest` 60 ejecutados + 1 omitido (61), 0 fallos en `TB311XU - 16`. Se corrigió un typo preexistente `RegrasMarco`→`ReglasMarco` que impedía compilar.
+
+- [x] **MA-22 · CR-002: color de fila según TIPOVIVIENDA (RF-18)**
+  - **Objetivo:** cambiar el color de fila para que se derive de `CAMPO_VIVIENDA_MARCO.TIPOVIVIENDA` (`{1,4}` celeste; `{2,3}`, nulo, vacío u otro rojo), dejando de usar `CAMPO_VIVIENDA.ESREEMPLAZO`, y documentar los tokens en el Design System.
+  - **Alcance:** `data/databases/dao/MarcoDao.kt`, `data/databases/projections/MarcoProjections.kt`, `data/databases/Mappers.kt`, `domain/entities/ReglasMarco.kt`, `docs/DESIGN_SYSTEM.md` y tests `MarcoReglasTest`, `MarcoMappersTest`, `MarcoDaoTest`, `MarcoEspressoTest`, `MarcoTestData`.
+  - **Dependencias:** MA-07, MA-09, MA-18, MA-21.
+  - **Criterios:** RF-18; CA-22.
+  - **Validación:** `.\gradlew.bat :app:assembleDebug`, `.\gradlew.bat :app:testDebugUnitTest`, `.\gradlew.bat :app:lintDebug` y `.\gradlew.bat :app:connectedDebugAndroidTest` en `TB311XU - 16`; actualizar la evidencia al completar. **Ejecutada 2026-11-05:** `assembleDebug` OK; `testDebugUnitTest` **152/152**, 0 fallos; `lintDebug` 0 errores / 53 warnings; `connectedDebugAndroidTest` **61 casos (60 ejecutados + 1 omitido), 0 fallos** en `TB311XU - 16`. El test de color `las_filas_usan_el_color_segun_tipovivienda` pasó además con `cmd uimode night yes` (tokens oscuros).
+
 ---
 
 ## Registro de evidencia
@@ -191,6 +207,12 @@ de test con Room in-memory y DataStore temporal (`MarcoTestModule`/`MarcoTestDat
 y `MarcoEspressoTest` ampliado a 11 casos, incluidos filtro ODEI, estado de error
 y apertura desde el drawer. Batería completa: unitarios 151/151,
 conectadas 57 ejecutadas + 1 omitida (58 casos), lint 0 errores / 54 warnings.
+
+Resumen 2026-11-05 (CR-002): el color de fila se deriva de `TIPOVIVIENDA`
+(`{1,4}` celeste; `{2,3}`, nulo, vacío u otro rojo) y ya no de `ESREEMPLAZO`;
+se documentaron los tokens en `DESIGN_SYSTEM.md`. Batería completa: build debug
+OK, unitarios 152/152, lint 0 errores / 53 warnings, conectadas 60 ejecutadas +
+1 omitida (61), 0 fallos; matcher de color verificado además en modo oscuro.
 
 Resumen final 2026-10-26: MA-20 completada en `TB311XU - 16`. Se validaron
 CA-05, CA-06, CA-15, CA-21, CA-22 y CA-25 en claro/oscuro, rotación, fuente
@@ -222,3 +244,5 @@ lint 0 errores / 53 warnings.
 | MA-18 | Completada | `MarcoEspressoTest` 12 casos, 0 fallos (2026-10-26) | — |
 | MA-19 | Completada | unitarios 151/151; conectadas 58+1 omitida (59); lint 0 errores/53 warnings (2026-10-26) | — |
 | MA-20 | Completada | CA-05/06/15/21/22/25 + claro/oscuro, rotación, 200 %, TalkBack; evidencia en la tarea (2026-10-26) | Validación móvil con override de tamaño por AVD sin hipervisor |
+| MA-21 | Completada | CR-001: indicadores cuentan TIPOVIVIENDA {1,4} (seleccionadas) y {2,3} (reemplazos); unitarios 151/151, conectadas 60+1, lint 0 errores (2026-11-05) | — |
+| MA-22 | Completada | CR-002: color de fila por `TIPOVIVIENDA` (`{1,4}` celeste; resto rojo); unitarios 152/152, conectadas 60+1 omitida, lint 0 errores; matcher de color en claro y oscuro (2026-11-05) | — |

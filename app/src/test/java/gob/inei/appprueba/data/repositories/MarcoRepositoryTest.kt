@@ -225,8 +225,7 @@ class MarcoRepositoryTest {
         hogar = hogar,
         seleccion = seleccion,
         nroReemplazo = null,
-        resfin = "1",
-        esReemplazo = null
+        resfin = "1"
     )
 
     private fun odei(codigo: String, nombre: String) = OdeiEntity(

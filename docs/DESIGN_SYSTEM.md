@@ -65,6 +65,21 @@ Estado de resultado en las tarjetas por archivo de **Cargar muestra**
 fondo neutro `surfaceContainerLow`. El estado siempre se informa además por
 texto (accesibilidad); los textos conservan los colores de rol del tema.
 
+### Colores de fila de Marco
+
+Tokens propios de la tabla de Marco (feature `marco`), definidos en
+`values/colors.xml` y `values-night/colors.xml`. No se usan valores fijos en
+layouts ni código.
+
+| Token | Claro | Oscuro | Uso |
+| --- | --- | --- | --- |
+| `marcoFilaReemplazo` | `#F9DEDC` | `#5C2B28` | Fila con `TIPOVIVIENDA` en `{2, 3}`, nulo, vacío u otro valor |
+| `marcoFilaSinReemplazo` | `#D7E9F7` | `#24394A` | Fila con `TIPOVIVIENDA` en `{1, 4}` |
+
+El color se deriva de `CAMPO_VIVIENDA_MARCO.TIPOVIVIENDA`, no de
+`CAMPO_VIVIENDA.ESREEMPLAZO`. El color no es el único indicador: la columna
+textual `Reemplazo` comunica la misma información (accesibilidad).
+
 ## Tipografía
 
 Escala `TextAppearance.AppPrueba.*` en `values/styles.xml`, heredando

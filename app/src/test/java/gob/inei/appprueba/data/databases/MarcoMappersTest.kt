@@ -6,7 +6,9 @@ import gob.inei.appprueba.data.databases.projections.MarcoFilaRow
 import gob.inei.appprueba.domain.entities.AreaGeografica
 import gob.inei.appprueba.domain.entities.ResultadoVisita
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class MarcoMappersTest {
@@ -16,7 +18,6 @@ class MarcoMappersTest {
         hogar: String?,
         seleccion: String?,
         resfin: String? = "1",
-        esReemplazo: String? = null,
         activo: Int? = 1
     ) = MarcoFilaRow(
         conglome = "016335",
@@ -26,8 +27,7 @@ class MarcoMappersTest {
         hogar = hogar,
         seleccion = seleccion,
         nroReemplazo = null,
-        resfin = resfin,
-        esReemplazo = esReemplazo
+        resfin = resfin
     )
 
     @Test
@@ -38,7 +38,18 @@ class MarcoMappersTest {
         assertNull(dominio.seleccion)
         assertEquals(ResultadoVisita.SIN_VISITAR, dominio.resultado)
         assertEquals(true, dominio.activo)
-        assertEquals(false, dominio.esReemplazo)
+        assertTrue(dominio.esReemplazo)
+    }
+
+    @Test
+    fun `color de fila se deriva de tipovivienda`() {
+        assertFalse(fila("001", "1", "1").toFilaMarco().esReemplazo)
+        assertFalse(fila("001", "1", " 4 ").toFilaMarco().esReemplazo)
+        assertTrue(fila("002", "1", "2").toFilaMarco().esReemplazo)
+        assertTrue(fila("003", "1", "3").toFilaMarco().esReemplazo)
+        assertTrue(fila("004", "1", "5").toFilaMarco().esReemplazo)
+        assertTrue(fila("005", "1", "   ").toFilaMarco().esReemplazo)
+        assertTrue(fila("006", "1", null).toFilaMarco().esReemplazo)
     }
 
     @Test
@@ -51,12 +62,14 @@ class MarcoMappersTest {
         val filas = listOf(
             fila("001", "1", "1"),
             fila("001", "2", "1"),
-            fila("002", "1", "2"),
-            fila("003", "1", "3")
+            fila("002", "1", "4"),
+            fila("003", "1", "2"),
+            fila("004", "1", "3"),
+            fila("005", "1", "5")
         )
         val indicadores = filas.toIndicadoresMarco("6", "3")
-        assertEquals(1, indicadores.seleccionadas)
-        assertEquals(1, indicadores.reemplazos)
+        assertEquals(2, indicadores.seleccionadas)
+        assertEquals(2, indicadores.reemplazos)
         assertEquals("6", indicadores.estrato)
         assertEquals("3", indicadores.tipoSeleccion)
     }

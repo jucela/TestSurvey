@@ -130,7 +130,7 @@ fun MarcoFilaRow.toFilaMarco() = FilaMarco(
     seleccion = ReglasMarco.seleccion(seleccion),
     nroReemplazo = limpiar(nroReemplazo),
     resultado = ReglasMarco.resultadoVisita(resfin),
-    esReemplazo = ReglasMarco.esReemplazo(esReemplazo)
+    esReemplazo = ReglasMarco.filaReemplazo(seleccion)
 )
 
 fun ConglomeradoMarcoRow.toOpcionConglomerado() = OpcionConglomerado(
@@ -155,8 +155,8 @@ fun List<MarcoFilaRow>.toIndicadoresMarco(
 ): IndicadoresMarco {
     val viviendas = distinctBy { it.conglome to it.vivienda }
     return IndicadoresMarco(
-        seleccionadas = viviendas.count { ReglasMarco.seleccion(it.seleccion) == "1" },
-        reemplazos = viviendas.count { ReglasMarco.seleccion(it.seleccion) == "2" },
+        seleccionadas = viviendas.count { ReglasMarco.seleccion(it.seleccion) in setOf("1", "4") },
+        reemplazos = viviendas.count { ReglasMarco.seleccion(it.seleccion) in setOf("2", "3") },
         estrato = limpiar(estrato),
         tipoSeleccion = limpiar(tipoSeleccion)
     )

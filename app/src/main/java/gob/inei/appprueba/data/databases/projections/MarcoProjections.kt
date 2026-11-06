@@ -9,8 +9,7 @@ data class MarcoFilaRow(
     val hogar: String?,
     val seleccion: String?,
     val nroReemplazo: String?,
-    val resfin: String?,
-    val esReemplazo: String?
+    val resfin: String?
 )
 
 /** Proyeccion de un conglomerado con los datos del area geografica. */

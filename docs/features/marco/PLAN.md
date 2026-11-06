@@ -152,7 +152,7 @@ Señala impacto sobre modelos, contratos o componentes compartidos. -->
   - `ConsultaMarco(filtros: FiltrosMarco, busqueda: String)`; si `busqueda.isBlank()` aplica todos los filtros; si no, conserva `soloActivos` y anula los cuatro IDs.
   - `CatalogoMarco(odeis, meses, periodos: List<OpcionMuestra>)`.
   - `OpcionConglomerado(conglome, area: AreaGeografica, estrato: String?, tipoSeleccion: String?)` con etiqueta `CONGLOME->AREA`.
-  - `FilaMarco(conglome, vivienda, nroVivienda, activo, hogar, nroReemplazo, resultado: ResultadoVisita, esReemplazo: Boolean)`.
+  - `FilaMarco(conglome, vivienda, nroVivienda, activo, hogar, nroReemplazo, resultado: ResultadoVisita, esReemplazo: Boolean)`; `esReemplazo` es la bandera de color derivada de `TIPOVIVIENDA` (`true` = token rojo).
   - `ResultadoVisita` (`COMPLETA`, `INCOMPLETA`, `RECHAZO`, `AUSENTE`, `VIV_DESOCUPADA`, `NO_SE_INICIO`, `OTRO`, `SIN_VISITAR`). La UI traduce el enum a strings; el dominio no depende de recursos Android.
   - `IndicadoresMarco(estrato: String?, tipoSeleccion: String?, seleccionadas: Int, reemplazos: Int)`.
   - `ResultadoMarco(filas: List<FilaMarco>, indicadores: IndicadoresMarco)`.
@@ -162,8 +162,8 @@ Señala impacto sobre modelos, contratos o componentes compartidos. -->
 - **Origen de los datos mostrados y transformaciones:**
   - Tabla: `CAMPO_VIVIENDA_MARCO` LEFT JOIN `CAMPO_CONGLOMERADO`, LEFT JOIN `CAMPO_VIVIENDA`, LEFT JOIN `CAMPO_HOGAR`. Una fila por hogar; si no hay hogar, `HOGAR` nulo y la UI muestra `--`. Orden `CONGLOME`, `VIVIENDA`, `COALESCE(HOGAR, '')`.
   - `RESFIN`: `trim`; nulo/vacío → `SIN_VISITAR`; `"1".."7"` → textos de RF-16; otro → `OTRO`. Nunca se muestra `null`.
-  - `ESREEMPLAZO`: `trim == "1"` → rojo; cualquier otro/nulo/sin fila de vivienda → celeste. No se usa `TIPOVIVIENDA` para el color.
-  - `TIPOVIVIENDA`: `trim == "1"` seleccionada, `trim == "2"` reemplazo; otro/nulo no suma. `activo` solo `== 1` cuenta como activo.
+  - `TIPOVIVIENDA` (color de fila): `trim in {"1", "4"}` → celeste; `{"2", "3"}`, nulo, vacío o cualquier otro valor → rojo. El color no depende de `ESREEMPLAZO` ni de la existencia de `CAMPO_VIVIENDA`.
+  - `TIPOVIVIENDA`: `trim in {"1", "4"}` seleccionada, `trim in {"2", "3"}` reemplazo; otro/nulo no suma. `activo` solo `== 1` cuenta como activo.
   - Área: `TIPOSELECCION` 1/2 → `URBANO->NO PANEL`; 3 + `ESTRATO` 6 → `SEMI-RURAL->PANEL`; 3 + 1..5 → `URBANO->PANEL`; 3 + ≥7 → `RURAL->PANEL`; 4 → `SEMI-RURAL->NO PANEL`; 5 → `RURAL->NO PANEL`; resto/nulos/0 → `SIN CLASIFICAR`. Se aplica antes de comparar `3` con rangos.
   - Detalle: para cada campo, `NOMBREVIA/PUERTA/INTERIOR/PISO/MZ/LOTE` de `CAMPO_VIVIENDA` con `trim` no vacío; si no, el mismo campo de `CAMPO_VIVIENDA_MARCO`; si ambos vacíos, `null` → `--`.
   - Etiquetas sin normalizar: ODEI `CODODEI-NOMODEI`, MES `CODIGO-NOMBRE`, PERIODO `NOMPER`; si un nombre es nulo, se usa el código como fallback seguro.
@@ -217,8 +217,8 @@ CREATE INDEX IF NOT EXISTS `index_CAMPO_HOGAR_CONGLOME_VIVIENDA`
 Consultas de Marco (`MarcoDao`):
 
 - Filas y conteos comparten estos predicados: `(:soloActivos = 0 OR m.activo = 1)`, búsqueda `(:busqueda = '' OR LOWER(m.CONGLOME) LIKE '%' || LOWER(:busqueda) || '%' ESCAPE '\')`, y filtros `(:odei IS NULL OR c.ODEI = :odei)`, `(:mes IS NULL OR c.MES = :mes)`, `(:periodo IS NULL OR c.PERIODO = :periodo)`, `(:conglomerado IS NULL OR m.CONGLOME = :conglomerado)`.
-- Filas: `SELECT m.CONGLOME, m.VIVIENDA, m.NROVIVIENDA, m.activo, h.HOGAR, v.NROREEMPLAZO, h.RESFIN, v.ESREEMPLAZO FROM CAMPO_VIVIENDA_MARCO m LEFT JOIN CAMPO_CONGLOMERADO c ... LEFT JOIN CAMPO_VIVIENDA v ON v.CONGLOME=m.CONGLOME AND v.VIVIENDA=m.VIVIENDA LEFT JOIN CAMPO_HOGAR h ON h.CONGLOME=m.CONGLOME AND h.VIVIENDA=m.VIVIENDA WHERE ... ORDER BY m.CONGLOME, m.VIVIENDA, COALESCE(h.HOGAR, '')`.
-- Indicadores: `COUNT(DISTINCT CASE WHEN TRIM(m.TIPOVIVIENDA) = '1' THEN m.CONGLOME || CHAR(31) || m.VIVIENDA END)` y la misma expresión para `'2'`, sobre la base `m` y los mismos predicados. No se une `CAMPO_HOGAR` para no inflar conteos.
+- Filas: `SELECT m.CONGLOME, m.VIVIENDA, m.NROVIVIENDA, m.activo, h.HOGAR, v.NROREEMPLAZO, h.RESFIN, m.TIPOVIVIENDA AS seleccion FROM CAMPO_VIVIENDA_MARCO m LEFT JOIN CAMPO_CONGLOMERADO c ... LEFT JOIN CAMPO_VIVIENDA v ON v.CONGLOME=m.CONGLOME AND v.VIVIENDA=m.VIVIENDA LEFT JOIN CAMPO_HOGAR h ON h.CONGLOME=m.CONGLOME AND h.VIVIENDA=m.VIVIENDA WHERE ... ORDER BY m.CONGLOME, m.VIVIENDA, COALESCE(h.HOGAR, '')`. El color se deriva de `m.TIPOVIVIENDA`; `v.ESREEMPLAZO` no se proyecta.
+- Indicadores: `COUNT(DISTINCT CASE WHEN TRIM(m.TIPOVIVIENDA) IN ('1','4') THEN m.CONGLOME || CHAR(31) || m.VIVIENDA END)` y la misma expresión para `('2','3')`, sobre la base `m` y los mismos predicados. No se une `CAMPO_HOGAR` para no inflar conteos.
 - Conglomerados: `SELECT c.CONGLOME, c.ESTRATO, c.TIPOSELECCION FROM CAMPO_CONGLOMERADO c WHERE (:odei IS NULL OR c.ODEI=:odei) ... ORDER BY c.CONGLOME`. La etiqueta se calcula en el mapper.
 - Total de muestra: `SELECT COUNT(*) FROM CAMPO_CONGLOMERADO` como Flow.
 - Existencia para restaurar: `SELECT COUNT(*) FROM CAMPO_CONGLOMERADO WHERE CONGLOME=:conglome AND ...`.
@@ -248,7 +248,7 @@ Referencia RF/CA y aplica las consideraciones relevantes de MOBILE_GUIDELINES.md
 con el proyecto y justifica las incorporaciones. No agregues dependencias por defecto. -->
 
 - No se añaden librerías. Se reutilizan Material 3 `1.12.0` (`MaterialSwitch`, `TextInputLayout`, `MaterialAutoCompleteTextView`), Room `2.7.2`, DataStore, RecyclerView, coroutines/Flow y Hilt ya presentes.
-- Se añaden recursos propios: dos tokens de color claro/oscuro, dimensiones de columnas/tabla, `values/bools.xml` + `values-sw600dp/bools.xml` para el colapso, strings y dos vectores (`ic_search`, `ic_expand_more`). Tokens propuestos: `marco_fila_reemplazo` `#F9DEDC` (claro) / `#5C2B28` (oscuro) y `marco_fila_sin_reemplazo` `#D7E9F7` (claro) / `#24394A` (oscuro); el texto de fila usa `?attr/colorOnSurface` y la cabecera `?attr/colorSurfaceContainerHigh`.
+- Se añaden recursos propios: dos tokens de color claro/oscuro, dimensiones de columnas/tabla, `values/bools.xml` + `values-sw600dp/bools.xml` para el colapso, strings y dos vectores (`ic_search`, `ic_expand_more`). Tokens: `marcoFilaReemplazo` `#F9DEDC` (claro) / `#5C2B28` (oscuro) y `marcoFilaSinReemplazo` `#D7E9F7` (claro) / `#24394A` (oscuro). `marcoFilaSinReemplazo` se aplica con `TIPOVIVIENDA` en `{1, 4}`; `marcoFilaReemplazo` con `{2, 3}`, nulo, vacío u otro valor. El texto de fila usa `?attr/colorOnSurface` y la cabecera `?attr/colorSurfaceContainerHigh`.
 - No se añaden permisos ni servicios. La pantalla no usa FTP, red, cámara, GPS ni trabajo en segundo plano.
 - Configuración de Room: `version = 8`, `exportSchema = true`, registrar `MIGRATION_7_8` en `DatabaseModule`; no se habilita `fallbackToDestructiveMigration`.
 - DataStore: se reutiliza el `DataStore<Preferences>` existente; las claves de Marco llevan prefijo de usuario para no colisionar con `sesion_activa`, `ultimo_usuario` ni `tipo_acceso`.
@@ -283,7 +283,7 @@ Una captura aislada no demuestra persistencia ni ausencia de peticiones de red. 
 | CA-19 | DAO/integración: `MarcoDaoTest` | Vivienda con 3 hogares y vivienda sin hogar | Una fila por hogar; fila con Hogar `--`; conteo sin inflar |
 | CA-20 | Unitario de mapper + UI | `RESFIN` 1..7, null, `""`, `"  "`, `"8"` | Textos RF-16; SIN VISITAR/OTRO; nunca `null` |
 | CA-21 | Unitario de detalle + UI de diálogo | Datos en ambas tablas, solo Marco y ninguno | Prioridad, fallback y `--`; Cerrar no modifica datos |
-| CA-22 | Unitario de mapper + UI con matcher de color + manual oscuro | `ESREEMPLAZO` 1, 2, null, 3; sin vivienda | Rojo/celeste desde tokens; contraste en claro/oscuro |
+| CA-22 | Unitario de mapper + UI con matcher de color + manual oscuro | `TIPOVIVIENDA` 1, 4, 2, 3, null, vacío, otro (5); sin vivienda | `{1,4}` celeste; resto rojo desde tokens; contraste en claro/oscuro |
 | CA-23 | DAO/integración: joins | Tablas vacías y datos parciales; dos conglomerados | Todas las viviendas del Marco; asociación por claves compuestas; sin mezclas |
 | CA-24 | DAO/integración + unitario de mapper | Nulos, vacíos y espacios en campos usados | Sin excepciones; celdas `--`; valores seguros |
 | CA-25 | VM con repo fake + UI | Total 0, filtros sin coincidencia, repo que lanza error | Mensajes informativos; error seguro con reintento; sin cierre |

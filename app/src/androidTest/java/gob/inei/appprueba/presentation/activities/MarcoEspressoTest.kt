@@ -236,25 +236,30 @@ class MarcoEspressoTest {
     }
 
     @Test
-    fun las_filas_usan_el_color_de_reemplazo_y_sin_reemplazo() {
+    fun las_filas_usan_el_color_segun_tipovivienda() {
         ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
             esperarHastaFilas(scenario, 4)
 
             scenario.onActivity { activity ->
                 val recycler = activity.findViewById<RecyclerView>(R.id.rvMarco)
-                val conReemplazo = recycler.findViewHolderForAdapterPosition(0)?.itemView
-                val sinReemplazo = recycler.findViewHolderForAdapterPosition(2)?.itemView
+                val seleccionada = recycler.findViewHolderForAdapterPosition(0)?.itemView
+                val reemplazo = recycler.findViewHolderForAdapterPosition(2)?.itemView
+                val seleccionadaCuatro = recycler.findViewHolderForAdapterPosition(3)?.itemView
+                assertEquals(
+                    ContextCompat.getColor(activity, R.color.marcoFilaSinReemplazo),
+                    (seleccionada?.background as ColorDrawable).color
+                )
                 assertEquals(
                     ContextCompat.getColor(activity, R.color.marcoFilaReemplazo),
-                    (conReemplazo?.background as ColorDrawable).color
+                    (reemplazo?.background as ColorDrawable).color
                 )
                 assertEquals(
                     ContextCompat.getColor(activity, R.color.marcoFilaSinReemplazo),
-                    (sinReemplazo?.background as ColorDrawable).color
+                    (seleccionadaCuatro?.background as ColorDrawable).color
                 )
                 assertEquals(
                     activity.getString(R.string.marco_detalle_descripcion_fila, "01", "016335"),
-                    conReemplazo?.findViewById<View>(R.id.btnDetalle)?.contentDescription
+                    seleccionada?.findViewById<View>(R.id.btnDetalle)?.contentDescription
                 )
             }
         }
