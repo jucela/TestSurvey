@@ -9,6 +9,9 @@
 /.idea/assetWizardSettings.xml
 .DS_Store
 /build
+/build.log
+/build_output.txt
+/compile_err.log
 /captures
 .externalNativeBuild
 .cxx
