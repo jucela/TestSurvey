@@ -187,6 +187,12 @@ class MarcoViewModel @Inject constructor(
         }
     }
 
+    fun onAccion(accion: AccionMarco, fila: gob.inei.appprueba.domain.entities.FilaMarco) {
+        viewModelScope.launch {
+            eventos.emit(MarcoEvento.MostrarAccion(accion, fila))
+        }
+    }
+
     fun onReintentar() {
         catalogoError.value = false
         refrescar.value += 1

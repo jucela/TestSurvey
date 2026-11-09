@@ -93,6 +93,28 @@ class MarcoDaoTest {
     }
 
     @Test
+    fun el_orden_prioriza_nro_vivienda_y_conserva_hogar() = runBlocking {
+        db.viviendaMarcoDao().insertAll(
+            listOf(viviendaMarco("004", activo = 1, tipo = "1", nroVivienda = "00"))
+        )
+
+        val filas = db.marcoDao().observarFilas(0, null, null, null, null, null).first()
+
+        assertEquals(listOf("004", "001", "001", "002"), filas.map { it.vivienda })
+        assertEquals(listOf("00", "01", "01", "02"), filas.map { it.nroVivienda })
+        assertNull(filas.last().hogar)
+    }
+
+    @Test
+    fun el_detalle_incluye_la_identificacion_de_la_fila() = runBlocking {
+        val detalle = db.marcoDao().obtenerDetalle("016335", "001")
+
+        assertEquals("016335", detalle?.conglome)
+        assertEquals("01", detalle?.nroVivienda)
+        assertEquals("001", detalle?.vivienda)
+    }
+
+    @Test
     fun las_opciones_de_conglomerado_no_se_duplican() = runBlocking {
         val opciones = db.marcoDao().observarConglomerados("11", null, null).first()
         assertEquals(1, opciones.size)

@@ -32,5 +32,8 @@ data class DetalleMarcoRow(
     val viviendaInterior: String?,
     val viviendaPiso: String?,
     val viviendaMz: String?,
-    val viviendaLote: String?
+    val viviendaLote: String?,
+    val conglome: String? = null,
+    val nroVivienda: String? = null,
+    val vivienda: String? = null
 )

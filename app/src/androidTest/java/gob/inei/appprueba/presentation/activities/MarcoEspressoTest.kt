@@ -3,6 +3,9 @@ package gob.inei.appprueba.presentation.activities
 import android.content.Context
 import android.graphics.drawable.ColorDrawable
 import android.view.View
+import android.view.ViewGroup
+import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -23,9 +26,9 @@ import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.Intents.intended
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
+import androidx.test.espresso.matcher.RootMatchers.isDialog
 import androidx.test.espresso.matcher.RootMatchers.isPlatformPopup
 import androidx.test.espresso.matcher.ViewMatchers.Visibility
-import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
 import androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA
 import androidx.test.espresso.matcher.ViewMatchers.isChecked
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
@@ -48,6 +51,7 @@ import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.not
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeFalse
 import org.junit.Before
@@ -141,8 +145,12 @@ class MarcoEspressoTest {
             scenario.onActivity { activity ->
                 val recycler = activity.findViewById<RecyclerView>(R.id.rvMarco)
                 assertEquals(4, recycler.adapter?.itemCount)
+                val primera = recycler.findViewHolderForAdapterPosition(0)?.itemView
+                assertEquals(
+                    "COMPLETA",
+                    primera?.findViewById<TextView>(R.id.tvResultado)?.text?.toString()
+                )
             }
-            onView(allOf(withText("COMPLETA"), isDisplayed())).check(matches(isDisplayed()))
             onView(withId(R.id.tvViviendas))
                 .check(matches(withText("Seleccionadas: 2 Reemplazos: 1")))
         }
@@ -152,14 +160,93 @@ class MarcoEspressoTest {
     fun el_detalle_prioriza_vivienda_y_usa_marco_como_respaldo() {
         ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
             esperarHastaFilas(scenario, 4)
-            onView(botonDetalleDe("02")).perform(click())
+            pulsarAccionDeFila(scenario, 2, R.id.btnDetalle)
             onView(withText("REAL DOS")).check(matches(isDisplayed()))
             onView(withText("20")).check(matches(isDisplayed()))
+            onView(withId(R.id.tvDetalleConglomerado))
+                .inRoot(isDialog())
+                .check(matches(withText("016335")))
+            onView(withId(R.id.tvDetalleNumero)).inRoot(isDialog()).check(matches(withText("02")))
+            onView(withId(R.id.tvDetalleVivienda)).inRoot(isDialog()).check(matches(withText("002")))
             onView(withText(R.string.marco_detalle_cerrar)).perform(click())
 
-            onView(botonDetalleDe("03")).perform(click())
+            pulsarAccionDeFila(scenario, 3, R.id.btnDetalle)
             onView(withText("MARCO TRES")).check(matches(isDisplayed()))
             onView(withText(R.string.marco_detalle_cerrar)).perform(click())
+        }
+    }
+
+    @Test
+    fun la_tabla_muestra_once_columnas_y_las_acciones_son_accesibles() {
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            esperarHastaFilas(scenario, 4)
+
+            scenario.onActivity { activity ->
+                val cabecera = activity.findViewById<LinearLayout>(R.id.cabeceraMarco)
+                assertEquals(11, cabecera.childCount)
+
+                val recycler = activity.findViewById<RecyclerView>(R.id.rvMarco)
+                val fila = recycler.findViewHolderForAdapterPosition(0)?.itemView as? ViewGroup
+                assertEquals(11, fila?.childCount)
+
+                val aperturar = fila?.findViewById<View>(R.id.btnAperturar)
+                val exportar = fila?.findViewById<View>(R.id.btnExportar)
+                val accion = fila?.findViewById<View>(R.id.btnAccion)
+                assertNotNull(aperturar)
+                assertNotNull(exportar)
+                assertNotNull(accion)
+                assertEquals(
+                    activity.getString(
+                        R.string.marco_accion_descripcion_aperturar_fila,
+                        "01",
+                        "016335"
+                    ),
+                    aperturar?.contentDescription
+                )
+                assertEquals(
+                    activity.getString(
+                        R.string.marco_accion_descripcion_exportar_fila,
+                        "01",
+                        "016335"
+                    ),
+                    exportar?.contentDescription
+                )
+                assertEquals(
+                    activity.getString(
+                        R.string.marco_accion_descripcion_accion_fila,
+                        "01",
+                        "016335"
+                    ),
+                    accion?.contentDescription
+                )
+            }
+        }
+    }
+
+    @Test
+    fun las_acciones_abren_dialogos_con_la_identificacion_de_la_fila() {
+        val acciones = listOf(
+            R.id.btnAperturar to R.string.marco_accion_aperturar,
+            R.id.btnExportar to R.string.marco_accion_exportar,
+            R.id.btnAccion to R.string.marco_accion_accion
+        )
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            esperarHastaFilas(scenario, 4)
+
+            acciones.forEach { (boton, titulo) ->
+                pulsarAccionDeFila(scenario, 0, boton)
+                onView(withText(titulo)).inRoot(isDialog()).check(matches(isDisplayed()))
+                onView(withId(R.id.tvAccionConglomerado))
+                    .inRoot(isDialog())
+                    .check(matches(withText("016335")))
+                onView(withId(R.id.tvAccionNumero))
+                    .inRoot(isDialog())
+                    .check(matches(withText("01")))
+                onView(withId(R.id.tvAccionVivienda))
+                    .inRoot(isDialog())
+                    .check(matches(withText("001")))
+                onView(withText(R.string.marco_detalle_cerrar)).perform(click())
+            }
         }
     }
 
@@ -378,15 +465,19 @@ class MarcoEspressoTest {
         throw AssertionError("No se pudo seleccionar el ODEI $etiqueta", ultimoError)
     }
 
-    private fun botonDetalleDe(numeroVivienda: String) = allOf(
-        withId(R.id.btnDetalle),
-        isDescendantOfA(
-            allOf(
-                withId(R.id.filaMarco),
-                hasDescendant(withText(numeroVivienda))
-            )
-        )
-    )
+    private fun pulsarAccionDeFila(
+        scenario: ActivityScenario<MarcoActivity>,
+        posicion: Int,
+        boton: Int
+    ) {
+        scenario.onActivity { activity ->
+            val recycler = activity.findViewById<RecyclerView>(R.id.rvMarco)
+            recycler.findViewHolderForAdapterPosition(posicion)?.itemView
+                ?.findViewById<View>(boton)
+                ?.performClick()
+        }
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+    }
 
     private fun esperarHastaFilas(
         scenario: ActivityScenario<MarcoActivity>,

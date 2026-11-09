@@ -80,6 +80,29 @@ El color se deriva de `CAMPO_VIVIENDA_MARCO.TIPOVIVIENDA`, no de
 `CAMPO_VIVIENDA.ESREEMPLAZO`. El color no es el único indicador: la columna
 textual `Reemplazo` comunica la misma información (accesibilidad).
 
+### Anchos de la tabla de Marco
+
+La tabla de once columnas usa tokens propios en `values/dimens.xml`, múltiplos
+de 8dp para mantener la escala y permitir scroll horizontal sin recortes. Las
+cuatro columnas de acción (Detalle, Aperturar, Exportar y Acción) reservan
+`marco_col_accion_ancho` (88dp) para garantizar área táctil suficiente; el
+ancho total `marco_tabla_ancho` (896dp) es la suma de las once columnas.
+
+| Token | Valor | Uso |
+| --- | --- | --- |
+| `marco_col_activo_ancho` | 48dp | Columna Activo |
+| `marco_col_conglomerado_ancho` | 112dp | Columna Conglomerado |
+| `marco_col_numero_ancho` | 56dp | Columna N° |
+| `marco_col_seleccion_ancho` | 80dp | Columna Selección |
+| `marco_col_hogar_ancho` | 56dp | Columna Hogar |
+| `marco_col_reemplazo_ancho` | 88dp | Columna Reemplazo |
+| `marco_col_resultado_ancho` | 104dp | Columna Resultado |
+| `marco_col_accion_ancho` | 88dp | Detalle, Aperturar, Exportar y Acción |
+| `marco_tabla_ancho` | 896dp | Ancho total de cabecera y filas |
+
+Los iconos de acción usan `ic_info`, `ic_aperturar`, `ic_exportar` e
+`ic_accion`, con `contentDescription` por fila y tinte `colorPrimary`.
+
 ## Tipografía
 
 Escala `TextAppearance.AppPrueba.*` en `values/styles.xml`, heredando

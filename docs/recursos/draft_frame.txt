@@ -79,11 +79,10 @@
     * Los filtros al girar la pantalla se limpian,te presento 2 casos:
       - Ingreso al marco, luego solo visualizo y todos los filtros tinen opciones pero no selecciono ninguna , dejo los 4 filtros con --Selecciones-- luego giro la pantalla y solo puedo ver --Seleccione-- en los 4 filtros y ninguno muestra las opciones como al inicio
       - Ingreso al marco, luego solo visualizo y toDos los filtros tinen opciones pero no selecciono ninguna , selecciono la ODEI 01-AMAZONAS,MES 10,PERIODO 1 Y CONGLOMERADO 015010 luego giro la pantalla y solo puedo LAS OPCIONES QUE SELECCIONE ya no puedo ver por ejemplo las otras odeis aparte de 01-AMAZONAS.
-    * El switch de ACTIVOS, siempre que se inicie la aplicacion por primera vez debe estar encendido.
-    * El Switch de activos no funciona , lo activo y desactivo y siempre muestra el listado de las viviendas.
     * ordenar por numero de vivienda de menor a mayor
-    * la informacion de la fila se muestra por primera vez desde la tabla CAMPO_VIVIENDA_MARCO, cuando se inicio la encuesta de la vivienda esa data se copia a la tabla CAMPO_VIVIENDA que la data de esta tabña peude actaulizarse y puede ser diferente a la tabla CAMPO_VIVIENDA_MARCO
-
+    * la informacion de la fila se muestra por primera vez desde la tabla CAMPO_VIVIENDA_MARCO, cuando se inicio la encuesta de la vivienda esa data se copia a la tabla CAMPO_VIVIENDA que la data de esta tabla peude actaulizarse y puede ser diferente a la tabla CAMPO_VIVIENDA_MARCO
+    * en las etiquetas agregar el numero de conglomerados por odei y mes.
+    * doble clik en fila para que aparesca
 
 
 

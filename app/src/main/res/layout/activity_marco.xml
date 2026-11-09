@@ -314,13 +314,14 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="?attr/colorSurfaceContainerHigh"
-                        android:orientation="horizontal"
-                        android:paddingTop="@dimen/dp_8"
-                        android:paddingBottom="@dimen/dp_8">
+<LinearLayout
+                    android:id="@+id/cabeceraMarco"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/colorSurfaceContainerHigh"
+                    android:orientation="horizontal"
+                    android:paddingTop="@dimen/dp_8"
+                    android:paddingBottom="@dimen/dp_8">
 
                         <TextView
                             style="@style/TextAppearance.AppPrueba.MarcoCabecera"
