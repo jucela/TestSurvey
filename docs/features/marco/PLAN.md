@@ -1,7 +1,7 @@
 # PLAN: Marco de viviendas
 
 **SPEC de referencia:** docs/features/marco/SPEC.md
-**Versión de la spec revisada:** SPEC aprobada el 2026-10-22; actualizada el 2026-11-09 por CR-005
+**Versión de la spec revisada:** SPEC aprobada el 2026-10-22; actualizada el 2026-11-09 por CR-006
 **Estado:** Aprobado <!-- Borrador | En revisión | Aprobado -->
 
 <!-- PARA LA PERSONA
@@ -130,6 +130,7 @@ Señala impacto sobre modelos, contratos o componentes compartidos. -->
 | `domain/entities/MarcoFiltros.kt` | Crear | `FiltrosMarco` y `ConsultaMarco`; construye la consulta efectiva según búsqueda. | RF-06, RF-12, RF-13 |
 | `domain/entities/MarcoCatalogo.kt` | Crear | `CatalogoMarco`; reutiliza `OpcionMuestra` para los tres catálogos. | RF-08, RF-09, RF-10 |
 | `domain/entities/MarcoResultado.kt` | Crear | `OpcionConglomerado`, `AreaGeografica`, `FilaMarco`, `ResultadoVisita`, `IndicadoresMarco`, `ResultadoMarco`. | RF-11, RF-14..RF-20 |
+| `domain/entities/ReglasMarco.kt` | Modificar | Regla pura de área geográfica; para `TIPOSELECCION = 3` acepta ESTRATO 7-8 como `RURAL_PANEL` y deja 9+ en `SIN_CLASIFICAR`. | RF-11 |
 | `domain/entities/DetalleViviendaMarco.kt` | Modificar | Modelo de solo lectura con los seis campos de dirección resueltos e identificación de fila (`conglome`, `nroVivienda`, `vivienda`). | RF-17, RF-23 |
 | `domain/repositories/MarcoRepository.kt` | Crear | Contrato de catálogo, conglomerados, resultado, total, detalle y filtros persistidos. | RF-08..RF-18 |
 | `domain/usecases/ObtenerCatalogoMarcoUseCase.kt` y siete casos de uso de Marco | Crear | Orquestan el repositorio y mantienen la capa de presentación sin acceso a datos. | RF-08..RF-18 |
@@ -179,7 +180,7 @@ Señala impacto sobre modelos, contratos o componentes compartidos. -->
   - `TIPOVIVIENDA` (color de fila): `trim in {"1", "4"}` → celeste; `{"2", "3"}`, nulo, vacío o cualquier otro valor → rojo. El color no depende de `ESREEMPLAZO` ni de la existencia de `CAMPO_VIVIENDA`.
   - `TIPOVIVIENDA`: `trim in {"1", "4"}` seleccionada, `trim in {"2", "3"}` reemplazo; otro/nulo no suma. `activo` solo `== 1` cuenta como activo.
   - N° Conglomerados: `COUNT(DISTINCT CONGLOME)` desde `CAMPO_CONGLOMERADO` con `TRIM(ANHO) = '2026'`. Solo se calcula para ODEI, ODEI+MES, ODEI+MES+PERIODO o ODEI+MES+PERIODO+CONGLOMERADO y sin búsqueda; en otro caso `null` → `--`. No depende del Switch.
-  - Área: `TIPOSELECCION` 1/2 → `URBANO->NO PANEL`; 3 + `ESTRATO` 6 → `SEMI-RURAL->PANEL`; 3 + 1..5 → `URBANO->PANEL`; 3 + ≥7 → `RURAL->PANEL`; 4 → `SEMI-RURAL->NO PANEL`; 5 → `RURAL->NO PANEL`; resto/nulos/0 → `SIN CLASIFICAR`. Se aplica antes de comparar `3` con rangos.
+  - Área: `TIPOSELECCION` 1/2 → `URBANO->NO PANEL`; 3 + `ESTRATO` 6 → `SEMI-RURAL->PANEL`; 3 + 1..5 → `URBANO->PANEL`; 3 + 7..8 → `RURAL->PANEL`; 4 → `SEMI-RURAL->NO PANEL`; 5 → `RURAL->NO PANEL`; resto/nulos/0/9+ → `SIN CLASIFICAR`. Se aplica antes de comparar `3` con rangos.
   - Detalle: para cada campo, `NOMBREVIA/PUERTA/INTERIOR/PISO/MZ/LOTE` de `CAMPO_VIVIENDA` con `trim` no vacío; si no, el mismo campo de `CAMPO_VIVIENDA_MARCO`; si ambos vacíos, `null` → `--`.
   - Etiquetas sin normalizar: ODEI `CODODEI-NOMODEI`, MES `CODIGO-NOMBRE`, PERIODO `NOMPER`; si un nombre es nulo, se usa el código como fallback seguro.
 - **Persistencia, consultas y actualizaciones:** DataStore guarda por usuario `solo_activos`, `odei`, `mes`, `periodo` y `conglomerado`, con claves prefijadas `marco_<usuario>_...`; los valores nulos se eliminan. La búsqueda no se persiste. Las consultas son `@Query` con bind params y `Flow`; Room las ejecuta fuera del hilo principal. La búsqueda escapa `\`, `%` y `_` antes de `LIKE ... ESCAPE '\'` y usa `LOWER` para no distinguir mayúsculas. No se concatena texto del usuario en SQL.
@@ -290,7 +291,7 @@ Una captura aislada no demuestra persistencia ni ausencia de peticiones de red. 
 | CA-10 | Unitario de catálogo + UI de dropdown | ODEI `01-AMAZONAS` y otro | `--Seleccione--` primero; orden ascendente; selección filtra; nulo no filtra |
 | CA-11 | Unitario de catálogo + UI de dropdown | MES `01-Enero` y otro | Formato real, orden ascendente; nulo no filtra |
 | CA-12 | Unitario de catálogo + UI de dropdown | PERIODO `1-PERIODO 1` | `NOMPER` real, orden por `CODPER`; nulo no filtra |
-| CA-13 | Unitario de área + DAO de conglomerados + VM | Fixtures con las reglas de área; cambio de filtros | Etiquetas `CONGLOME->AREA`, sin duplicados, orden; reset si desaparece |
+| CA-13 | Unitario de área (ESTRATO 7, 8 y 9+) + DAO de conglomerados + VM | Fixtures con las reglas de área; cambio de filtros | Etiquetas `CONGLOME->AREA`, sin duplicados, orden; 7-8 `RURAL->PANEL`, 9+ `SIN CLASIFICAR`; reset si desaparece |
 | CA-14 | DAO/integración: matriz de filtros + VM | Fixtures de dos conglomerados y viviendas | Resultados que cumplen todas las condiciones; tabla/indicadores con la misma base |
 | CA-15 | Instrumentado: `MarcoFiltrosDataStoreTest` + UI/VM | Dos usuarios, filtros válidos e inválidos | Restauración por usuario; inválidos a `--`; búsqueda no persistida |
 | CA-16 | VM + UI | Conglomerado único y sin selección | Estrato/Tipo reales o `--`; conteos coherentes |
@@ -349,6 +350,7 @@ Incluye puntos de comprobación para avanzar con cambios pequeños. -->
 8. **CR-003 (RF-15/RF-17/RF-23):** actualizar `ORDER BY` a `CONGLOME`, `NROVIVIENDA`, `VIVIENDA`, `HOGAR`; añadir las tres columnas/iconos de acción; extender `DetalleViviendaMarco` y los eventos/UI con identificación de fila; crear el diálogo reutilizable de acciones; actualizar pruebas. Comprobación: `MarcoDaoTest`, `MarcoViewModelTest`, `MarcoEspressoTest` y batería completa.
 9. **CR-004 (RF-14):** agregar `conglomerados` a `IndicadoresMarco`; consulta de conteo en `MarcoDao`; validar combinación/búsqueda/ODEI en `MarcoRepositoryImpl`; `GridLayout` 2/4 y string del cuarto indicador; actualizar pruebas. Comprobación: `MarcoDaoTest`, `MarcoRepositoryTest`, `MarcoMappersTest`, `MarcoViewModelTest`, `MarcoEspressoTest` y batería completa.
 10. **CR-005 (RF-05/RF-13):** corregir la pérdida de opciones de los cuatro desplegables al recrear la pantalla; impedir que el texto seleccionado filtre las opciones, cargar los adaptadores antes de aplicar las etiquetas y cubrir rotación con y sin selección. Comprobación: `MarcoEspressoTest` y batería completa.
+11. **CR-006 (RF-11):** ajustar la regla de área para `TIPOSELECCION = 3` con ESTRATO 7 u 8 → `RURAL->PANEL`; ESTRATO 9+ → `SIN CLASIFICAR`; actualizar `MarcoReglasTest` y la documentación. Comprobación: `MarcoReglasTest` y batería completa.
 
 ## Riesgos y decisiones pendientes
 
@@ -368,7 +370,8 @@ Escribe Ninguna en las decisiones pendientes cuando estén resueltas. -->
   - **Ancho y alineación de once columnas:** pesos/dimensiones tokenizadas, scroll horizontal y prueba en móvil/tablet; los iconos de acción mantienen área táctil de 48dp y descripción accesible.
   - **Conteo de N° Conglomerados:** se calcula desde `CAMPO_CONGLOMERADO` con `TRIM(ANHO) = '2026'` y `COUNT(DISTINCT CONGLOME)`; no se une `CAMPO_VIVIENDA_MARCO`, por lo que el Switch no lo altera. La combinación inválida y la búsqueda se resuelven en el repositorio con `null` → `--`; tests con 2027 y combinaciones parciales.
   - **Pérdida de opciones tras rotación:** el texto de la etiqueta seleccionada filtra el `AutoCompleteTextView`; se configura el campo para que el texto no reduzca las opciones, se cargan los adaptadores antes de aplicar las etiquetas y se prueba con `--Seleccione--` y con selección. No se cambia la persistencia ni el ViewModel.
-- **Decisiones pendientes:** Ninguna. Las decisiones de producto y de alcance están resueltas en la SPEC aprobada; las elecciones técnicas de este plan no cambian el comportamiento. Para CR-004 quedaron confirmados el año base 2026, las cuatro combinaciones válidas, ODEI obligatorio, `--` con búsqueda activa, Switch sin efecto sobre N° Conglomerados y layout 2×2/1×4. Para CR-005 se corrige un defecto de presentación: tras rotar se conservan las selecciones y las listas completas de opciones; no hay RF nuevo ni cambio de datos.
+  - **Límite de estrato 7-8:** la regla anterior documentaba ≥7 y el código solo reconocía 7; el cambio fija 7-8 como rural y 9+ como `SIN CLASIFICAR`. Se cubre con unitarios de 7, 8 y 9+ para evitar otra discrepancia entre SPEC y código.
+- **Decisiones pendientes:** Ninguna. Las decisiones de producto y de alcance están resueltas en la SPEC aprobada; las elecciones técnicas de este plan no cambian el comportamiento. Para CR-004 quedaron confirmados el año base 2026, las cuatro combinaciones válidas, ODEI obligatorio, `--` con búsqueda activa, Switch sin efecto sobre N° Conglomerados y layout 2×2/1×4. Para CR-005 se corrige un defecto de presentación: tras rotar se conservan las selecciones y las listas completas de opciones; no hay RF nuevo ni cambio de datos. Para CR-006 se confirma el límite 7-8 para `RURAL->PANEL` y `SIN CLASIFICAR` desde 9; no hay RF nuevo ni cambio de datos.
 
 <!-- ANTES DE SOLICITAR APROBACIÓN
 Comprueba que el plan cubre los requisitos, respeta las exclusiones, reutiliza

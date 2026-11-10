@@ -9,7 +9,7 @@ object ReglasMarco {
             3 -> when (estrato?.trim()?.toIntOrNull()) {
                 6 -> AreaGeografica.SEMI_RURAL_PANEL
                 1, 2, 3, 4, 5 -> AreaGeografica.URBANO_PANEL
-                7 -> AreaGeografica.RURAL_PANEL
+                7, 8 -> AreaGeografica.RURAL_PANEL
                 else -> AreaGeografica.SIN_CLASIFICAR
             }
             4 -> AreaGeografica.SEMI_RURAL_NO_PANEL

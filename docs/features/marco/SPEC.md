@@ -1,7 +1,7 @@
 # SPEC: Marco de viviendas
 
 **Estado:** Aprobada <!-- Borrador | En revisión | Aprobada -->
-**Última actualización:** 2026-11-09 (CR-005)
+**Última actualización:** 2026-11-09 (CR-006)
 
 <!-- PARA LA PERSONA
 Copia esta plantilla como SPEC.md en una carpeta de la funcionalidad.
@@ -57,7 +57,7 @@ criterios, decisiones del plan y tareas. -->
 - **RF-08:** ODEI: desplegable Outlined desde `ODEI`, primer elemento `--Seleccione--`, resto `CODODEI-NOMODEI` con datos reales, orden ascendente por código, sin hardcodear. `--Seleccione--` = sin filtro.
 - **RF-09:** MES: desplegable Outlined desde la tabla `MES` existente, `--Seleccione--` primero, resto `CODIGO-NOMBRE` con el dato real almacenado, orden ascendente por código. `--Seleccione--` = sin filtro.
 - **RF-10:** PERIODO: desplegable Outlined desde `PERIODO`, `--Seleccione--` primero, resto `NOMPER` real, orden ascendente por identificador. `--Seleccione--` = sin filtro. El filtro se relaciona con `CAMPO_CONGLOMERADO.PERIODO`.
-- **RF-11:** CONGLOMERADO: desplegable Outlined desde `CAMPO_CONGLOMERADO`, `--Seleccione--` primero, resto `CONGLOME + "->" + AREA_GEOGRAFICA` según reglas; `--Seleccione--` sin filtro. Las opciones dependen de ODEI, MES y PERIODO, en orden ascendente y sin duplicados. Si al cambiar un filtro superior la selección deja de existir, volver a `--Seleccione--` y actualizar la tabla.
+- **RF-11:** CONGLOMERADO: desplegable Outlined desde `CAMPO_CONGLOMERADO`, `--Seleccione--` primero, resto `CONGLOME + "->" + AREA_GEOGRAFICA` según las reglas de área de «Datos y reglas de negocio»; `--Seleccione--` sin filtro. Las opciones dependen de ODEI, MES y PERIODO, en orden ascendente y sin duplicados. Si al cambiar un filtro superior la selección deja de existir, volver a `--Seleccione--` y actualizar la tabla.
 - **RF-12:** Filtros individuales y combinados; `--Seleccione--` en los cuatro = toda la muestra. Cada cambio actualiza conglomerados disponibles, tabla e indicadores. Consultas parametrizadas; nunca concatenar texto del usuario.
 - **RF-13:** Persistir en DataStore, por usuario autenticado: Switch + ODEI + MES + PERIODO + CONGLOMERADO, con identificadores reales. Recuperar al cambiar de pantalla, regresar, cerrar sesión y volver a iniciar sesión. Al restaurar: cargar catálogos, validar existencia, restaurar válidos, resetear inexistentes a `--Seleccione--`, actualizar la tabla y mantener disponibles todas las opciones de los cuatro menús.
 - **RF-14:** Mostrar en una fila cuatro indicadores: Estrato (`ESTRATO`), Tipo Selección (`TIPOSELECCION`), Viviendas (`TIPOVIVIENDA`) y N° Conglomerados (`CONGLOME`). Estrato/Tipo solo con un conglomerado seleccionado y existente; si no hay uno único, `--`. Viviendas: contar viviendas distintas (no filas) con `TIPOVIVIENDA` en `{1, 4}` (seleccionadas) y en `{2, 3}` (reemplazo); otros/nulos no suman. Con filtros, contar según resultados; con todo en `--Seleccione--`, total. El Switch afecta los conteos de Viviendas; N° Conglomerados no depende del Switch. Misma base de filtros para tabla e indicadores. N° Conglomerados: contar `CONGLOME` distintos de `CAMPO_CONGLOMERADO` con `TRIM(ANHO) = '2026'`. Sin ODEI o con búsqueda activa, `--`. ODEI sola: todos sus meses/periodos de 2026; ODEI+MES: ese mes; ODEI+MES+PERIODO: ese periodo; ODEI+MES+PERIODO+CONGLOMERADO: `1`. Cualquier otra combinación, `--`. Con ODEI y sin datos, `0`.
@@ -111,7 +111,7 @@ y comportamiento, sin diseñar tablas, DTO, DAO ni almacenamiento. -->
 - `TIPOVIVIENDA` en `{1, 4}` seleccionada; en `{2, 3}` reemplazo; nulo u otro no suma a ninguno.
 - `TIPOVIVIENDA` en `{1, 4}` → celeste pastel; `{2, 3}`, nulo, vacío u otro valor → rojo pastel. Sin `CAMPO_VIVIENDA` también se deriva de `TIPOVIVIENDA`. `ESREEMPLAZO` no determina el color.
 - `RESFIN`: aplicar RF-16; trim antes de evaluar; nulo/vacío → SIN VISITAR; no contemplado → OTRO.
-- Área geográfica: TIPOSELECCION 1/2 → URBANO->NO PANEL; 3 + ESTRATO 6 → SEMI-RURAL->PANEL; 3 + ESTRATO 1-5 → URBANO->PANEL; 3 + ESTRATO ≥7 → RURAL->PANEL; 4 → SEMI-RURAL->NO PANEL; 5 → RURAL->NO PANEL; cualquier otro caso (incl. nulos, 0, no contemplados) → SIN CLASIFICAR. Etiqueta `CONGLOME->AREA_GEOGRAFICA` (ej. `016335->URBANO->PANEL`).
+- Área geográfica: TIPOSELECCION 1/2 → URBANO->NO PANEL; 3 + ESTRATO 6 → SEMI-RURAL->PANEL; 3 + ESTRATO 1-5 → URBANO->PANEL; 3 + ESTRATO 7-8 → RURAL->PANEL; 4 → SEMI-RURAL->NO PANEL; 5 → RURAL->NO PANEL; cualquier otro caso (incl. nulos, 0, 9 o mayor y no contemplados) → SIN CLASIFICAR. Etiqueta `CONGLOME->AREA_GEOGRAFICA` (ej. `016335->URBANO->PANEL`).
 - Etiquetas con el dato real: ODEI `01-AMAZONAS`; MES `01-Enero` (el dato real no está en mayúsculas); PERIODO `PERIODO 1`. No se normaliza el texto fuente.
 - Celdas sin valor en la tabla → `--`; la columna Activo muestra el valor almacenado (1/0) y `--` si es nulo. No mostrar "null" ni cadenas vacías.
 - Búsqueda: sobre `CONGLOME`, contiene, sin distinguir mayúsculas, trim; vacía = sin búsqueda. Mientras hay texto, los cuatro filtros se suspenden (no se aplican) y se deshabilitan; el Switch sí se aplica. Al limpiar, se restauran y reaplican. Estrato/Tipo muestran `--` mientras no haya un conglomerado aplicado.
@@ -184,7 +184,7 @@ Repite el formato según sea necesario. -->
 - **CA-10 · RF-08:** ODEI lista `--Seleccione--` primero y luego `CODODEI-NOMODEI` ascendente; seleccionar filtra y `--Seleccione--` no filtra.
 - **CA-11 · RF-09:** MES lista `--Seleccione--` y `CODIGO-NOMBRE` con el dato real, ascendente; seleccionar filtra y `--Seleccione--` no filtra.
 - **CA-12 · RF-10:** PERIODO lista `--Seleccione--` y `NOMPER` real, ordenado por identificador; seleccionar filtra y `--Seleccione--` no filtra.
-- **CA-13 · RF-11:** CONGLOMERADO muestra `CONGLOME->ÁREA` según las reglas, sin duplicados y ascendente; sus opciones cambian con ODEI/MES/PERIODO; si la selección desaparece, vuelve a `--Seleccione--`.
+- **CA-13 · RF-11:** CONGLOMERADO muestra `CONGLOME->ÁREA` según las reglas, sin duplicados y ascendente; para `TIPOSELECCION = 3`, ESTRATO 7 u 8 muestra `RURAL->PANEL` y ESTRATO 9 o mayor muestra `SIN CLASIFICAR`; sus opciones cambian con ODEI/MES/PERIODO; si la selección desaparece, vuelve a `--Seleccione--`.
 - **CA-14 · RF-12:** Cada combinación de filtros produce las viviendas que cumplen todas las condiciones; con todo en `--Seleccione--` se ve toda la muestra; tabla, lista de conglomerados e indicadores se actualizan juntos.
 - **CA-15 · RF-13:** Al cambiar de pantalla, volver, cerrar sesión y volver a entrar, se restauran Switch y los cuatro filtros del mismo usuario; un filtro inexistente vuelve a `--Seleccione--`.
 - **CA-16 · RF-14:** Con un conglomerado seleccionado, Estrato y Tipo Selección muestran sus valores; sin uno único muestran `--`; los conteos de Viviendas usan la misma base filtrada.
@@ -226,7 +226,7 @@ No marques los criterios como superados durante la especificación. -->
 | CA-10 | Abrir ODEI y seleccionar. | Formato y orden correctos; filtro aplicado. |
 | CA-11 | Abrir MES y seleccionar. | Formato real y orden correcto; filtro aplicado. |
 | CA-12 | Abrir PERIODO y seleccionar. | NOMPER y orden correctos; filtro aplicado. |
-| CA-13 | Cambiar ODEI/MES/PERIODO; revisar etiquetas. | Opciones dependientes, sin duplicados; reset si desaparece. |
+| CA-13 | Cambiar ODEI/MES/PERIODO; revisar etiquetas, incluidos `TIPOSELECCION = 3` con ESTRATO 7, 8 y 9. | Opciones dependientes, sin duplicados; 7-8 `RURAL->PANEL`, 9+ `SIN CLASIFICAR`; reset si desaparece. |
 | CA-14 | Probar combinaciones de la tabla de filtros. | Viviendas que cumplen todas las condiciones. |
 | CA-15 | Salir/volver, cerrar/iniciar sesión, cambiar usuario. | Filtros del usuario restaurados; inválidos reseteados. |
 | CA-16 | Seleccionar/no seleccionar conglomerado. | Valores o `--`; conteos coherentes. |
@@ -249,7 +249,7 @@ No marques los criterios como superados durante la especificación. -->
 <!-- Al resolverlas, actualiza las secciones afectadas. Escribe Ninguna cuando
 no queden pendientes funcionales ni restricciones por decidir. -->
 
-Ninguna. Quedaron confirmadas: una fila por hogar (conteo por vivienda), Switch afecta conteos, DataStore por usuario, búsqueda por contenido sin distinguir mayúsculas, criterios seguros para valores inesperados, tokens nuevos de color, colapso sin dependencias, `--` sin conglomerado único, datos reales + SIN CLASIFICAR y restricción SIS. La búsqueda suspende los cuatro filtros y los restaura al limpiar. Para CR-003 se confirmó: orden por `CONGLOME`, `NROVIVIENDA`, `VIVIENDA` y `HOGAR`; identificación con `NROVIVIENDA` y `VIVIENDA` en todos los diálogos; acciones registradas como RF-23; iconos propuestos por el agente. Para CR-004 se confirmó: año base 2026; solo las combinaciones ODEI, ODEI+MES, ODEI+MES+PERIODO y ODEI+MES+PERIODO+CONGLOMERADO muestran número; las demás muestran `--`; ODEI obligatorio; búsqueda activa muestra `--`; el Switch no altera N° Conglomerados; con conglomerado seleccionado y Switch ocultando todas sus viviendas se muestra `1`; layout 2×2 en teléfono y 1×4 en tablet. Para CR-005 se mantiene el alcance existente: tras rotar se conservan las selecciones y las listas completas de opciones de los cuatro filtros; no se agrega un RF nuevo.
+Ninguna. Quedaron confirmadas: una fila por hogar (conteo por vivienda), Switch afecta conteos, DataStore por usuario, búsqueda por contenido sin distinguir mayúsculas, criterios seguros para valores inesperados, tokens nuevos de color, colapso sin dependencias, `--` sin conglomerado único, datos reales + SIN CLASIFICAR y restricción SIS. La búsqueda suspende los cuatro filtros y los restaura al limpiar. Para CR-003 se confirmó: orden por `CONGLOME`, `NROVIVIENDA`, `VIVIENDA` y `HOGAR`; identificación con `NROVIVIENDA` y `VIVIENDA` en todos los diálogos; acciones registradas como RF-23; iconos propuestos por el agente. Para CR-004 se confirmó: año base 2026; solo las combinaciones ODEI, ODEI+MES, ODEI+MES+PERIODO y ODEI+MES+PERIODO+CONGLOMERADO muestran número; las demás muestran `--`; ODEI obligatorio; búsqueda activa muestra `--`; el Switch no altera N° Conglomerados; con conglomerado seleccionado y Switch ocultando todas sus viviendas se muestra `1`; layout 2×2 en teléfono y 1×4 en tablet. Para CR-005 se mantiene el alcance existente: tras rotar se conservan las selecciones y las listas completas de opciones de los cuatro filtros; no se agrega un RF nuevo. Para CR-006 se confirma: `TIPOSELECCION = 3` + ESTRATO 7 u 8 → `RURAL->PANEL`; ESTRATO 9 o mayor → `SIN CLASIFICAR`; no se agrega un RF nuevo.
 
 <!-- ANTES DE SOLICITAR APROBACIÓN
 Comprueba que el alcance está acordado, los flujos son coherentes, los puntos

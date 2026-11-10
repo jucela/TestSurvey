@@ -1,9 +1,9 @@
 # TASKS: Marco de viviendas
 
-**SPEC:** docs/features/marco/SPEC.md (Aprobada 2026-10-22; actualizada 2026-11-09 por CR-005)
-**PLAN:** docs/features/marco/PLAN.md (Aprobado 2026-10-22; actualizado 2026-11-09 por CR-005)
+**SPEC:** docs/features/marco/SPEC.md (Aprobada 2026-10-22; actualizada 2026-11-09 por CR-006)
+**PLAN:** docs/features/marco/PLAN.md (Aprobado 2026-10-22; actualizado 2026-11-09 por CR-006)
 **Estado general:** Completada <!-- Pendiente | En curso | Completada -->
-**CR-005:** `Implementado`; MA-33/MA-34/MA-35 completadas y validadas.
+**CR-006:** `Implementado`; MA-36/MA-37 completadas y validadas.
 
 Tareas derivadas del PLAN aprobado. El orden respeta las dependencias
 técnicas; no se inicia una tarea hasta completar y validar sus dependencias.
@@ -282,6 +282,20 @@ Los identificadores usan el prefijo `MA-` (Marco) para no colisionar con
   - **Criterios:** CA-06 y regresión de CA-01..CA-29.
   - **Validación:** `.\gradlew.bat :app:assembleDebug`, `.\gradlew.bat :app:testDebugUnitTest`, `.\gradlew.bat :app:lintDebug`, `.\gradlew.bat :app:assembleDebugAndroidTest` y `.\gradlew.bat :app:connectedDebugAndroidTest`; registrar evidencias y pendientes. **Ejecutada 2026-11-09:** `assembleDebug` OK; unitarios **161/161**, 0 fallos; `lintDebug` **0 errores / 53 warnings**; `assembleDebugAndroidTest` OK; suite conectada **70 casos (69 ejecutados + 1 omitido), 0 fallos** en `TB311XU - 16`. CR-005 y `CHANGELOG.md` actualizados; sin pendientes de validación.
 
+- [x] **MA-36 · CR-006: ajustar área geográfica para ESTRATO 7-8 (RF-11)**
+  - **Objetivo:** cambiar `ReglasMarco.areaGeografica` para que `TIPOSELECCION = 3` con ESTRATO 7 u 8 devuelva `RURAL->PANEL`, y ESTRATO 9 o mayor devuelva `SIN CLASIFICAR`; añadir cobertura unitaria de los límites 7, 8 y 9+.
+  - **Alcance:** `domain/entities/ReglasMarco.kt`; `app/src/test/java/gob/inei/appprueba/domain/entities/MarcoReglasTest.kt`.
+  - **Dependencias:** Ninguna para la documentación; aprobación de CR-006 y autorización explícita de implementación antes de ejecutar.
+  - **Criterios:** RF-11; CA-13.
+  - **Validación:** `.\gradlew.bat :app:assembleDebug` y `.\gradlew.bat :app:testDebugUnitTest --tests "gob.inei.appprueba.domain.entities.MarcoReglasTest"`; verificar 7-8 `RURAL->PANEL`, 9+ `SIN CLASIFICAR` y regresión de las demás ramas. **Ejecutada 2026-11-09:** `assembleDebug` OK; `MarcoReglasTest` 5/5, 0 fallos; aserciones para ESTRATO 7, 8, 9 y 10 en verde.
+
+- [x] **MA-37 · CR-006: validación integral y cierre**
+  - **Objetivo:** ejecutar la batería completa, registrar resultados y, solo si todo pasa, actualizar CR-006 a `Implementado` y `CHANGELOG.md`.
+  - **Alcance:** proyecto completo, `docs/changes/CR-006-marco-area-geografica-estrato-7-8.md`, `docs/CHANGELOG.md`, este archivo.
+  - **Dependencias:** MA-36.
+  - **Criterios:** CA-13 y regresión de CA-01..CA-29.
+  - **Validación:** `.\gradlew.bat :app:assembleDebug`, `.\gradlew.bat :app:testDebugUnitTest`, `.\gradlew.bat :app:lintDebug`, `.\gradlew.bat :app:assembleDebugAndroidTest` y `.\gradlew.bat :app:connectedDebugAndroidTest`; registrar evidencias y pendientes. **Ejecutada 2026-11-09:** `assembleDebug` OK; unitarios **161/161**, 0 fallos; `lintDebug` **0 errores / 53 warnings**; `assembleDebugAndroidTest` OK; conectadas **70 casos (69 ejecutados + 1 omitido), 0 fallos** en `TB311XU - 16`. CR-006 y `CHANGELOG.md` actualizados; sin pendientes de validación.
+
 ---
 
 ## Registro de evidencia
@@ -324,6 +338,13 @@ de rotación con y sin selección que abren los cuatro menús sin limpiar el
 texto. Batería completa: build debug y `androidTest` OK, unitarios 161/161,
 lint 0 errores / 53 warnings, conectadas 69 ejecutadas + 1 omitida (70 casos),
 0 fallos.
+
+Resumen 2026-11-09 (CR-006): se ajustó `ReglasMarco.areaGeografica` para que
+`TIPOSELECCION = 3` con ESTRATO 7 u 8 devuelva `RURAL->PANEL`, mientras que
+ESTRATO 9 o mayor devuelve `SIN CLASIFICAR`. Se añadieron aserciones para 8, 9
+y 10 en `MarcoReglasTest`. Batería completa: build debug y `androidTest` OK,
+unitarios 161/161, lint 0 errores / 53 warnings, conectadas 69 ejecutadas +
+1 omitida (70 casos), 0 fallos.
 
 Resumen final 2026-10-26: MA-20 completada en `TB311XU - 16`. Se validaron
 CA-05, CA-06, CA-15, CA-21, CA-22 y CA-25 en claro/oscuro, rotación, fuente
@@ -370,3 +391,5 @@ lint 0 errores / 53 warnings.
 | MA-33 | Completada | CR-005 documentado: rotación con `--Seleccione--` y con selección; RF-05/RF-13 y CA-06 actualizados; alcance aprobado (2026-11-09) | — |
 | MA-34 | Completada | CR-005: `threshold = Int.MAX_VALUE` en los cuatro filtros, adaptadores antes de etiquetas y dos pruebas Espresso de rotación sin limpiar el texto; `MarcoEspressoTest` 19 casos (18+1 omitida), 0 fallos (2026-11-09) | — |
 | MA-35 | Completada | CR-005: build, unitarios 161/161, lint 0 errores/53 warnings, androidTest y conectadas 69+1 (70), 0 fallos; CR y CHANGELOG actualizados (2026-11-09) | — |
+| MA-36 | Completada | CR-006: `TIPOSELECCION = 3` + ESTRATO 7-8 → `RURAL->PANEL`; 9+ → `SIN CLASIFICAR`; `MarcoReglasTest` 5/5, 0 fallos (2026-11-09) | — |
+| MA-37 | Completada | CR-006: build, unitarios 161/161, lint 0 errores/53 warnings, androidTest y conectadas 69+1 (70), 0 fallos; CR y CHANGELOG actualizados (2026-11-09) | — |
