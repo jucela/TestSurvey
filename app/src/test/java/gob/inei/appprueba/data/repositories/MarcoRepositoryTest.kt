@@ -26,8 +26,9 @@ import org.junit.Test
 
 /**
  * Prueba unitaria de `MarcoRepositoryImpl` (RF-06, RF-12..RF-19; CA-07, CA-08,
- * CA-14..CA-17, CA-23): filtros efectivos, búsqueda con comodines escapados,
- * combinación de filas e indicadores, catálogo, conglomerados y detalle.
+ * CA-14..CA-17, CA-23, CA-29): filtros efectivos, búsqueda con comodines
+ * escapados, combinación de filas e indicadores, catálogo, conglomerados,
+ * conteo de N° Conglomerados y detalle.
  */
 class MarcoRepositoryTest {
 
@@ -173,6 +174,91 @@ class MarcoRepositoryTest {
     }
 
     @Test
+    fun `el conteo de conglomerados usa el odei y el valor del dao`() = runBlocking {
+        marcoDao.conteoConglomerados = 3
+
+        val resultado = repositorio.observarResultado(MarcoFiltros(odei = "01")).first()
+
+        assertEquals(3, resultado.indicadores.conglomerados)
+        assertEquals(ConsultaConteo("01", null, null, null), marcoDao.consultaConteo)
+    }
+
+    @Test
+    fun `el conteo se consulta para las cuatro combinaciones validas`() = runBlocking {
+        marcoDao.conteoConglomerados = 1
+        val casos = listOf(
+            MarcoFiltros(odei = "01") to ConsultaConteo("01", null, null, null),
+            MarcoFiltros(odei = "01", mes = "08") to ConsultaConteo("01", "08", null, null),
+            MarcoFiltros(odei = "01", mes = "08", periodo = "1") to
+                ConsultaConteo("01", "08", "1", null),
+            MarcoFiltros(
+                odei = "01",
+                mes = "08",
+                periodo = "1",
+                conglomerado = "016335"
+            ) to ConsultaConteo("01", "08", "1", "016335")
+        )
+
+        casos.forEach { (filtros, esperado) ->
+            marcoDao.consultaConteo = null
+            repositorio.observarResultado(filtros).first()
+            assertEquals(esperado, marcoDao.consultaConteo)
+        }
+    }
+
+    @Test
+    fun `las combinaciones invalidas muestran vacio y no consultan el dao`() = runBlocking {
+        val invalidos = listOf(
+            MarcoFiltros(odei = "01", periodo = "1"),
+            MarcoFiltros(odei = "01", conglomerado = "016335"),
+            MarcoFiltros(odei = "01", mes = "08", conglomerado = "016335"),
+            MarcoFiltros(odei = "01", periodo = "1", conglomerado = "016335")
+        )
+
+        invalidos.forEach { filtros ->
+            marcoDao.consultaConteo = null
+            val resultado = repositorio.observarResultado(filtros).first()
+            assertNull(resultado.indicadores.conglomerados)
+            assertNull(marcoDao.consultaConteo)
+        }
+    }
+
+    @Test
+    fun `sin odei o con busqueda activa el conteo es nulo`() = runBlocking {
+        marcoDao.conteoConglomerados = 2
+
+        assertNull(repositorio.observarResultado(MarcoFiltros()).first().indicadores.conglomerados)
+        assertNull(marcoDao.consultaConteo)
+
+        val conBusqueda = repositorio.observarResultado(
+            MarcoFiltros(odei = "01", busqueda = "016")
+        ).first()
+        assertNull(conBusqueda.indicadores.conglomerados)
+        assertNull(marcoDao.consultaConteo)
+    }
+
+    @Test
+    fun `el switch no altera el conteo de conglomerados`() = runBlocking {
+        marcoDao.conteoConglomerados = 1
+
+        val resultado = repositorio.observarResultado(
+            MarcoFiltros(soloActivos = true, odei = "01")
+        ).first()
+
+        assertEquals(1, resultado.indicadores.conglomerados)
+        assertEquals(ConsultaConteo("01", null, null, null), marcoDao.consultaConteo)
+    }
+
+    @Test
+    fun `un odei sin datos muestra cero conglomerados`() = runBlocking {
+        marcoDao.conteoConglomerados = 0
+
+        val resultado = repositorio.observarResultado(MarcoFiltros(odei = "99")).first()
+
+        assertEquals(0, resultado.indicadores.conglomerados)
+    }
+
+    @Test
     fun `el detalle sin fila devuelve campos vacios`() = runBlocking {
         marcoDao.detalle = null
 
@@ -249,6 +335,13 @@ class MarcoRepositoryTest {
         val conglomerado: String?
     )
 
+    private data class ConsultaConteo(
+        val odei: String,
+        val mes: String?,
+        val periodo: String?,
+        val conglomerado: String?
+    )
+
     private class FakeFiltrosStore : MarcoFiltrosStore {
         val estado = MutableStateFlow(MarcoFiltros())
         var ultimo: MarcoFiltros? = null
@@ -266,7 +359,9 @@ class MarcoRepositoryTest {
         var conglomerados: List<ConglomeradoMarcoRow> = emptyList()
         var detalle: DetalleMarcoRow? = null
         var total: Int = 0
+        var conteoConglomerados: Int = 0
         var ultimaConsulta: Consulta? = null
+        var consultaConteo: ConsultaConteo? = null
 
         override fun observarFilas(
             soloActivos: Int,
@@ -290,6 +385,16 @@ class MarcoRepositoryTest {
             flowOf(conglomerados.firstOrNull { it.conglome == conglome })
 
         override fun observarTotalConglomerados(): Flow<Int> = flowOf(total)
+
+        override fun observarConteoConglomerados(
+            odei: String,
+            mes: String?,
+            periodo: String?,
+            conglomerado: String?
+        ): Flow<Int> {
+            consultaConteo = ConsultaConteo(odei, mes, periodo, conglomerado)
+            return flowOf(conteoConglomerados)
+        }
 
         override suspend fun obtenerDetalle(conglome: String, vivienda: String): DetalleMarcoRow? =
             detalle

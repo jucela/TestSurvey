@@ -187,13 +187,18 @@ class MarcoViewModelTest {
                         esReemplazo = false
                     )
                 ),
-                indicadores = IndicadoresMarco(seleccionadas = 1, reemplazos = 0)
+                indicadores = IndicadoresMarco(
+                    seleccionadas = 1,
+                    reemplazos = 0,
+                    conglomerados = 2
+                )
             )
         }
         val vm = crear(repo)
         advanceUntilIdle()
         assertEquals(1, vm.state.value.filas.size)
         assertEquals(1, vm.state.value.indicadores.seleccionadas)
+        assertEquals(2, vm.state.value.indicadores.conglomerados)
         assertFalse(vm.state.value.sinResultados)
     }
 }

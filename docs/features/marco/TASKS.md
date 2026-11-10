@@ -1,7 +1,7 @@
 # TASKS: Marco de viviendas
 
-**SPEC:** docs/features/marco/SPEC.md (Aprobada 2026-10-22)
-**PLAN:** docs/features/marco/PLAN.md (Aprobado 2026-10-22)
+**SPEC:** docs/features/marco/SPEC.md (Aprobada 2026-10-22; actualizada 2026-11-09 por CR-004)
+**PLAN:** docs/features/marco/PLAN.md (Aprobado 2026-10-22; actualizado 2026-11-09 por CR-004)
 **Estado general:** Completada <!-- Pendiente | En curso | Completada -->
 
 Tareas derivadas del PLAN aprobado. El orden respeta las dependencias
@@ -232,6 +232,34 @@ Los identificadores usan el prefijo `MA-` (Marco) para no colisionar con
   - **Criterios:** CA-18, CA-19, CA-21, CA-27, CA-28 y regresión de CA-01..CA-26.
   - **Validación:** `.\gradlew.bat :app:assembleDebug`, `.\gradlew.bat :app:testDebugUnitTest`, `.\gradlew.bat :app:lintDebug`, `.\gradlew.bat :app:assembleDebugAndroidTest` y `.\gradlew.bat :app:connectedDebugAndroidTest`; registrar evidencias y pendientes. **Ejecutada 2026-11-06:** `assembleDebug` OK; unitarios **154/154**; `lintDebug` **0 errores / 53 warnings**; `assembleDebugAndroidTest` OK; conectadas **65 casos (64 ejecutados + 1 omitido), 0 fallos** en `TB311XU - 15`; CR-003 y `CHANGELOG.md` actualizados.
 
+- [x] **MA-29 · CR-004: documentación de RF-14 y CA-29**
+  - **Objetivo:** crear el CR-004 y actualizar SPEC/PLAN/TASKS con el cuarto indicador N° Conglomerados, sus reglas y su validación.
+  - **Alcance:** `docs/changes/CR-004-marco-rf14-indicador-conglomerados.md`, `docs/features/marco/SPEC.md`, `docs/features/marco/PLAN.md`, `docs/features/marco/TASKS.md`.
+  - **Dependencias:** Ninguna.
+  - **Criterios:** RF-14; CA-29.
+  - **Validación:** revisión de coherencia entre RF-14, CA-29, PLAN y TASKS; no requiere build por ser cambio documental. **Ejecutada 2026-11-09:** CR-004 creado en `Aprobado`; SPEC, PLAN y TASKS actualizados; año 2026, cuatro combinaciones válidas, `--` con búsqueda activa o sin ODEI y layout 2×2/1×4 coherentes entre documentos.
+
+- [x] **MA-30 · CR-004: dominio, consulta y repositorio de N° Conglomerados (RF-14)**
+  - **Objetivo:** agregar `conglomerados: Int?` a `IndicadoresMarco`; implementar `observarConteoConglomerados` en `MarcoDao`; validar ODEI, combinación y búsqueda en `MarcoRepositoryImpl`; mapear el valor en `Mappers`.
+  - **Alcance:** `domain/entities/MarcoResultado.kt`, `data/databases/dao/MarcoDao.kt`, `data/repositories/MarcoRepositoryImpl.kt`, `data/databases/Mappers.kt`; tests `MarcoDaoTest`, `MarcoRepositoryTest`, `MarcoMappersTest`, `MarcoViewModelTest`.
+  - **Dependencias:** MA-29.
+  - **Criterios:** RF-14; CA-29.
+  - **Validación:** `.\gradlew.bat :app:testDebugUnitTest` y `.\gradlew.bat :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=gob.inei.appprueba.data.databases.MarcoDaoTest`; casos 2026/2027, combinaciones válidas/inválidas, búsqueda, ODEI y Switch; 0 fallos. **Ejecutada 2026-11-09:** unitarios **161/161**, 0 fallos; `MarcoDaoTest` **10/10** en `TB311XU - 16`; cubiertos 2026/2027, combinaciones válidas/inválidas, búsqueda, ODEI y Switch.
+
+- [x] **MA-31 · CR-004: presentación y layout del cuarto indicador (RF-14)**
+  - **Objetivo:** mostrar N° Conglomerados con `GridLayout` 2×2/1×4, string exacto y binding en la Activity; actualizar pruebas Espresso.
+  - **Alcance:** `res/layout/activity_marco.xml`, `res/values/integers.xml`, `res/values-sw600dp/integers.xml`, `res/values/strings.xml`, `presentation/activities/MarcoActivity.kt`; test `MarcoEspressoTest`.
+  - **Dependencias:** MA-30.
+  - **Criterios:** RF-14; CA-29.
+  - **Validación:** `.\gradlew.bat :app:assembleDebug`; `MarcoEspressoTest`; prueba manual en teléfono (<600dp) y tablet (`sw600dp`) para 2×2 y 1×4, TalkBack y claro/oscuro. **Ejecutada 2026-11-09:** `assembleDebug` OK; `MarcoEspressoTest` **17 casos (16 ejecutados + 1 omitido en tablet), 0 fallos**; `el_grid_de_indicadores_usa_columnas_adaptables` pasó en tablet y en teléfono con override `1080x1920`/420 dpi, y en modo oscuro. Se corrigió la cabecera de 8 a 11 columnas y se añadió `gridIndicadores`. TalkBack: servicio activo y TTS inicializado con la suite en verde; no se hizo revisión manual del contenido hablado.
+
+- [x] **MA-32 · CR-004: validación integral y cierre**
+  - **Objetivo:** ejecutar la batería completa, registrar resultados y, solo si todo pasa, actualizar CR-004 a `Implementado` y `CHANGELOG.md`.
+  - **Alcance:** proyecto completo, `docs/changes/CR-004-...md`, `docs/CHANGELOG.md`, este archivo.
+  - **Dependencias:** MA-30, MA-31.
+  - **Criterios:** CA-29 y regresión de CA-01..CA-28.
+  - **Validación:** `.\gradlew.bat :app:assembleDebug`, `.\gradlew.bat :app:testDebugUnitTest`, `.\gradlew.bat :app:lintDebug`, `.\gradlew.bat :app:assembleDebugAndroidTest` y `.\gradlew.bat :app:connectedDebugAndroidTest`; registrar evidencias y pendientes. **Ejecutada 2026-11-09:** `assembleDebug` OK; unitarios **161/161**, 0 fallos; `lintDebug` **0 errores / 53 warnings**; `assembleDebugAndroidTest` OK; conectadas **67 ejecutadas + 1 omitida (68 casos), 0 fallos** en `TB311XU - 16`; `MarcoDaoTest` 10/10 y `MarcoEspressoTest` 17 casos (16 ejecutados + 1 omitido). CR-004 y `CHANGELOG.md` actualizados.
+
 ---
 
 ## Registro de evidencia
@@ -255,6 +283,16 @@ Resumen 2026-11-05 (CR-002): el color de fila se deriva de `TIPOVIVIENDA`
 se documentaron los tokens en `DESIGN_SYSTEM.md`. Batería completa: build debug
 OK, unitarios 152/152, lint 0 errores / 53 warnings, conectadas 60 ejecutadas +
 1 omitida (61), 0 fallos; matcher de color verificado además en modo oscuro.
+
+Resumen 2026-11-09 (CR-004): se agregó el cuarto indicador `N° Conglomerados`
+(`COUNT(DISTINCT CONGLOME)` de 2026), con las cuatro combinaciones válidas,
+`--` sin ODEI o con búsqueda, `0` con ODEI sin datos y sin efecto del Switch.
+El layout quedó en `GridLayout` 2×2/1×4; se corrigió la cabecera de 8 a 11
+columnas y se añadió `gridIndicadores`. Batería completa: build debug OK,
+unitarios 161/161, lint 0 errores / 53 warnings, `androidTest` compilado y
+conectadas 67 ejecutadas + 1 omitida (68 casos), 0 fallos. El layout pasó en
+tablet, en teléfono con override y en modo oscuro; TalkBack se activó para el
+smoke test, sin revisión manual del contenido hablado.
 
 Resumen final 2026-10-26: MA-20 completada en `TB311XU - 16`. Se validaron
 CA-05, CA-06, CA-15, CA-21, CA-22 y CA-25 en claro/oscuro, rotación, fuente
@@ -294,3 +332,7 @@ lint 0 errores / 53 warnings.
 | MA-26 | Completada | CR-003: `AccionMarco`/`MostrarAccion` y diálogos informativos en `MarcoActivity` (2026-11-06) | — |
 | MA-27 | Completada | CR-003: unitarios 154/154; conectadas 65 (64+1 omitida), 0 fallos (2026-11-06) | — |
 | MA-28 | Completada | CR-003: build, unitarios, lint 0 errores/53 warnings, androidTest y conectadas 0 fallos (2026-11-06) | — |
+| MA-29 | Completada | CR-004 documentado: RF-14 con N° Conglomerados, CA-29, año 2026, cuatro combinaciones y layout 2×2/1×4 (2026-11-09) | — |
+| MA-30 | Completada | CR-004: `IndicadoresMarco.conglomerados`, consulta 2026, validación de combinación/búsqueda y mapeo; unitarios 161/161, `MarcoDaoTest` 10/10 (2026-11-09) | — |
+| MA-31 | Completada | CR-004: `GridLayout` 2×2/1×4, `gridIndicadores`, cabecera de 11 columnas y pruebas Espresso; tablet, teléfono override y modo oscuro en verde; TalkBack smoke (2026-11-09) | Revisión manual del contenido hablado de TalkBack |
+| MA-32 | Completada | CR-004: build, unitarios 161/161, lint 0 errores/53 warnings, androidTest y conectadas 67+1 (68), 0 fallos; CR y CHANGELOG actualizados (2026-11-09) | — |

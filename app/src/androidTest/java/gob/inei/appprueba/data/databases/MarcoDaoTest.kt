@@ -122,6 +122,40 @@ class MarcoDaoTest {
         assertEquals(1, db.marcoDao().observarTotalConglomerados().first())
     }
 
+    @Test
+    fun el_conteo_de_conglomerados_filtra_por_anio_2026_y_combinaciones() = runBlocking {
+        db.periodoDao().insertAll(listOf(PeriodoEntity("2", "PERIODO 2")))
+        db.conglomeradoDao().insertAll(
+            listOf(
+                conglomerado("016336", "2026", "08", "1"),
+                conglomerado("016337", "2027", "08", "1"),
+                conglomerado("016338", "2026", "09", "1"),
+                conglomerado("016339", "2026", "08", "2")
+            )
+        )
+        val dao = db.marcoDao()
+
+        assertEquals(4, dao.observarConteoConglomerados("11", null, null, null).first())
+        assertEquals(3, dao.observarConteoConglomerados("11", "08", null, null).first())
+        assertEquals(2, dao.observarConteoConglomerados("11", "08", "1", null).first())
+        assertEquals(1, dao.observarConteoConglomerados("11", "08", "1", "016336").first())
+        assertEquals(1, dao.observarConteoConglomerados("11", "09", "1", null).first())
+        assertEquals(0, dao.observarConteoConglomerados("11", null, null, "016337").first())
+        assertEquals(0, dao.observarConteoConglomerados("12", null, null, null).first())
+    }
+
+    @Test
+    fun el_conteo_de_conglomerados_normaliza_el_anio_con_trim() = runBlocking {
+        db.conglomeradoDao().insertAll(
+            listOf(conglomerado("016340", " 2026 ", "08", "1"))
+        )
+
+        assertEquals(
+            2,
+            db.marcoDao().observarConteoConglomerados("11", null, null, null).first()
+        )
+    }
+
     private suspend fun sembrar() {
         db.odeiDao().insertAll(listOf(odei(11, "11", "ICA")))
         db.periodoDao().insertAll(listOf(PeriodoEntity("1", "PERIODO 1")))
@@ -153,11 +187,17 @@ class MarcoDaoTest {
         fecEnv = null
     )
 
-    private fun conglomerado() = ConglomeradoEntity(
-        conglome = "016335",
-        anho = "2026",
-        mes = "08",
-        periodo = "1",
+    private fun conglomerado(
+        conglome: String = "016335",
+        anho: String? = "2026",
+        mes: String? = "08",
+        periodo: String? = "1",
+        odei: String? = "11"
+    ) = ConglomeradoEntity(
+        conglome = conglome,
+        anho = anho,
+        mes = mes,
+        periodo = periodo,
         estrato = "6",
         dpto = null,
         prov = null,
@@ -165,7 +205,7 @@ class MarcoDaoTest {
         zona = null,
         dominio = null,
         tipoSeleccion = "3",
-        odei = "11",
+        odei = odei,
         aerIni = null,
         aerFin = null,
         muestra = null,

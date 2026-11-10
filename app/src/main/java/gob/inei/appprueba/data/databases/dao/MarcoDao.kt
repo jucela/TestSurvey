@@ -83,6 +83,24 @@ interface MarcoDao {
 
     @Query(
         """
+        SELECT COUNT(DISTINCT c.CONGLOME)
+        FROM CAMPO_CONGLOMERADO c
+        WHERE TRIM(c.ANHO) = '2026'
+          AND c.ODEI = :odei
+          AND (:mes IS NULL OR c.MES = :mes)
+          AND (:periodo IS NULL OR c.PERIODO = :periodo)
+          AND (:conglomerado IS NULL OR c.CONGLOME = :conglomerado)
+        """
+    )
+    fun observarConteoConglomerados(
+        odei: String,
+        mes: String?,
+        periodo: String?,
+        conglomerado: String?
+    ): Flow<Int>
+
+    @Query(
+        """
         SELECT
             m.NOMBREVIA AS marcoNombreVia,
             m.PUERTA AS marcoPuerta,

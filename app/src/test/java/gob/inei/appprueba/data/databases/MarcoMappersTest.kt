@@ -67,11 +67,19 @@ class MarcoMappersTest {
             fila("004", "1", "3"),
             fila("005", "1", "5")
         )
-        val indicadores = filas.toIndicadoresMarco("6", "3")
+        val indicadores = filas.toIndicadoresMarco("6", "3", conglomerados = 4)
         assertEquals(2, indicadores.seleccionadas)
         assertEquals(2, indicadores.reemplazos)
         assertEquals("6", indicadores.estrato)
         assertEquals("3", indicadores.tipoSeleccion)
+        assertEquals(4, indicadores.conglomerados)
+    }
+
+    @Test
+    fun `indicadores conservan nulo cuando no hay conteo de conglomerados`() {
+        val indicadores = listOf(fila("001", "1", "1")).toIndicadoresMarco("6", "3")
+
+        assertNull(indicadores.conglomerados)
     }
 
     @Test

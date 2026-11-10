@@ -163,6 +163,8 @@ class MarcoActivity : AppCompatActivity() {
             state.indicadores.seleccionadas,
             state.indicadores.reemplazos
         )
+        binding.tvConglomerados.text = state.indicadores.conglomerados?.toString()
+            ?: getString(R.string.marco_valor_vacio)
 
         adapter.submit(state.filas)
         binding.progressCarga.visibility = if (state.cargando) View.VISIBLE else View.GONE

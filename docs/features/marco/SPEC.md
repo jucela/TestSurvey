@@ -1,6 +1,7 @@
 # SPEC: Marco de viviendas
 
 **Estado:** Aprobada <!-- Borrador | En revisión | Aprobada -->
+**Última actualización:** 2026-11-09 (CR-004)
 
 <!-- PARA LA PERSONA
 Copia esta plantilla como SPEC.md en una carpeta de la funcionalidad.
@@ -59,7 +60,7 @@ criterios, decisiones del plan y tareas. -->
 - **RF-11:** CONGLOMERADO: desplegable Outlined desde `CAMPO_CONGLOMERADO`, `--Seleccione--` primero, resto `CONGLOME + "->" + AREA_GEOGRAFICA` según reglas; `--Seleccione--` sin filtro. Las opciones dependen de ODEI, MES y PERIODO, en orden ascendente y sin duplicados. Si al cambiar un filtro superior la selección deja de existir, volver a `--Seleccione--` y actualizar la tabla.
 - **RF-12:** Filtros individuales y combinados; `--Seleccione--` en los cuatro = toda la muestra. Cada cambio actualiza conglomerados disponibles, tabla e indicadores. Consultas parametrizadas; nunca concatenar texto del usuario.
 - **RF-13:** Persistir en DataStore, por usuario autenticado: Switch + ODEI + MES + PERIODO + CONGLOMERADO, con identificadores reales. Recuperar al cambiar de pantalla, regresar, cerrar sesión y volver a iniciar sesión. Al restaurar: cargar catálogos, validar existencia, restaurar válidos, resetear inexistentes a `--Seleccione--` y actualizar la tabla.
-- **RF-14:** Mostrar en una fila tres indicadores: Estrato (`ESTRATO`), Tipo Selección (`TIPOSELECCION`) y Viviendas (`TIPOVIVIENDA`). Estrato/Tipo solo con un conglomerado seleccionado y existente; si no hay uno único, `--`. Viviendas: contar viviendas distintas (no filas) con `TIPOVIVIENDA` en `{1, 4}` (seleccionadas) y en `{2, 3}` (reemplazo); otros/nulos no suman. Con filtros, contar según resultados; con todo en `--Seleccione--`, total. El Switch afecta los conteos. Misma base de filtros para tabla e indicadores.
+- **RF-14:** Mostrar en una fila cuatro indicadores: Estrato (`ESTRATO`), Tipo Selección (`TIPOSELECCION`), Viviendas (`TIPOVIVIENDA`) y N° Conglomerados (`CONGLOME`). Estrato/Tipo solo con un conglomerado seleccionado y existente; si no hay uno único, `--`. Viviendas: contar viviendas distintas (no filas) con `TIPOVIVIENDA` en `{1, 4}` (seleccionadas) y en `{2, 3}` (reemplazo); otros/nulos no suman. Con filtros, contar según resultados; con todo en `--Seleccione--`, total. El Switch afecta los conteos de Viviendas; N° Conglomerados no depende del Switch. Misma base de filtros para tabla e indicadores. N° Conglomerados: contar `CONGLOME` distintos de `CAMPO_CONGLOMERADO` con `TRIM(ANHO) = '2026'`. Sin ODEI o con búsqueda activa, `--`. ODEI sola: todos sus meses/periodos de 2026; ODEI+MES: ese mes; ODEI+MES+PERIODO: ese periodo; ODEI+MES+PERIODO+CONGLOMERADO: `1`. Cualquier otra combinación, `--`. Con ODEI y sin datos, `0`.
 - **RF-15:** Tabla con RecyclerView y cabecera adaptable, once columnas en orden: Activo, Conglomerado, N°, Selección, Hogar, Reemplazo, Resultado, Detalle, Aperturar, Exportar, Acción. Cabecera y filas alineadas; scroll horizontal cuando haga falta; sin recortes. Orden ascendente por `CONGLOME`, `NROVIVIENDA`, `VIVIENDA` y `HOGAR` (valores nulos o vacíos se ordenan de forma segura y determinista). Una fila por hogar; si no hay hogar, una fila con Hogar `--`. La vivienda se repite intencionalmente por hogar; no es un duplicado incorrecto.
 - **RF-16:** Resultado desde `RESFIN`: 1 COMPLETA, 2 INCOMPLETA, 3 RECHAZO, 4 AUSENTE, 5 VIV.DESOCUPADA, 6 NO SE INICIO, 7 OTRO; nulo/vacío/espacios → SIN VISITAR; inesperado → OTRO. Nunca mostrar "null".
 - **RF-17:** Detalle: icono de información por fila; diálogo con identificación de la fila (Conglomerado, `NROVIVIENDA` y `VIVIENDA`) y Dirección, Puerta, Interior, Piso, Mz y Lote. Cada campo de dirección prioriza `CAMPO_VIVIENDA`; si es nulo/vacío/solo espacios, usa `CAMPO_VIVIENDA_MARCO`; si ambos están vacíos, `--`. Botón "Cerrar"; no modifica datos ni estado. Icono con descripción accesible y área táctil adecuada.
@@ -91,7 +92,7 @@ Incluye pantallas afectadas, navegación y alternativas relevantes. -->
 1. El usuario inicia sesión (no SIS) y abre "Marco" desde el menú lateral.
 2. La pantalla muestra título, tarjeta de filtros, indicadores y tabla con la muestra disponible; si no hay muestra, muestra un estado vacío.
 3. El usuario elige ODEI/MES/PERIODO; el menú de conglomerados se recalcula; si el conglomerado elegido deja de existir, se restablece.
-4. El usuario elige un conglomerado y ve Estrato/Tipo; ajusta el Switch y/o escribe en la búsqueda; tabla e indicadores se actualizan.
+4. El usuario elige un conglomerado y ve Estrato, Tipo y N° Conglomerados; ajusta el Switch y/o escribe en la búsqueda; tabla e indicadores se actualizan.
 5. Al limpiar la búsqueda, se rehabilitan los cuatro menús y se restauran las selecciones previas.
 6. El usuario pulsa el icono de detalle y revisa la identificación y la dirección; cierra el diálogo sin cambios.
 7. El usuario pulsa los iconos de Aperturar, Exportar o Acción y revisa la identificación de la fila; cierra el diálogo sin que se ejecute ninguna operación.
@@ -114,7 +115,8 @@ y comportamiento, sin diseñar tablas, DTO, DAO ni almacenamiento. -->
 - Etiquetas con el dato real: ODEI `01-AMAZONAS`; MES `01-Enero` (el dato real no está en mayúsculas); PERIODO `PERIODO 1`. No se normaliza el texto fuente.
 - Celdas sin valor en la tabla → `--`; la columna Activo muestra el valor almacenado (1/0) y `--` si es nulo. No mostrar "null" ni cadenas vacías.
 - Búsqueda: sobre `CONGLOME`, contiene, sin distinguir mayúsculas, trim; vacía = sin búsqueda. Mientras hay texto, los cuatro filtros se suspenden (no se aplican) y se deshabilitan; el Switch sí se aplica. Al limpiar, se restauran y reaplican. Estrato/Tipo muestran `--` mientras no haya un conglomerado aplicado.
-- Conteos e indicadores usan exactamente los mismos filtros que la tabla (incluido Switch y búsqueda).
+- Conteos e indicadores usan exactamente los mismos filtros que la tabla (incluido Switch y búsqueda), salvo N° Conglomerados: se calcula desde `CAMPO_CONGLOMERADO`, no depende del Switch ni de las filas visibles.
+- N° Conglomerados (RF-14): contar `CONGLOME` distintos de `CAMPO_CONGLOMERADO` con `TRIM(ANHO) = '2026'`. Sin ODEI o con búsqueda activa, `--`. ODEI sola: todos sus meses/periodos de 2026; ODEI+MES: ese mes; ODEI+MES+PERIODO: ese periodo; ODEI+MES+PERIODO+CONGLOMERADO: `1`. Cualquier otra combinación, `--`. Con ODEI y sin datos, `0`.
 - Persistencia por usuario autenticado, con IDs reales; filtros inexistentes se restablecen a `--Seleccione--`.
 - La búsqueda no se persiste (no forma parte de los cinco datos solicitados); tras reiniciar el proceso puede iniciar vacía.
 - Orden de tabla: `CONGLOME`, `NROVIVIENDA`, `VIVIENDA`, `HOGAR` ascendente, con nulos/vacíos ordenados de forma segura y determinista.
@@ -185,7 +187,7 @@ Repite el formato según sea necesario. -->
 - **CA-13 · RF-11:** CONGLOMERADO muestra `CONGLOME->ÁREA` según las reglas, sin duplicados y ascendente; sus opciones cambian con ODEI/MES/PERIODO; si la selección desaparece, vuelve a `--Seleccione--`.
 - **CA-14 · RF-12:** Cada combinación de filtros produce las viviendas que cumplen todas las condiciones; con todo en `--Seleccione--` se ve toda la muestra; tabla, lista de conglomerados e indicadores se actualizan juntos.
 - **CA-15 · RF-13:** Al cambiar de pantalla, volver, cerrar sesión y volver a entrar, se restauran Switch y los cuatro filtros del mismo usuario; un filtro inexistente vuelve a `--Seleccione--`.
-- **CA-16 · RF-14:** Con un conglomerado seleccionado, Estrato y Tipo Selección muestran sus valores; sin uno único muestran `--`; los conteos usan la misma base filtrada.
+- **CA-16 · RF-14:** Con un conglomerado seleccionado, Estrato y Tipo Selección muestran sus valores; sin uno único muestran `--`; los conteos de Viviendas usan la misma base filtrada.
 - **CA-17 · RF-14:** "Viviendas" cuenta viviendas distintas con `TIPOVIVIENDA` en `{1, 4}` (seleccionadas) y en `{2, 3}` (reemplazos); el Switch afecta los conteos y estos coinciden con la tabla visible.
 - **CA-18 · RF-15:** La tabla muestra las once columnas en orden, con cabecera y filas alineadas, scroll horizontal si hace falta y orden ascendente por conglomerado, número de vivienda (`NROVIVIENDA`), vivienda y hogar, con nulos/vacíos en orden seguro.
 - **CA-19 · RF-15:** Una vivienda con varios hogares muestra una fila por hogar; una sin hogar muestra una fila con Hogar `--`; el conteo de viviendas no se infla por filas.
@@ -198,6 +200,7 @@ Repite el formato según sea necesario. -->
 - **CA-26 · RF-22:** La búsqueda y los filtros no bloquean la UI; las consultas son parametrizadas y no se ejecutan en el hilo principal; cambiar un filtro no recrea toda la pantalla.
 - **CA-27 · RF-23:** Las columnas Aperturar, Exportar y Acción muestran iconos distintos por fila; al pulsar cada uno se abre un diálogo con Conglomerado, `NROVIVIENDA` y `VIVIENDA` de esa fila; cerrar no modifica datos ni estado.
 - **CA-28 · RF-23:** Los iconos de Aperturar, Exportar y Acción tienen descripción accesible y área táctil adecuada; los diálogos son legibles y cerrables sin ejecutar operaciones reales.
+- **CA-29 · RF-14:** "N° Conglomerados" cuenta `CONGLOME` distintos de `CAMPO_CONGLOMERADO` con `TRIM(ANHO) = '2026'`. Sin ODEI o con búsqueda activa muestra `--`; con ODEI sola, ODEI+MES, ODEI+MES+PERIODO o ODEI+MES+PERIODO+CONGLOMERADO muestra el conteo (o `1`); cualquier otra combinación muestra `--`. El Switch no lo altera; con ODEI y sin datos muestra `0`.
 
 ## Cómo se comprueba el comportamiento
 
@@ -239,13 +242,14 @@ No marques los criterios como superados durante la especificación. -->
 | CA-26 | Escribir rápido y cambiar filtros; revisar fluidez. | Sin bloqueo ni recreación completa. |
 | CA-27 | Pulsar Aperturar, Exportar y Acción en varias filas. | Diálogos con Conglomerado, `NROVIVIENDA` y `VIVIENDA`; sin cambios de datos. |
 | CA-28 | Revisar iconos y diálogos con TalkBack. | Descripciones accesibles, área táctil y cierre correctos; sin operaciones reales. |
+| CA-29 | Probar ODEI sola, ODEI+MES, ODEI+MES+PERIODO, +CONGLOMERADO, ODEI+PERIODO y búsqueda activa; revisar año 2026. | Conteo distinto de conglomerados 2026, `1`, `0` o `--` según la combinación; el Switch no cambia el valor. |
 
 ## Decisiones pendientes
 
 <!-- Al resolverlas, actualiza las secciones afectadas. Escribe Ninguna cuando
 no queden pendientes funcionales ni restricciones por decidir. -->
 
-Ninguna. Quedaron confirmadas: una fila por hogar (conteo por vivienda), Switch afecta conteos, DataStore por usuario, búsqueda por contenido sin distinguir mayúsculas, criterios seguros para valores inesperados, tokens nuevos de color, colapso sin dependencias, `--` sin conglomerado único, datos reales + SIN CLASIFICAR y restricción SIS. La búsqueda suspende los cuatro filtros y los restaura al limpiar. Para CR-003 se confirmó: orden por `CONGLOME`, `NROVIVIENDA`, `VIVIENDA` y `HOGAR`; identificación con `NROVIVIENDA` y `VIVIENDA` en todos los diálogos; acciones registradas como RF-23; iconos propuestos por el agente.
+Ninguna. Quedaron confirmadas: una fila por hogar (conteo por vivienda), Switch afecta conteos, DataStore por usuario, búsqueda por contenido sin distinguir mayúsculas, criterios seguros para valores inesperados, tokens nuevos de color, colapso sin dependencias, `--` sin conglomerado único, datos reales + SIN CLASIFICAR y restricción SIS. La búsqueda suspende los cuatro filtros y los restaura al limpiar. Para CR-003 se confirmó: orden por `CONGLOME`, `NROVIVIENDA`, `VIVIENDA` y `HOGAR`; identificación con `NROVIVIENDA` y `VIVIENDA` en todos los diálogos; acciones registradas como RF-23; iconos propuestos por el agente. Para CR-004 se confirmó: año base 2026; solo las combinaciones ODEI, ODEI+MES, ODEI+MES+PERIODO y ODEI+MES+PERIODO+CONGLOMERADO muestran número; las demás muestran `--`; ODEI obligatorio; búsqueda activa muestra `--`; el Switch no altera N° Conglomerados; con conglomerado seleccionado y Switch ocultando todas sus viviendas se muestra `1`; layout 2×2 en teléfono y 1×4 en tablet.
 
 <!-- ANTES DE SOLICITAR APROBACIÓN
 Comprueba que el alcance está acordado, los flujos son coherentes, los puntos

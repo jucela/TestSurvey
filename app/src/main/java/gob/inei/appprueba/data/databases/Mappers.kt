@@ -154,14 +154,16 @@ fun DetalleMarcoRow.toDetalleViviendaMarco() = DetalleViviendaMarco(
 
 fun List<MarcoFilaRow>.toIndicadoresMarco(
     estrato: String?,
-    tipoSeleccion: String?
+    tipoSeleccion: String?,
+    conglomerados: Int? = null
 ): IndicadoresMarco {
     val viviendas = distinctBy { it.conglome to it.vivienda }
     return IndicadoresMarco(
         seleccionadas = viviendas.count { ReglasMarco.seleccion(it.seleccion) in setOf("1", "4") },
         reemplazos = viviendas.count { ReglasMarco.seleccion(it.seleccion) in setOf("2", "3") },
         estrato = limpiar(estrato),
-        tipoSeleccion = limpiar(tipoSeleccion)
+        tipoSeleccion = limpiar(tipoSeleccion),
+        conglomerados = conglomerados
     )
 }
 

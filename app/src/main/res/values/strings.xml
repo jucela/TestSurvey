@@ -131,6 +131,7 @@
     <string name="marco_indicador_tipo">Tipo</string>
     <string name="marco_indicador_viviendas">Viviendas</string>
     <string name="marco_indicador_viviendas_valor">Seleccionadas: %1$d  Reemplazos: %2$d</string>
+    <string name="marco_indicador_conglomerados">N° Conglomerados</string>
     <string name="marco_col_activo">Activo</string>
     <string name="marco_col_conglomerado">Conglomerado</string>
     <string name="marco_col_numero">N</string>

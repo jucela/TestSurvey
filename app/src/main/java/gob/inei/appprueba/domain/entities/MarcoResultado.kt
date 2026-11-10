@@ -51,7 +51,8 @@ data class IndicadoresMarco(
     val seleccionadas: Int = 0,
     val reemplazos: Int = 0,
     val estrato: String? = null,
-    val tipoSeleccion: String? = null
+    val tipoSeleccion: String? = null,
+    val conglomerados: Int? = null
 )
 
 /** Resultado completo de la consulta de Marco. */

@@ -82,7 +82,7 @@
     * ordenar por numero de vivienda de menor a mayor
     * la informacion de la fila se muestra por primera vez desde la tabla CAMPO_VIVIENDA_MARCO, cuando se inicio la encuesta de la vivienda esa data se copia a la tabla CAMPO_VIVIENDA que la data de esta tabla peude actaulizarse y puede ser diferente a la tabla CAMPO_VIVIENDA_MARCO
     * en las etiquetas agregar el numero de conglomerados por odei y mes.
-    * doble clik en fila para que aparesca
+    * doble clik en fila para que aparesca0
 
 
 

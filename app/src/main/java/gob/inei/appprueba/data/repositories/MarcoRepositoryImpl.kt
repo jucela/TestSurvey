@@ -63,12 +63,24 @@ class MarcoRepositoryImpl @Inject constructor(
         val conglomerado: Flow<ConglomeradoMarcoRow?> = consulta.conglomerado
             ?.let { marcoDao.observarConglomerado(it) }
             ?: flowOf(null)
-        return combine(filas, conglomerado) { rows, datosConglomerado ->
+        val conteoConglomerados: Flow<Int?> = consulta.odeiParaConteo
+            ?.let { odei ->
+                marcoDao.observarConteoConglomerados(
+                    odei = odei,
+                    mes = consulta.mes,
+                    periodo = consulta.periodo,
+                    conglomerado = consulta.conglomerado
+                )
+            }
+            ?: flowOf(null)
+        return combine(filas, conglomerado, conteoConglomerados) {
+                rows, datosConglomerado, conglomerados ->
             ResultadoMarco(
                 filas = rows.map { it.toFilaMarco() },
                 indicadores = rows.toIndicadoresMarco(
                     estrato = datosConglomerado?.estrato,
-                    tipoSeleccion = datosConglomerado?.tipoSeleccion
+                    tipoSeleccion = datosConglomerado?.tipoSeleccion,
+                    conglomerados = conglomerados
                 )
             )
         }
@@ -92,6 +104,15 @@ class MarcoRepositoryImpl @Inject constructor(
         val periodo: String?,
         val conglomerado: String?
     ) {
+        val odeiParaConteo: String?
+            get() = odei?.takeIf {
+                when {
+                    conglomerado != null -> mes != null && periodo != null
+                    periodo != null -> mes != null
+                    else -> true
+                }
+            }
+
         companion object {
             fun desde(filtros: MarcoFiltros): ConsultaMarco {
                 val efectivos = if (filtros.busquedaActiva) {

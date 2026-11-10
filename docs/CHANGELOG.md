@@ -10,11 +10,13 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/
 - 
 
 ### Changed
+- Indicadores de Marco (RF-14): se agregó el cuarto indicador `N° Conglomerados` con `COUNT(DISTINCT CONGLOME)` de 2026, cuatro combinaciones válidas, `--` sin ODEI o con búsqueda, y layout 2×2/1×4. [CR-004](changes/CR-004-marco-rf14-indicador-conglomerados.md)
 - Tabla de Marco (RF-15/RF-17) y acciones por fila (RF-23): 11 columnas con Detalle, Aperturar, Exportar y Acción; orden determinista por `CONGLOME`, `NROVIVIENDA`, `VIVIENDA` y `HOGAR`; diálogos informativos con identificación de la fila. [CR-003](changes/CR-003-marco-rf15-tabla-acciones-orden.md)
 - Indicadores de Marco (RF-14): las viviendas seleccionadas se cuentan con `TIPOVIVIENDA` en `{1, 4}` y las de reemplazo en `{2, 3}` (antes solo `1` y `2`). [CR-001](changes/CR-001-modificacion-rf14-tipovivienda.md)
 - Color de fila de Marco (RF-18): se deriva de `CAMPO_VIVIENDA_MARCO.TIPOVIVIENDA` (`{1, 4}` celeste; `{2, 3}`, nulo, vacío u otro rojo) en lugar de `CAMPO_VIVIENDA.ESREEMPLAZO`; tokens documentados en `DESIGN_SYSTEM.md`. [CR-002](changes/CR-002-color-fila-tipovivienda.md)
 
 ### Fixed
+- Cabecera de Marco: se completaron las 11 columnas alineadas con la fila y se añadió `gridIndicadores` para verificar el layout adaptable. [CR-004](changes/CR-004-marco-rf14-indicador-conglomerados.md)
 - Corregido typo `RegrasMarco` → `ReglasMarco` en `Mappers.kt` que impedía compilar.
 
 ### Removed

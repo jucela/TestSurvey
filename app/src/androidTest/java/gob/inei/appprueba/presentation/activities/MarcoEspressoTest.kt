@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.drawable.ColorDrawable
 import android.view.View
 import android.view.ViewGroup
+import android.widget.GridLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
@@ -59,7 +60,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/** Pruebas de interfaz de Marco (CA-03, CA-04, CA-08, CA-13, CA-18). */
+/** Pruebas de interfaz de Marco (CA-03, CA-04, CA-08, CA-13, CA-18, CA-29). */
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
 class MarcoEspressoTest {
@@ -88,6 +89,48 @@ class MarcoEspressoTest {
             onView(withId(R.id.tvEstrato)).check(matches(isDisplayed()))
             onView(withId(R.id.tvTipo)).check(matches(isDisplayed()))
             onView(withId(R.id.tvViviendas)).check(matches(isDisplayed()))
+            onView(withId(R.id.tvConglomerados)).check(matches(isDisplayed()))
+        }
+    }
+
+    @Test
+    fun el_indicador_de_conglomerados_respeta_las_combinaciones_y_el_switch() {
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            esperarHastaFilas(scenario, 4)
+            onView(withId(R.id.tvConglomerados))
+                .check(matches(withText(R.string.marco_valor_vacio)))
+
+            seleccionarOpcion(scenario, R.id.spOdei, "01-AMAZONAS")
+            esperarIndicadorConglomerados(scenario, "1")
+            esperarHastaFilas(scenario, 4)
+
+            seleccionarOpcion(scenario, R.id.spMes, "08-Agosto")
+            esperarIndicadorConglomerados(scenario, "1")
+
+            seleccionarOpcion(scenario, R.id.spPeriodo, "PERIODO 1")
+            esperarIndicadorConglomerados(scenario, "1")
+
+            seleccionarOpcion(scenario, R.id.spConglomerado, "016335->URBANO->PANEL")
+            esperarIndicadorConglomerados(scenario, "1")
+            esperarHastaFilas(scenario, 4)
+
+            onView(withId(R.id.switchActivos)).perform(click())
+            esperarHastaFilas(scenario, 3)
+            onView(withId(R.id.tvConglomerados)).check(matches(withText("1")))
+        }
+    }
+
+    @Test
+    fun el_grid_de_indicadores_usa_columnas_adaptables() {
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+            scenario.onActivity { activity ->
+                val grid = activity.findViewById<GridLayout>(R.id.gridIndicadores)
+                val columnas = activity.resources.getInteger(R.integer.marco_indicadores_columnas)
+                assertEquals(4, grid.childCount)
+                assertEquals(columnas, grid.columnCount)
+                assertEquals(if (columnas == 4) 1 else 2, grid.rowCount)
+            }
         }
     }
 
@@ -161,7 +204,7 @@ class MarcoEspressoTest {
         ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
             esperarHastaFilas(scenario, 4)
             pulsarAccionDeFila(scenario, 2, R.id.btnDetalle)
-            onView(withText("REAL DOS")).check(matches(isDisplayed()))
+            esperarHastaTexto("REAL DOS")
             onView(withText("20")).check(matches(isDisplayed()))
             onView(withId(R.id.tvDetalleConglomerado))
                 .inRoot(isDialog())
@@ -171,7 +214,7 @@ class MarcoEspressoTest {
             onView(withText(R.string.marco_detalle_cerrar)).perform(click())
 
             pulsarAccionDeFila(scenario, 3, R.id.btnDetalle)
-            onView(withText("MARCO TRES")).check(matches(isDisplayed()))
+            esperarHastaTexto("MARCO TRES")
             onView(withText(R.string.marco_detalle_cerrar)).perform(click())
         }
     }
@@ -436,14 +479,19 @@ class MarcoEspressoTest {
     private fun seleccionarOdei(
         scenario: ActivityScenario<MarcoActivity>,
         etiqueta: String
+    ) = seleccionarOpcion(scenario, R.id.spOdei, etiqueta)
+
+    private fun seleccionarOpcion(
+        scenario: ActivityScenario<MarcoActivity>,
+        campoId: Int,
+        etiqueta: String
     ) {
         var ultimoError: Throwable? = null
         repeat(3) {
             try {
                 Thread.sleep(200)
                 scenario.onActivity { activity ->
-                    val vista =
-                        activity.findViewById<MaterialAutoCompleteTextView>(R.id.spOdei)
+                    val vista = activity.findViewById<MaterialAutoCompleteTextView>(campoId)
                     vista.setText("", false)
                     vista.showDropDown()
                 }
@@ -452,17 +500,35 @@ class MarcoEspressoTest {
 
                 var seleccion = ""
                 scenario.onActivity { activity ->
-                    seleccion =
-                        activity.findViewById<MaterialAutoCompleteTextView>(R.id.spOdei)
-                            .text?.toString().orEmpty()
+                    seleccion = activity.findViewById<MaterialAutoCompleteTextView>(campoId)
+                        .text?.toString().orEmpty()
                 }
                 if (seleccion == etiqueta) return
-                ultimoError = AssertionError("ODEI seleccionado: '$seleccion'")
+                ultimoError = AssertionError("Seleccionado: '$seleccion'")
             } catch (error: Throwable) {
                 ultimoError = error
             }
         }
-        throw AssertionError("No se pudo seleccionar el ODEI $etiqueta", ultimoError)
+        throw AssertionError("No se pudo seleccionar $etiqueta", ultimoError)
+    }
+
+    private fun esperarIndicadorConglomerados(
+        scenario: ActivityScenario<MarcoActivity>,
+        valor: String,
+        timeoutMs: Long = 5000
+    ) {
+        val limite = System.currentTimeMillis() + timeoutMs
+        while (System.currentTimeMillis() < limite) {
+            var texto = ""
+            scenario.onActivity { activity ->
+                texto = activity.findViewById<TextView>(R.id.tvConglomerados)
+                    ?.text?.toString().orEmpty()
+            }
+            if (texto == valor) return
+            Thread.sleep(100)
+        }
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+        throw AssertionError("N° Conglomerados esperado '$valor' no apareció")
     }
 
     private fun pulsarAccionDeFila(
@@ -472,11 +538,26 @@ class MarcoEspressoTest {
     ) {
         scenario.onActivity { activity ->
             val recycler = activity.findViewById<RecyclerView>(R.id.rvMarco)
-            recycler.findViewHolderForAdapterPosition(posicion)?.itemView
-                ?.findViewById<View>(boton)
-                ?.performClick()
+            val fila = recycler.findViewHolderForAdapterPosition(posicion)?.itemView
+                ?: throw AssertionError("No se encontró la fila $posicion")
+            val vista = fila.findViewById<View>(boton)
+                ?: throw AssertionError("No se encontró la acción en la fila $posicion")
+            vista.performClick()
         }
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+    }
+
+    private fun esperarHastaTexto(texto: String, timeoutMs: Long = 5000) {
+        val limite = System.currentTimeMillis() + timeoutMs
+        while (System.currentTimeMillis() < limite) {
+            try {
+                onView(withText(texto)).check(matches(isDisplayed()))
+                return
+            } catch (_: Throwable) {
+                Thread.sleep(100)
+            }
+        }
+        onView(withText(texto)).check(matches(isDisplayed()))
     }
 
     private fun esperarHastaFilas(

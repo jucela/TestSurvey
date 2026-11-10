@@ -1,7 +1,7 @@
 # PLAN: Marco de viviendas
 
 **SPEC de referencia:** docs/features/marco/SPEC.md
-**Versión de la spec revisada:** SPEC aprobada el 2026-10-22
+**Versión de la spec revisada:** SPEC aprobada el 2026-10-22; actualizada el 2026-11-09 por CR-004
 **Estado:** Aprobado <!-- Borrador | En revisión | Aprobado -->
 
 <!-- PARA LA PERSONA
@@ -158,7 +158,7 @@ Señala impacto sobre modelos, contratos o componentes compartidos. -->
   - `OpcionConglomerado(conglome, area: AreaGeografica, estrato: String?, tipoSeleccion: String?)` con etiqueta `CONGLOME->AREA`.
   - `FilaMarco(conglome, vivienda, nroVivienda, activo, hogar, nroReemplazo, resultado: ResultadoVisita, esReemplazo: Boolean)`; `esReemplazo` es la bandera de color derivada de `TIPOVIVIENDA` (`true` = token rojo).
   - `ResultadoVisita` (`COMPLETA`, `INCOMPLETA`, `RECHAZO`, `AUSENTE`, `VIV_DESOCUPADA`, `NO_SE_INICIO`, `OTRO`, `SIN_VISITAR`). La UI traduce el enum a strings; el dominio no depende de recursos Android.
-  - `IndicadoresMarco(estrato: String?, tipoSeleccion: String?, seleccionadas: Int, reemplazos: Int)`.
+  - `IndicadoresMarco(estrato: String?, tipoSeleccion: String?, seleccionadas: Int, reemplazos: Int, conglomerados: Int?)`; `conglomerados = null` se muestra como `--`.
   - `ResultadoMarco(filas: List<FilaMarco>, indicadores: IndicadoresMarco)`.
   - `DetalleViviendaMarco(conglome, nroVivienda, vivienda, direccion, puerta, interior, piso, mz, lote)` con valores ya resueltos o `null`; la UI muestra `--`. `conglome`, `nroVivienda` y `vivienda` identifican la fila en todos los diálogos.
   - `MarcoUiState`: carga, error, sin muestra, sin resultados, búsqueda, filtros, expandido, catálogo, conglomerados, filas e indicadores. `conglomeradoSeleccionado` y `estratos/tipo` se derivan; con búsqueda activa no hay conglomerado aplicado y Estrato/Tipo muestran `--`.
@@ -168,6 +168,7 @@ Señala impacto sobre modelos, contratos o componentes compartidos. -->
   - `RESFIN`: `trim`; nulo/vacío → `SIN_VISITAR`; `"1".."7"` → textos de RF-16; otro → `OTRO`. Nunca se muestra `null`.
   - `TIPOVIVIENDA` (color de fila): `trim in {"1", "4"}` → celeste; `{"2", "3"}`, nulo, vacío o cualquier otro valor → rojo. El color no depende de `ESREEMPLAZO` ni de la existencia de `CAMPO_VIVIENDA`.
   - `TIPOVIVIENDA`: `trim in {"1", "4"}` seleccionada, `trim in {"2", "3"}` reemplazo; otro/nulo no suma. `activo` solo `== 1` cuenta como activo.
+  - N° Conglomerados: `COUNT(DISTINCT CONGLOME)` desde `CAMPO_CONGLOMERADO` con `TRIM(ANHO) = '2026'`. Solo se calcula para ODEI, ODEI+MES, ODEI+MES+PERIODO o ODEI+MES+PERIODO+CONGLOMERADO y sin búsqueda; en otro caso `null` → `--`. No depende del Switch.
   - Área: `TIPOSELECCION` 1/2 → `URBANO->NO PANEL`; 3 + `ESTRATO` 6 → `SEMI-RURAL->PANEL`; 3 + 1..5 → `URBANO->PANEL`; 3 + ≥7 → `RURAL->PANEL`; 4 → `SEMI-RURAL->NO PANEL`; 5 → `RURAL->NO PANEL`; resto/nulos/0 → `SIN CLASIFICAR`. Se aplica antes de comparar `3` con rangos.
   - Detalle: para cada campo, `NOMBREVIA/PUERTA/INTERIOR/PISO/MZ/LOTE` de `CAMPO_VIVIENDA` con `trim` no vacío; si no, el mismo campo de `CAMPO_VIVIENDA_MARCO`; si ambos vacíos, `null` → `--`.
   - Etiquetas sin normalizar: ODEI `CODODEI-NOMODEI`, MES `CODIGO-NOMBRE`, PERIODO `NOMPER`; si un nombre es nulo, se usa el código como fallback seguro.
@@ -223,6 +224,7 @@ Consultas de Marco (`MarcoDao`):
 - Filas y conteos comparten estos predicados: `(:soloActivos = 0 OR m.activo = 1)`, búsqueda `(:busqueda = '' OR LOWER(m.CONGLOME) LIKE '%' || LOWER(:busqueda) || '%' ESCAPE '\')`, y filtros `(:odei IS NULL OR c.ODEI = :odei)`, `(:mes IS NULL OR c.MES = :mes)`, `(:periodo IS NULL OR c.PERIODO = :periodo)`, `(:conglomerado IS NULL OR m.CONGLOME = :conglomerado)`.
 - Filas: `SELECT m.CONGLOME, m.VIVIENDA, m.NROVIVIENDA, m.activo, h.HOGAR, v.NROREEMPLAZO, h.RESFIN, m.TIPOVIVIENDA AS seleccion FROM CAMPO_VIVIENDA_MARCO m LEFT JOIN CAMPO_CONGLOMERADO c ... LEFT JOIN CAMPO_VIVIENDA v ON v.CONGLOME=m.CONGLOME AND v.VIVIENDA=m.VIVIENDA LEFT JOIN CAMPO_HOGAR h ON h.CONGLOME=m.CONGLOME AND h.VIVIENDA=m.VIVIENDA WHERE ... ORDER BY m.CONGLOME, COALESCE(NULLIF(TRIM(v.NROVIVIENDA), ''), NULLIF(TRIM(m.NROVIVIENDA), ''), ''), m.VIVIENDA, COALESCE(h.HOGAR, '')`. El color se deriva de `m.TIPOVIVIENDA`; `v.ESREEMPLAZO` no se proyecta.
 - Indicadores: `COUNT(DISTINCT CASE WHEN TRIM(m.TIPOVIVIENDA) IN ('1','4') THEN m.CONGLOME || CHAR(31) || m.VIVIENDA END)` y la misma expresión para `('2','3')`, sobre la base `m` y los mismos predicados. No se une `CAMPO_HOGAR` para no inflar conteos.
+- N° Conglomerados: `SELECT COUNT(DISTINCT c.CONGLOME) FROM CAMPO_CONGLOMERADO c WHERE TRIM(c.ANHO) = '2026' AND (:odei IS NULL OR c.ODEI = :odei) AND (:mes IS NULL OR c.MES = :mes) AND (:periodo IS NULL OR c.PERIODO = :periodo) AND (:conglomerado IS NULL OR c.CONGLOME = :conglomerado)`. La combinación válida y la búsqueda se validan en el repositorio antes de suscribirse; no se une `CAMPO_VIVIENDA_MARCO`.
 - Conglomerados: `SELECT c.CONGLOME, c.ESTRATO, c.TIPOSELECCION FROM CAMPO_CONGLOMERADO c WHERE (:odei IS NULL OR c.ODEI=:odei) ... ORDER BY c.CONGLOME`. La etiqueta se calcula en el mapper.
 - Total de muestra: `SELECT COUNT(*) FROM CAMPO_CONGLOMERADO` como Flow.
 - Existencia para restaurar: `SELECT COUNT(*) FROM CAMPO_CONGLOMERADO WHERE CONGLOME=:conglome AND ...`.
@@ -241,7 +243,7 @@ Referencia RF/CA y aplica las consideraciones relevantes de MOBILE_GUIDELINES.md
   - **Carga:** indicador `LinearProgressIndicator` no bloqueante; la tabla mantiene el contenido anterior mientras llega el nuevo.
   - **Sin muestra/sin resultados:** `sinMuestra` se deriva de `totalConglomerados == 0`; `sinResultados` de filas vacías con muestra existente. Son mensajes informativos, no errores. Indicadores en `0`/`--` cuando no hay datos.
   - **Formularios:** búsqueda de texto libre con `trim`; no hay validación de formato. Caracteres especiales se tratan literalmente mediante escape de `LIKE`.
-  - **Pantalla y orientación:** `CoordinatorLayout` con `AppBarLayout` desplazable para título/filtros/indicadores y tabla con `HorizontalScrollView` + `RecyclerView` que ocupa el resto; la cabecera de tabla queda fija sobre la lista. En `sw600dp` se muestran las tres filas; en móvil el contenido de filtros se colapsa con `TransitionManager`/`AutoTransition`. Se usan dimensiones tokenizadas para columnas y áreas táctiles de 48dp.
+  - **Pantalla y orientación:** `CoordinatorLayout` con `AppBarLayout` desplazable para título/filtros/indicadores y tabla con `HorizontalScrollView` + `RecyclerView` que ocupa el resto; la cabecera de tabla queda fija sobre la lista. En `sw600dp` se muestran las tres filas; en móvil el contenido de filtros se colapsa con `TransitionManager`/`AutoTransition`. Se usan dimensiones tokenizadas para columnas y áreas táctiles de 48dp. La fila de indicadores usa `GridLayout` con `@integer/marco_indicadores_columnas` (2 en móvil, 4 en `sw600dp`).
   - **Accesibilidad:** `TextInputLayout` con hints; Switch con etiqueta; iconos de detalle, Aperturar, Exportar y Acción con `contentDescription` que incluye la acción, vivienda y conglomerado; cabecera con textos; el resultado y la columna Reemplazo comunican la información además del color; contraste verificado en claro/oscuro; el botón de colapso actualiza su descripción.
   - **Ciclo de vida:** no se guardan referencias a vistas en el ViewModel; el diálogo se muestra desde la Activity al recibir un evento. El canal de eventos es `BUFFERED`.
   - **Privacidad/red/permisos:** no aplica; no hay red, permisos, cámara ni GPS.
@@ -252,7 +254,7 @@ Referencia RF/CA y aplica las consideraciones relevantes de MOBILE_GUIDELINES.md
 con el proyecto y justifica las incorporaciones. No agregues dependencias por defecto. -->
 
 - No se añaden librerías. Se reutilizan Material 3 `1.12.0` (`MaterialSwitch`, `TextInputLayout`, `MaterialAutoCompleteTextView`), Room `2.7.2`, DataStore, RecyclerView, coroutines/Flow y Hilt ya presentes.
-- Se añaden recursos propios: dos tokens de color claro/oscuro, dimensiones de columnas/tabla, `values/bools.xml` + `values-sw600dp/bools.xml` para el colapso, strings y dos vectores (`ic_search`, `ic_expand_more`). Tokens: `marcoFilaReemplazo` `#F9DEDC` (claro) / `#5C2B28` (oscuro) y `marcoFilaSinReemplazo` `#D7E9F7` (claro) / `#24394A` (oscuro). `marcoFilaSinReemplazo` se aplica con `TIPOVIVIENDA` en `{1, 4}`; `marcoFilaReemplazo` con `{2, 3}`, nulo, vacío u otro valor. El texto de fila usa `?attr/colorOnSurface` y la cabecera `?attr/colorSurfaceContainerHigh`.
+- Se añaden recursos propios: dos tokens de color claro/oscuro, dimensiones de columnas/tabla, `values/bools.xml` + `values-sw600dp/bools.xml` para el colapso, strings y dos vectores (`ic_search`, `ic_expand_more`). Se añade `marco_indicadores_columnas` en `values/integers.xml` (2) y `values-sw600dp/integers.xml` (4) para el `GridLayout` de indicadores. Tokens: `marcoFilaReemplazo` `#F9DEDC` (claro) / `#5C2B28` (oscuro) y `marcoFilaSinReemplazo` `#D7E9F7` (claro) / `#24394A` (oscuro). `marcoFilaSinReemplazo` se aplica con `TIPOVIVIENDA` en `{1, 4}`; `marcoFilaReemplazo` con `{2, 3}`, nulo, vacío u otro valor. El texto de fila usa `?attr/colorOnSurface` y la cabecera `?attr/colorSurfaceContainerHigh`.
 - No se añaden permisos ni servicios. La pantalla no usa FTP, red, cámara, GPS ni trabajo en segundo plano.
 - Configuración de Room: `version = 8`, `exportSchema = true`, registrar `MIGRATION_7_8` en `DatabaseModule`; no se habilita `fallbackToDestructiveMigration`.
 - DataStore: se reutiliza el `DataStore<Preferences>` existente; las claves de Marco llevan prefijo de usuario para no colisionar con `sesion_activa`, `ultimo_usuario` ni `tipo_acceso`.
@@ -294,8 +296,9 @@ Una captura aislada no demuestra persistencia ni ausencia de peticiones de red. 
 | CA-26 | Unitario de VM (debounce/flatMapLatest) + manual de fluidez | Texto rápido, cambios de filtro, muestra representativa | Sin bloqueo ni recreación; consultas parametrizadas y canceladas |
 | CA-27 | UI: `MarcoEspressoTest` + unitario de VM | Filas con `NROVIVIENDA`/`VIVIENDA` distintas; pulsar cada acción | Diálogos con Conglomerado, `NROVIVIENDA` y `VIVIENDA`; sin cambios de datos |
 | CA-28 | UI + manual con TalkBack | Iconos de acción y diálogos | Descripciones accesibles, área táctil, cierre correcto; sin operaciones reales |
+| CA-29 | DAO/integración: `MarcoDaoTest` + repositorio + UI | Fixtures 2026/2027, dos conglomerados, ODEI/MES/PERIODO/CONGLOMERADO, búsqueda y Switch | Conteo 2026 correcto; `1`, `0` o `--` según combinación; Switch no altera |
 
-**Comprobaciones de regresión:** ejecutar la suite unitaria completa (121 tests actuales + nuevos), la suite instrumentada completa (37 actuales + nuevas), `assembleDebug` y `lintDebug`. Verificar que login, drawer, `CargarMuestraActivity`, restricción SIS y encuesta no cambian. No debe aparecer `fallbackToDestructiveMigration` ni una versión distinta de 8.
+**Comprobaciones de regresión:** ejecutar la suite unitaria completa (154 tests actuales + nuevos), la suite instrumentada completa (65 actuales + nuevas), `assembleDebug` y `lintDebug`. Verificar que login, drawer, `CargarMuestraActivity`, restricción SIS y encuesta no cambian. No debe aparecer `fallbackToDestructiveMigration` ni una versión distinta de 8.
 
 **Comandos verificados para compilar y ejecutar tests:**
 
@@ -334,6 +337,7 @@ Incluye puntos de comprobación para avanzar con cambios pequeños. -->
 6. **Integración de pantalla:** `MarcoActivity`, registro en Manifest y rama `action_marco` en `MainActivity`. Comprobación: `MarcoEspressoTest` de navegación, título, filtros, búsqueda, tabla, diálogo y estados.
 7. **Validación final:** suite unitaria e instrumentada completa, `lintDebug`, prueba manual en tablet/móvil, claro/oscuro, rotación y TalkBack; documentar tokens en `DESIGN_SYSTEM.md` y registrar evidencias/limitaciones en `TASKS.md` durante la implementación.
 8. **CR-003 (RF-15/RF-17/RF-23):** actualizar `ORDER BY` a `CONGLOME`, `NROVIVIENDA`, `VIVIENDA`, `HOGAR`; añadir las tres columnas/iconos de acción; extender `DetalleViviendaMarco` y los eventos/UI con identificación de fila; crear el diálogo reutilizable de acciones; actualizar pruebas. Comprobación: `MarcoDaoTest`, `MarcoViewModelTest`, `MarcoEspressoTest` y batería completa.
+9. **CR-004 (RF-14):** agregar `conglomerados` a `IndicadoresMarco`; consulta de conteo en `MarcoDao`; validar combinación/búsqueda/ODEI en `MarcoRepositoryImpl`; `GridLayout` 2/4 y string del cuarto indicador; actualizar pruebas. Comprobación: `MarcoDaoTest`, `MarcoRepositoryTest`, `MarcoMappersTest`, `MarcoViewModelTest`, `MarcoEspressoTest` y batería completa.
 
 ## Riesgos y decisiones pendientes
 
@@ -351,7 +355,8 @@ Escribe Ninguna en las decisiones pendientes cuando estén resueltas. -->
   - **Complejidad de pruebas Hilt aisladas:** módulo de test que sustituye `DatabaseModule` por Room in-memory y DataStore temporal; no se escriben fixtures en la base de la app.
   - **Orden con `NROVIVIENDA` nulo o duplicado:** se ordena con `COALESCE`/`NULLIF` y se conservan `VIVIENDA` y `HOGAR` como desempate para mantener el orden determinista y la fila por hogar; tests con nulos, vacíos y empates.
   - **Ancho y alineación de once columnas:** pesos/dimensiones tokenizadas, scroll horizontal y prueba en móvil/tablet; los iconos de acción mantienen área táctil de 48dp y descripción accesible.
-- **Decisiones pendientes:** Ninguna. Las decisiones de producto y de alcance están resueltas en la SPEC aprobada; las elecciones técnicas de este plan no cambian el comportamiento.
+  - **Conteo de N° Conglomerados:** se calcula desde `CAMPO_CONGLOMERADO` con `TRIM(ANHO) = '2026'` y `COUNT(DISTINCT CONGLOME)`; no se une `CAMPO_VIVIENDA_MARCO`, por lo que el Switch no lo altera. La combinación inválida y la búsqueda se resuelven en el repositorio con `null` → `--`; tests con 2027 y combinaciones parciales.
+- **Decisiones pendientes:** Ninguna. Las decisiones de producto y de alcance están resueltas en la SPEC aprobada; las elecciones técnicas de este plan no cambian el comportamiento. Para CR-004 quedaron confirmados el año base 2026, las cuatro combinaciones válidas, ODEI obligatorio, `--` con búsqueda activa, Switch sin efecto sobre N° Conglomerados y layout 2×2/1×4.
 
 <!-- ANTES DE SOLICITAR APROBACIÓN
 Comprueba que el plan cubre los requisitos, respeta las exclusiones, reutiliza
