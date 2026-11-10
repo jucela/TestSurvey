@@ -16,6 +16,7 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/
 - Color de fila de Marco (RF-18): se deriva de `CAMPO_VIVIENDA_MARCO.TIPOVIVIENDA` (`{1, 4}` celeste; `{2, 3}`, nulo, vacío u otro rojo) en lugar de `CAMPO_VIVIENDA.ESREEMPLAZO`; tokens documentados en `DESIGN_SYSTEM.md`. [CR-002](changes/CR-002-color-fila-tipovivienda.md)
 
 ### Fixed
+- Filtros de Marco (RF-05/RF-13): tras rotar la pantalla, ODEI, MES, PERIODO y CONGLOMERADO conservan su etiqueta y selección, y al abrirlos muestran todas las opciones en lugar de solo la seleccionada. [CR-005](changes/CR-005-marco-filtros-rotacion.md)
 - Cabecera de Marco: se completaron las 11 columnas alineadas con la fila y se añadió `gridIndicadores` para verificar el layout adaptable. [CR-004](changes/CR-004-marco-rf14-indicador-conglomerados.md)
 - Corregido typo `RegrasMarco` → `ReglasMarco` en `Mappers.kt` que impedía compilar.
 

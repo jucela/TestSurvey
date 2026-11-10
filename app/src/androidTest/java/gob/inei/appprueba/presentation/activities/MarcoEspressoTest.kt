@@ -440,6 +440,61 @@ class MarcoEspressoTest {
     }
 
     @Test
+    fun los_filtros_sin_seleccion_muestran_todas_las_opciones_al_recrear_la_pantalla() {
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            esperarHastaFilas(scenario, 4)
+
+            scenario.recreate()
+            esperarHastaFilas(scenario, 4)
+
+            listOf(
+                R.id.spOdei to "01-AMAZONAS",
+                R.id.spMes to "08-Agosto",
+                R.id.spPeriodo to "PERIODO 1",
+                R.id.spConglomerado to "016335->URBANO->PANEL"
+            ).forEach { (campo, etiqueta) ->
+                abrirMenu(scenario, campo)
+                onData(equalTo(etiqueta)).inRoot(isPlatformPopup()).check(matches(isDisplayed()))
+                cerrarMenu(scenario, campo)
+            }
+        }
+    }
+
+    @Test
+    fun los_filtros_con_seleccion_muestran_todas_las_opciones_al_recrear_la_pantalla() {
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            esperarHastaFilas(scenario, 4)
+
+            seleccionarOdei(scenario, "01-AMAZONAS")
+            seleccionarOpcion(scenario, R.id.spMes, "08-Agosto")
+            seleccionarOpcion(scenario, R.id.spPeriodo, "PERIODO 1")
+            seleccionarOpcion(scenario, R.id.spConglomerado, "016335->URBANO->PANEL")
+            esperarHastaFilas(scenario, 4)
+
+            scenario.recreate()
+
+            onView(withId(R.id.spOdei)).check(matches(withText("01-AMAZONAS")))
+            onView(withId(R.id.spMes)).check(matches(withText("08-Agosto")))
+            onView(withId(R.id.spPeriodo)).check(matches(withText("PERIODO 1")))
+            onView(withId(R.id.spConglomerado))
+                .check(matches(withText("016335->URBANO->PANEL")))
+
+            val seleccione = ApplicationProvider.getApplicationContext<Context>()
+                .getString(R.string.marco_seleccione)
+            listOf(
+                R.id.spOdei,
+                R.id.spMes,
+                R.id.spPeriodo,
+                R.id.spConglomerado
+            ).forEach { campo ->
+                abrirMenu(scenario, campo)
+                onData(equalTo(seleccione)).inRoot(isPlatformPopup()).check(matches(isDisplayed()))
+                cerrarMenu(scenario, campo)
+            }
+        }
+    }
+
+    @Test
     fun abre_marco_desde_el_drawer_con_sesion_personal() {
         runBlocking {
             session.setSesionActiva(true)
@@ -480,6 +535,26 @@ class MarcoEspressoTest {
         scenario: ActivityScenario<MarcoActivity>,
         etiqueta: String
     ) = seleccionarOpcion(scenario, R.id.spOdei, etiqueta)
+
+    private fun abrirMenu(
+        scenario: ActivityScenario<MarcoActivity>,
+        campoId: Int
+    ) {
+        scenario.onActivity { activity ->
+            activity.findViewById<MaterialAutoCompleteTextView>(campoId).showDropDown()
+        }
+        Thread.sleep(200)
+    }
+
+    private fun cerrarMenu(
+        scenario: ActivityScenario<MarcoActivity>,
+        campoId: Int
+    ) {
+        scenario.onActivity { activity ->
+            activity.findViewById<MaterialAutoCompleteTextView>(campoId).dismissDropDown()
+        }
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+    }
 
     private fun seleccionarOpcion(
         scenario: ActivityScenario<MarcoActivity>,

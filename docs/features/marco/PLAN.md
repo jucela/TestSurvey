@@ -1,7 +1,7 @@
 # PLAN: Marco de viviendas
 
 **SPEC de referencia:** docs/features/marco/SPEC.md
-**Versión de la spec revisada:** SPEC aprobada el 2026-10-22; actualizada el 2026-11-09 por CR-004
+**Versión de la spec revisada:** SPEC aprobada el 2026-10-22; actualizada el 2026-11-09 por CR-005
 **Estado:** Aprobado <!-- Borrador | En revisión | Aprobado -->
 
 <!-- PARA LA PERSONA
@@ -39,6 +39,7 @@ derivar TASKS.md con tareas, dependencias y comprobaciones.
 | Inyección de repositorios | `di/RepositoryModule.kt` | Bindings `@Binds` en `SingletonComponent`; se añade el binding de `MarcoRepository`. |
 | Navegación lateral | `presentation/activities/MainActivity.kt`, `res/menu/drawer_options.xml` | `action_marco` ya existe y hoy abre `SectionPlaceholderActivity`; `aplicarRestricciones` deshabilita Marco para SIS. |
 | Patrón de pantalla | `presentation/activities/CargarMuestraActivity.kt`, `viewmodel/CargaMuestraViewModel.kt`, `viewmodel/CargaMuestraUiState.kt` | `by viewModels()`, `repeatOnLifecycle(STARTED)`, `StateFlow`, ViewBinding, toolbar con `ic_login_arrow` y `MaterialAlertDialogBuilder`. |
+| Desplegables de filtros | `presentation/activities/MarcoActivity.kt`, `res/layout/activity_marco.xml` | `MaterialAutoCompleteTextView` no editables con `setSimpleItems`; al recrear la Activity, el texto de la etiqueta filtra el adaptador y oculta el resto de opciones. Se configura el campo para que el texto no filtre y se cargan los adaptadores antes de aplicar las etiquetas, sin perder la selección. |
 | Patrón de catálogo | `domain/entities/OpcionMuestra.kt`, `data/repositories/CatalogoMuestraRepositoryImpl.kt`, `usecases/ObtenerCatalogoMuestraUseCase.kt` | `OpcionMuestra(codigo, nombre)` reutilizable para ODEI/MES/PERIODO. |
 | Persistencia de sesión | `data/sources/SessionDataStore.kt`, `data/repositories/AuthRepositoryImpl.kt` | `ultimoUsuario` identifica al usuario autenticado; `logout()` no borra ese valor. Se usa como clave de los filtros por usuario. |
 | Patrón de lista | `presentation/adapters/CargaArchivoAdapter.kt`, `res/layout/item_carga_archivo.xml` | RecyclerView con ViewBinding y actualización por lista; para Marco se usará `ListAdapter`/`DiffUtil`. |
@@ -94,6 +95,15 @@ Flujo de datos:
    patrón: un evento por acción entrega la identificación de la fila y la
    Activity muestra un diálogo informativo reutilizable, sin ejecutar
    operaciones reales.
+6. Al recrear la Activity por rotación, el ViewModel conserva filtros y
+   catálogos, pero la Activity vuelve a aplicar la etiqueta seleccionada al
+   `MaterialAutoCompleteTextView`. Ese texto filtra el adaptador y el
+   desplegable muestra solo la opción seleccionada (o ninguna con
+   `--Seleccione--`). La corrección configura los cuatro campos no editables
+   con un umbral de filtrado que impide que el texto actual reduzca las
+   opciones, y carga los adaptadores antes de aplicar las etiquetas,
+   conservando la etiqueta visible y la selección. No se modifican catálogos,
+   consultas, DataStore ni ViewModel.
 
 Se usa `LEFT JOIN` desde `CAMPO_VIVIENDA_MARCO` para conservar viviendas sin
 `CAMPO_VIVIENDA` o sin `CAMPO_HOGAR` (RF-19). No se usa `DISTINCT` en las filas:
@@ -137,7 +147,7 @@ Señala impacto sobre modelos, contratos o componentes compartidos. -->
 | `presentation/viewmodel/MarcoViewModel.kt` | Crear | Carga, validación, filtros, búsqueda, debounce, estado, eventos y reintento. | RF-05..RF-21 |
 | `presentation/viewmodel/MarcoUiState.kt` | Modificar | Estado inmutable, estados derivados y eventos de detalle y acciones por fila. | RF-05..RF-23 |
 | `presentation/adapters/MarcoAdapter.kt` | Modificar | Textos, colores, detalle y callbacks de Aperturar, Exportar y Acción por fila. | RF-15..RF-18, RF-23 |
-| `presentation/activities/MarcoActivity.kt` | Modificar | Render, dropdowns, Switch, colapso, lista, diálogo de detalle y diálogos de acciones por fila. | RF-03..RF-18, RF-21, RF-23 |
+| `presentation/activities/MarcoActivity.kt` | Modificar | Render, dropdowns, Switch, colapso, lista, diálogo de detalle, diálogos de acciones por fila y restauración del filtro de los desplegables al recrear la pantalla. | RF-03..RF-18, RF-21, RF-23 |
 | `presentation/activities/MainActivity.kt` | Modificar | Abrir `MarcoActivity` para `action_marco`; mantener el placeholder para el resto. | RF-01 |
 | `app/src/main/AndroidManifest.xml` | Modificar | Registrar `MarcoActivity` no exportada y con padre `MainActivity`. | RF-01 |
 | `res/layout/activity_marco.xml` | Modificar | Toolbar, título exacto centrado con `TextAppearance.AppPrueba.TopBar`, tarjeta de filtros, indicadores y tabla adaptable con once columnas. | RF-03..RF-15 |
@@ -236,7 +246,7 @@ Consultas de Marco (`MarcoDao`):
 Referencia RF/CA y aplica las consideraciones relevantes de MOBILE_GUIDELINES.md. -->
 
 - **Gestión del estado de interfaz y navegación:** `MarcoViewModel` expone `StateFlow<MarcoUiState>` con `stateIn(..., WhileSubscribed(5_000), MarcoUiState())`. `MarcoActivity` lo colecta con `repeatOnLifecycle(STARTED)`. La navegación es: `MainActivity` → `MarcoActivity` al pulsar `action_marco`; toolbar y botón Atrás hacen `finish()`. No se usa `SectionPlaceholderActivity` para Marco. La restricción SIS existente no se modifica.
-- **Conservación y restauración del estado:** filtros, búsqueda, Switch y estado expandido viven en el ViewModel y sobreviven a rotación y segundo plano. La posición de la lista la conserva el estado de `RecyclerView` de la Activity. Tras muerte del proceso se restauran los cinco filtros desde DataStore; la búsqueda inicia vacía y el estado expandido vuelve al valor por defecto. En tablet (`sw600dp`) la tarjeta siempre está expandida; en móvil inicia expandida y el usuario puede contraerla sin perder filtros.
+- **Conservación y restauración del estado:** filtros, búsqueda, Switch y estado expandido viven en el ViewModel y sobreviven a rotación y segundo plano. La posición de la lista la conserva el estado de `RecyclerView` de la Activity. Tras muerte del proceso se restauran los cinco filtros desde DataStore; la búsqueda inicia vacía y el estado expandido vuelve al valor por defecto. En tablet (`sw600dp`) la tarjeta siempre está expandida; en móvil inicia expandida y el usuario puede contraerla sin perder filtros. Al recrear la Activity, las etiquetas se reponen desde el estado y los cuatro desplegables deben volver a ofrecer todas sus opciones; la corrección configura el `MaterialAutoCompleteTextView` para que la etiqueta seleccionada no limite la lista y carga los adaptadores antes de aplicar las etiquetas.
 - **Ejecución, concurrencia y cancelación de operaciones:** los catálogos y la validación se cargan en `viewModelScope`; los Flows de Room se cancelan con `flatMapLatest` al cambiar filtros o búsqueda. La búsqueda usa `debounce(250 ms)` y `distinctUntilChanged`. La persistencia usa `dataStore.edit` (operaciones serializadas). No se lanzan consultas desde la Activity ni se bloquea el hilo principal.
 - **Errores, reintentos y prevención de duplicados:** un error de catálogo o de consulta se captura y se traduce a `error = true` con mensaje genérico, sin detalles técnicos. `reintentar()` vuelve a cargar catálogos/validación e incrementa un disparador para re-suscribir el resultado. El botón se deshabilita mientras hay carga. `observeResultado` usa `catch` dentro de `flatMapLatest` para no terminar el flujo ante un error puntual. No hay operaciones de escritura de viviendas que puedan duplicarse.
 - **Otras consideraciones mobile aplicables y su solución:**
@@ -273,7 +283,7 @@ Una captura aislada no demuestra persistencia ni ausencia de peticiones de red. 
 | CA-03 | UI: `MarcoEspressoTest.ca03_*` (nuevo) | Activity Marco | Texto exacto, centrado y estilo de título |
 | CA-04 | UI: `MarcoEspressoTest.ca04_*` (nuevo) + inspección de layout | Activity Marco en móvil/tablet | Tres filas en orden y componentes Outlined |
 | CA-05 | UI en móvil + manual en tablet | Móvil <600dp y tablet TB311XU ≥600dp | Tres filas en tablet; colapso/expansión conserva filtros en móvil |
-| CA-06 | UI: `scenario.recreate()` + manual TalkBack | Rotación, fuente normal, TalkBack | Filtros, búsqueda, Switch y expandido conservados; etiquetas y áreas táctiles |
+| CA-06 | UI: `scenario.recreate()` con `--Seleccione--` y con selección + manual TalkBack | Rotación, fuente normal, TalkBack | Filtros, búsqueda, Switch y expandido conservados; los cuatro menús muestran todas sus opciones; etiquetas y áreas táctiles |
 | CA-07 | UI: `MarcoEspressoTest` + unitario de `ConsultaMarco` | Fixtures con `CONGLOME`; Switch on/off | Coincidencias por contenido/case/trim; menús deshabilitados; Switch aplicado |
 | CA-08 | UI: `MarcoEspressoTest` (X y borrado) + `MarcoFiltrosDataStoreTest` | Búsqueda con filtros previos | Menús rehabilitados; selecciones restauradas; DataStore conserva los cinco valores |
 | CA-09 | DAO/integración: `MarcoDaoTest` + UI | Fixtures activos/inactivos | Solo activos con Switch on; ambos con off; combinación con filtros/búsqueda |
@@ -338,6 +348,7 @@ Incluye puntos de comprobación para avanzar con cambios pequeños. -->
 7. **Validación final:** suite unitaria e instrumentada completa, `lintDebug`, prueba manual en tablet/móvil, claro/oscuro, rotación y TalkBack; documentar tokens en `DESIGN_SYSTEM.md` y registrar evidencias/limitaciones en `TASKS.md` durante la implementación.
 8. **CR-003 (RF-15/RF-17/RF-23):** actualizar `ORDER BY` a `CONGLOME`, `NROVIVIENDA`, `VIVIENDA`, `HOGAR`; añadir las tres columnas/iconos de acción; extender `DetalleViviendaMarco` y los eventos/UI con identificación de fila; crear el diálogo reutilizable de acciones; actualizar pruebas. Comprobación: `MarcoDaoTest`, `MarcoViewModelTest`, `MarcoEspressoTest` y batería completa.
 9. **CR-004 (RF-14):** agregar `conglomerados` a `IndicadoresMarco`; consulta de conteo en `MarcoDao`; validar combinación/búsqueda/ODEI en `MarcoRepositoryImpl`; `GridLayout` 2/4 y string del cuarto indicador; actualizar pruebas. Comprobación: `MarcoDaoTest`, `MarcoRepositoryTest`, `MarcoMappersTest`, `MarcoViewModelTest`, `MarcoEspressoTest` y batería completa.
+10. **CR-005 (RF-05/RF-13):** corregir la pérdida de opciones de los cuatro desplegables al recrear la pantalla; impedir que el texto seleccionado filtre las opciones, cargar los adaptadores antes de aplicar las etiquetas y cubrir rotación con y sin selección. Comprobación: `MarcoEspressoTest` y batería completa.
 
 ## Riesgos y decisiones pendientes
 
@@ -356,7 +367,8 @@ Escribe Ninguna en las decisiones pendientes cuando estén resueltas. -->
   - **Orden con `NROVIVIENDA` nulo o duplicado:** se ordena con `COALESCE`/`NULLIF` y se conservan `VIVIENDA` y `HOGAR` como desempate para mantener el orden determinista y la fila por hogar; tests con nulos, vacíos y empates.
   - **Ancho y alineación de once columnas:** pesos/dimensiones tokenizadas, scroll horizontal y prueba en móvil/tablet; los iconos de acción mantienen área táctil de 48dp y descripción accesible.
   - **Conteo de N° Conglomerados:** se calcula desde `CAMPO_CONGLOMERADO` con `TRIM(ANHO) = '2026'` y `COUNT(DISTINCT CONGLOME)`; no se une `CAMPO_VIVIENDA_MARCO`, por lo que el Switch no lo altera. La combinación inválida y la búsqueda se resuelven en el repositorio con `null` → `--`; tests con 2027 y combinaciones parciales.
-- **Decisiones pendientes:** Ninguna. Las decisiones de producto y de alcance están resueltas en la SPEC aprobada; las elecciones técnicas de este plan no cambian el comportamiento. Para CR-004 quedaron confirmados el año base 2026, las cuatro combinaciones válidas, ODEI obligatorio, `--` con búsqueda activa, Switch sin efecto sobre N° Conglomerados y layout 2×2/1×4.
+  - **Pérdida de opciones tras rotación:** el texto de la etiqueta seleccionada filtra el `AutoCompleteTextView`; se configura el campo para que el texto no reduzca las opciones, se cargan los adaptadores antes de aplicar las etiquetas y se prueba con `--Seleccione--` y con selección. No se cambia la persistencia ni el ViewModel.
+- **Decisiones pendientes:** Ninguna. Las decisiones de producto y de alcance están resueltas en la SPEC aprobada; las elecciones técnicas de este plan no cambian el comportamiento. Para CR-004 quedaron confirmados el año base 2026, las cuatro combinaciones válidas, ODEI obligatorio, `--` con búsqueda activa, Switch sin efecto sobre N° Conglomerados y layout 2×2/1×4. Para CR-005 se corrige un defecto de presentación: tras rotar se conservan las selecciones y las listas completas de opciones; no hay RF nuevo ni cambio de datos.
 
 <!-- ANTES DE SOLICITAR APROBACIÓN
 Comprueba que el plan cubre los requisitos, respeta las exclusiones, reutiliza

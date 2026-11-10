@@ -1,8 +1,9 @@
 # TASKS: Marco de viviendas
 
-**SPEC:** docs/features/marco/SPEC.md (Aprobada 2026-10-22; actualizada 2026-11-09 por CR-004)
-**PLAN:** docs/features/marco/PLAN.md (Aprobado 2026-10-22; actualizado 2026-11-09 por CR-004)
+**SPEC:** docs/features/marco/SPEC.md (Aprobada 2026-10-22; actualizada 2026-11-09 por CR-005)
+**PLAN:** docs/features/marco/PLAN.md (Aprobado 2026-10-22; actualizado 2026-11-09 por CR-005)
 **Estado general:** Completada <!-- Pendiente | En curso | Completada -->
+**CR-005:** `Implementado`; MA-33/MA-34/MA-35 completadas y validadas.
 
 Tareas derivadas del PLAN aprobado. El orden respeta las dependencias
 técnicas; no se inicia una tarea hasta completar y validar sus dependencias.
@@ -260,6 +261,27 @@ Los identificadores usan el prefijo `MA-` (Marco) para no colisionar con
   - **Criterios:** CA-29 y regresión de CA-01..CA-28.
   - **Validación:** `.\gradlew.bat :app:assembleDebug`, `.\gradlew.bat :app:testDebugUnitTest`, `.\gradlew.bat :app:lintDebug`, `.\gradlew.bat :app:assembleDebugAndroidTest` y `.\gradlew.bat :app:connectedDebugAndroidTest`; registrar evidencias y pendientes. **Ejecutada 2026-11-09:** `assembleDebug` OK; unitarios **161/161**, 0 fallos; `lintDebug` **0 errores / 53 warnings**; `assembleDebugAndroidTest` OK; conectadas **67 ejecutadas + 1 omitida (68 casos), 0 fallos** en `TB311XU - 16`; `MarcoDaoTest` 10/10 y `MarcoEspressoTest` 17 casos (16 ejecutados + 1 omitido). CR-004 y `CHANGELOG.md` actualizados.
 
+- [x] **MA-33 · CR-005: documentación de rotación de filtros (RF-05/RF-13)**
+  - **Objetivo:** crear el CR-005 y actualizar SPEC/PLAN/TASKS para exigir que los cuatro desplegables conserven todas sus opciones al recrear la pantalla.
+  - **Alcance:** `docs/changes/CR-005-marco-filtros-rotacion.md`, `docs/features/marco/SPEC.md`, `docs/features/marco/PLAN.md`, `docs/features/marco/TASKS.md`.
+  - **Dependencias:** Ninguna.
+  - **Criterios:** RF-05, RF-13; CA-06.
+  - **Validación:** revisión de coherencia entre RF-05/RF-13, CA-06, PLAN y TASKS; no requiere build por ser cambio documental. **Ejecutada 2026-11-09:** CR-005 creado; SPEC, PLAN y TASKS actualizados; alcance y documentación aprobados por el usuario.
+
+- [x] **MA-34 · CR-005: conservar las opciones de los filtros tras recrear la pantalla (RF-05/RF-13)**
+  - **Objetivo:** corregir `MarcoActivity` para que, tras la rotación, abrir ODEI/MES/PERIODO/CONGLOMERADO muestre todas las opciones y conserve la etiqueta y la selección actuales.
+  - **Alcance:** `presentation/activities/MarcoActivity.kt`; `res/layout/activity_marco.xml` solo si la solución requiere un atributo de configuración; prueba en `MarcoEspressoTest`.
+  - **Dependencias:** MA-33.
+  - **Criterios:** RF-05, RF-08, RF-09, RF-10, RF-11, RF-13; CA-06, CA-10..CA-13.
+  - **Validación:** `.\gradlew.bat :app:assembleDebug`; `MarcoEspressoTest` con `scenario.recreate()` y apertura de los cuatro menús sin limpiar el texto; prueba manual con `--Seleccione--` y con ODEI/MES/PERIODO/CONGLOMERADO seleccionados. **Ejecutada 2026-11-09:** `assembleDebug` y `assembleDebugAndroidTest` OK; `MarcoEspressoTest` **19 casos (18 ejecutados + 1 omitido en tablet), 0 fallos** en `TB311XU - 16`; se añadieron `los_filtros_sin_seleccion_muestran_todas_las_opciones_al_recrear_la_pantalla` y `los_filtros_con_seleccion_muestran_todas_las_opciones_al_recrear_la_pantalla`, que abren los cuatro menús sin limpiar el texto tras `scenario.recreate()`. La corrección asigna `threshold = Int.MAX_VALUE` a los cuatro campos y ejecuta `renderCatalogo(...)` antes de `renderEtiquetas(...)`. No se hizo una sesión manual separada: los dos casos Espresso ejecutan el flujo real de rotación y apertura de los cuatro menús con y sin selección.
+
+- [x] **MA-35 · CR-005: validación integral y cierre**
+  - **Objetivo:** ejecutar la batería completa, registrar resultados y, solo si todo pasa, actualizar CR-005 a `Implementado` y `CHANGELOG.md`.
+  - **Alcance:** proyecto completo, `docs/changes/CR-005-marco-filtros-rotacion.md`, `docs/CHANGELOG.md`, este archivo.
+  - **Dependencias:** MA-34.
+  - **Criterios:** CA-06 y regresión de CA-01..CA-29.
+  - **Validación:** `.\gradlew.bat :app:assembleDebug`, `.\gradlew.bat :app:testDebugUnitTest`, `.\gradlew.bat :app:lintDebug`, `.\gradlew.bat :app:assembleDebugAndroidTest` y `.\gradlew.bat :app:connectedDebugAndroidTest`; registrar evidencias y pendientes. **Ejecutada 2026-11-09:** `assembleDebug` OK; unitarios **161/161**, 0 fallos; `lintDebug` **0 errores / 53 warnings**; `assembleDebugAndroidTest` OK; suite conectada **70 casos (69 ejecutados + 1 omitido), 0 fallos** en `TB311XU - 16`. CR-005 y `CHANGELOG.md` actualizados; sin pendientes de validación.
+
 ---
 
 ## Registro de evidencia
@@ -293,6 +315,15 @@ unitarios 161/161, lint 0 errores / 53 warnings, `androidTest` compilado y
 conectadas 67 ejecutadas + 1 omitida (68 casos), 0 fallos. El layout pasó en
 tablet, en teléfono con override y en modo oscuro; TalkBack se activó para el
 smoke test, sin revisión manual del contenido hablado.
+
+Resumen 2026-11-09 (CR-005): se corrigió la pérdida de opciones de los cuatro
+desplegables de Marco al recrear la pantalla. Los campos no editables usan un
+umbral de filtrado alto y los adaptadores se cargan antes de reponer las
+etiquetas, conservando selección y etiqueta. Se añadieron dos pruebas Espresso
+de rotación con y sin selección que abren los cuatro menús sin limpiar el
+texto. Batería completa: build debug y `androidTest` OK, unitarios 161/161,
+lint 0 errores / 53 warnings, conectadas 69 ejecutadas + 1 omitida (70 casos),
+0 fallos.
 
 Resumen final 2026-10-26: MA-20 completada en `TB311XU - 16`. Se validaron
 CA-05, CA-06, CA-15, CA-21, CA-22 y CA-25 en claro/oscuro, rotación, fuente
@@ -336,3 +367,6 @@ lint 0 errores / 53 warnings.
 | MA-30 | Completada | CR-004: `IndicadoresMarco.conglomerados`, consulta 2026, validación de combinación/búsqueda y mapeo; unitarios 161/161, `MarcoDaoTest` 10/10 (2026-11-09) | — |
 | MA-31 | Completada | CR-004: `GridLayout` 2×2/1×4, `gridIndicadores`, cabecera de 11 columnas y pruebas Espresso; tablet, teléfono override y modo oscuro en verde; TalkBack smoke (2026-11-09) | Revisión manual del contenido hablado de TalkBack |
 | MA-32 | Completada | CR-004: build, unitarios 161/161, lint 0 errores/53 warnings, androidTest y conectadas 67+1 (68), 0 fallos; CR y CHANGELOG actualizados (2026-11-09) | — |
+| MA-33 | Completada | CR-005 documentado: rotación con `--Seleccione--` y con selección; RF-05/RF-13 y CA-06 actualizados; alcance aprobado (2026-11-09) | — |
+| MA-34 | Completada | CR-005: `threshold = Int.MAX_VALUE` en los cuatro filtros, adaptadores antes de etiquetas y dos pruebas Espresso de rotación sin limpiar el texto; `MarcoEspressoTest` 19 casos (18+1 omitida), 0 fallos (2026-11-09) | — |
+| MA-35 | Completada | CR-005: build, unitarios 161/161, lint 0 errores/53 warnings, androidTest y conectadas 69+1 (70), 0 fallos; CR y CHANGELOG actualizados (2026-11-09) | — |

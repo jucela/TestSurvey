@@ -1,7 +1,7 @@
 # SPEC: Marco de viviendas
 
 **Estado:** Aprobada <!-- Borrador | En revisión | Aprobada -->
-**Última actualización:** 2026-11-09 (CR-004)
+**Última actualización:** 2026-11-09 (CR-005)
 
 <!-- PARA LA PERSONA
 Copia esta plantilla como SPEC.md en una carpeta de la funcionalidad.
@@ -51,7 +51,7 @@ criterios, decisiones del plan y tareas. -->
 - **RF-02:** Crear únicamente `CAMPO_VIVIENDA` y `CAMPO_HOGAR` mediante Room y una migración aditiva desde la versión actual, respetando columnas, tipos y restricciones del SQL de `docs/entities/VIVIENDA_HOGAR.sql`. Sin datos de prueba, sin migración destructiva y sin modificar ni eliminar datos de otras tablas.
 - **RF-03:** Mostrar el texto exacto "Relación de Viviendas del Conglomerado" como título principal, centrado en la parte superior y con estilo/tokens del Design System.
 - **RF-04:** Presentar una tarjeta de filtros con tres filas: (1) búsqueda Outlined + Switch "Activos"; (2) ODEI + MES; (3) PERIODO + CONGLOMERADO. Usar Material 3 con XML, sin Compose.
-- **RF-05:** En `sw600dp` o superior, tarjeta expandida con las tres filas visibles y controles distribuidos. Por debajo de 600dp, tarjeta colapsable desde la cabecera, sin perder los filtros al contraer. Respetar orientación, tamaños táctiles y accesibilidad.
+- **RF-05:** En `sw600dp` o superior, tarjeta expandida con las tres filas visibles y controles distribuidos. Por debajo de 600dp, tarjeta colapsable desde la cabecera, sin perder los filtros al contraer. Respetar orientación, tamaños táctiles y accesibilidad. Al recrear la pantalla por rotación, conservar filtros, búsqueda, Switch y estado expandido, y mantener disponibles todas las opciones de ODEI, MES, PERIODO y CONGLOMERADO.
 - **RF-06:** Búsqueda dinámica por `CONGLOME`: coincidencia por contenido, sin distinguir mayúsculas/minúsculas e ignorando espacios al inicio/fin. Mientras haya texto: actualizar tabla; respetar el Switch; suspender y deshabilitar los cuatro menús guardados sin borrarlos. Al borrar todo o pulsar X: limpiar búsqueda, rehabilitar menús, restaurar las selecciones previas y actualizar la tabla. Sin consultas excesivas ni bloqueo de la UI.
 - **RF-07:** Switch "Activos" M3 con etiqueta y check si el componente/DS lo permite: activado → solo `activo = 1`; desactivado → sin filtro de activo. Combinable con búsqueda y filtros; actualiza tabla e indicadores.
 - **RF-08:** ODEI: desplegable Outlined desde `ODEI`, primer elemento `--Seleccione--`, resto `CODODEI-NOMODEI` con datos reales, orden ascendente por código, sin hardcodear. `--Seleccione--` = sin filtro.
@@ -59,7 +59,7 @@ criterios, decisiones del plan y tareas. -->
 - **RF-10:** PERIODO: desplegable Outlined desde `PERIODO`, `--Seleccione--` primero, resto `NOMPER` real, orden ascendente por identificador. `--Seleccione--` = sin filtro. El filtro se relaciona con `CAMPO_CONGLOMERADO.PERIODO`.
 - **RF-11:** CONGLOMERADO: desplegable Outlined desde `CAMPO_CONGLOMERADO`, `--Seleccione--` primero, resto `CONGLOME + "->" + AREA_GEOGRAFICA` según reglas; `--Seleccione--` sin filtro. Las opciones dependen de ODEI, MES y PERIODO, en orden ascendente y sin duplicados. Si al cambiar un filtro superior la selección deja de existir, volver a `--Seleccione--` y actualizar la tabla.
 - **RF-12:** Filtros individuales y combinados; `--Seleccione--` en los cuatro = toda la muestra. Cada cambio actualiza conglomerados disponibles, tabla e indicadores. Consultas parametrizadas; nunca concatenar texto del usuario.
-- **RF-13:** Persistir en DataStore, por usuario autenticado: Switch + ODEI + MES + PERIODO + CONGLOMERADO, con identificadores reales. Recuperar al cambiar de pantalla, regresar, cerrar sesión y volver a iniciar sesión. Al restaurar: cargar catálogos, validar existencia, restaurar válidos, resetear inexistentes a `--Seleccione--` y actualizar la tabla.
+- **RF-13:** Persistir en DataStore, por usuario autenticado: Switch + ODEI + MES + PERIODO + CONGLOMERADO, con identificadores reales. Recuperar al cambiar de pantalla, regresar, cerrar sesión y volver a iniciar sesión. Al restaurar: cargar catálogos, validar existencia, restaurar válidos, resetear inexistentes a `--Seleccione--`, actualizar la tabla y mantener disponibles todas las opciones de los cuatro menús.
 - **RF-14:** Mostrar en una fila cuatro indicadores: Estrato (`ESTRATO`), Tipo Selección (`TIPOSELECCION`), Viviendas (`TIPOVIVIENDA`) y N° Conglomerados (`CONGLOME`). Estrato/Tipo solo con un conglomerado seleccionado y existente; si no hay uno único, `--`. Viviendas: contar viviendas distintas (no filas) con `TIPOVIVIENDA` en `{1, 4}` (seleccionadas) y en `{2, 3}` (reemplazo); otros/nulos no suman. Con filtros, contar según resultados; con todo en `--Seleccione--`, total. El Switch afecta los conteos de Viviendas; N° Conglomerados no depende del Switch. Misma base de filtros para tabla e indicadores. N° Conglomerados: contar `CONGLOME` distintos de `CAMPO_CONGLOMERADO` con `TRIM(ANHO) = '2026'`. Sin ODEI o con búsqueda activa, `--`. ODEI sola: todos sus meses/periodos de 2026; ODEI+MES: ese mes; ODEI+MES+PERIODO: ese periodo; ODEI+MES+PERIODO+CONGLOMERADO: `1`. Cualquier otra combinación, `--`. Con ODEI y sin datos, `0`.
 - **RF-15:** Tabla con RecyclerView y cabecera adaptable, once columnas en orden: Activo, Conglomerado, N°, Selección, Hogar, Reemplazo, Resultado, Detalle, Aperturar, Exportar, Acción. Cabecera y filas alineadas; scroll horizontal cuando haga falta; sin recortes. Orden ascendente por `CONGLOME`, `NROVIVIENDA`, `VIVIENDA` y `HOGAR` (valores nulos o vacíos se ordenan de forma segura y determinista). Una fila por hogar; si no hay hogar, una fila con Hogar `--`. La vivienda se repite intencionalmente por hogar; no es un duplicado incorrecto.
 - **RF-16:** Resultado desde `RESFIN`: 1 COMPLETA, 2 INCOMPLETA, 3 RECHAZO, 4 AUSENTE, 5 VIV.DESOCUPADA, 6 NO SE INICIO, 7 OTRO; nulo/vacío/espacios → SIN VISITAR; inesperado → OTRO. Nunca mostrar "null".
@@ -138,7 +138,7 @@ ni conservación de todo el estado. Expresa resultados, no mecanismos técnicos.
 | Sin conexión o conexión interrumpida | No aplica: los datos son locales (Room/DataStore) y la pantalla no requiere red. |
 | Cancelar o volver atrás | "Atrás" vuelve al menú; el diálogo se cierra sin cambios; los filtros quedan guardados. |
 | Pasar a segundo plano y regresar | Conserva filtros, búsqueda, Switch y estado; los datos siguen vigentes. |
-| Recrear la pantalla (rotación) | Conserva filtros, búsqueda, Switch, estado expandido y posición razonable de la lista. |
+| Recrear la pantalla (rotación) | Conserva filtros, búsqueda, Switch, estado expandido y posición razonable de la lista; los cuatro menús siguen mostrando todas sus opciones, no solo la seleccionada. |
 | Reabrir después de terminarse el proceso | Restaura los cinco filtros desde DataStore; la búsqueda puede iniciar vacía. |
 | Varios hogares por vivienda | Una fila por hogar; la vivienda se repite intencionalmente; el conteo no se infla. |
 | Valores inesperados | Aplicar los criterios seguros de RESFIN/TIPOVIVIENDA/activo; sin excepciones. |
@@ -177,7 +177,7 @@ Repite el formato según sea necesario. -->
 - **CA-03 · RF-03:** Al abrir la pantalla se lee "Relación de Viviendas del Conglomerado" centrado y con el estilo de título del DS.
 - **CA-04 · RF-04:** La tarjeta muestra, en este orden, búsqueda + Switch, ODEI + MES, PERIODO + CONGLOMERADO, con componentes Outlined de Material 3.
 - **CA-05 · RF-05:** En un dispositivo ≥600dp se ven las tres filas; en uno <600dp la cabecera colapsa/expande y al contraer se conservan los filtros.
-- **CA-06 · RF-05:** Al rotar se conservan filtros, búsqueda, Switch y estado; los controles tienen área táctil adecuada y etiquetas accesibles.
+- **CA-06 · RF-05:** Al rotar con los filtros en `--Seleccione--` y con selecciones, se conservan filtros, búsqueda, Switch y estado; al abrir ODEI, MES, PERIODO y CONGLOMERADO se ven todas sus opciones, no solo la seleccionada; los controles tienen área táctil adecuada y etiquetas accesibles.
 - **CA-07 · RF-06:** Al escribir en la búsqueda, la tabla se actualiza con coincidencias por contenido sin distinguir mayúsculas y los cuatro menús quedan deshabilitados; el Switch sigue aplicándose.
 - **CA-08 · RF-06:** Al pulsar X o borrar todo, la búsqueda se limpia, los menús se rehabilitan y las selecciones previas se restauran y reaplican; los filtros guardados nunca se borraron.
 - **CA-09 · RF-07:** Con el Switch activado solo aparecen `activo = 1`; desactivado aparecen activos e inactivos; ambos casos se combinan con filtros y búsqueda.
@@ -219,7 +219,7 @@ No marques los criterios como superados durante la especificación. -->
 | CA-03 | Abrir pantalla. | Título exacto, centrado. |
 | CA-04 | Revisar tarjeta y controles. | Tres filas en el orden indicado. |
 | CA-05 | Tablet y móvil; colapsar/expandir en móvil. | Tres filas / colapso conservando filtros. |
-| CA-06 | Rotar; usar TalkBack; medir áreas táctiles. | Estado conservado y controles accesibles. |
+| CA-06 | Rotar con los cuatro filtros en `--Seleccione--` y con selección; abrir cada menú; usar TalkBack; medir áreas táctiles. | Estado conservado; todas las opciones visibles en cada menú; controles accesibles. |
 | CA-07 | Escribir texto de conglomerado con Switch on/off. | Coincidencias correctas y menús deshabilitados. |
 | CA-08 | Pulsar X y borrar todo. | Menús rehabilitados y filtros previos restaurados. |
 | CA-09 | Activar/desactivar Switch con y sin filtros. | Solo activos / activos e inactivos. |
@@ -249,7 +249,7 @@ No marques los criterios como superados durante la especificación. -->
 <!-- Al resolverlas, actualiza las secciones afectadas. Escribe Ninguna cuando
 no queden pendientes funcionales ni restricciones por decidir. -->
 
-Ninguna. Quedaron confirmadas: una fila por hogar (conteo por vivienda), Switch afecta conteos, DataStore por usuario, búsqueda por contenido sin distinguir mayúsculas, criterios seguros para valores inesperados, tokens nuevos de color, colapso sin dependencias, `--` sin conglomerado único, datos reales + SIN CLASIFICAR y restricción SIS. La búsqueda suspende los cuatro filtros y los restaura al limpiar. Para CR-003 se confirmó: orden por `CONGLOME`, `NROVIVIENDA`, `VIVIENDA` y `HOGAR`; identificación con `NROVIVIENDA` y `VIVIENDA` en todos los diálogos; acciones registradas como RF-23; iconos propuestos por el agente. Para CR-004 se confirmó: año base 2026; solo las combinaciones ODEI, ODEI+MES, ODEI+MES+PERIODO y ODEI+MES+PERIODO+CONGLOMERADO muestran número; las demás muestran `--`; ODEI obligatorio; búsqueda activa muestra `--`; el Switch no altera N° Conglomerados; con conglomerado seleccionado y Switch ocultando todas sus viviendas se muestra `1`; layout 2×2 en teléfono y 1×4 en tablet.
+Ninguna. Quedaron confirmadas: una fila por hogar (conteo por vivienda), Switch afecta conteos, DataStore por usuario, búsqueda por contenido sin distinguir mayúsculas, criterios seguros para valores inesperados, tokens nuevos de color, colapso sin dependencias, `--` sin conglomerado único, datos reales + SIN CLASIFICAR y restricción SIS. La búsqueda suspende los cuatro filtros y los restaura al limpiar. Para CR-003 se confirmó: orden por `CONGLOME`, `NROVIVIENDA`, `VIVIENDA` y `HOGAR`; identificación con `NROVIVIENDA` y `VIVIENDA` en todos los diálogos; acciones registradas como RF-23; iconos propuestos por el agente. Para CR-004 se confirmó: año base 2026; solo las combinaciones ODEI, ODEI+MES, ODEI+MES+PERIODO y ODEI+MES+PERIODO+CONGLOMERADO muestran número; las demás muestran `--`; ODEI obligatorio; búsqueda activa muestra `--`; el Switch no altera N° Conglomerados; con conglomerado seleccionado y Switch ocultando todas sus viviendas se muestra `1`; layout 2×2 en teléfono y 1×4 en tablet. Para CR-005 se mantiene el alcance existente: tras rotar se conservan las selecciones y las listas completas de opciones de los cuatro filtros; no se agrega un RF nuevo.
 
 <!-- ANTES DE SOLICITAR APROBACIÓN
 Comprueba que el alcance está acordado, los flujos son coherentes, los puntos

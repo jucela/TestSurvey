@@ -94,6 +94,8 @@ class MarcoActivity : AppCompatActivity() {
     }
 
     private fun configurarFiltros() {
+        listOf(binding.spOdei, binding.spMes, binding.spPeriodo, binding.spConglomerado)
+            .forEach { it.setThreshold(Int.MAX_VALUE) }
         binding.etBusqueda.doAfterTextChanged { texto: Editable? ->
             if (actualizandoUi) return@doAfterTextChanged
             viewModel.onBusqueda(texto?.toString().orEmpty())
@@ -125,6 +127,7 @@ class MarcoActivity : AppCompatActivity() {
             binding.etBusqueda.setSelection(binding.etBusqueda.text?.length ?: 0)
         }
         binding.switchActivos.isChecked = state.filtros.soloActivos
+        renderCatalogo(state.catalogo, state.conglomerados)
         renderEtiquetas(state)
 
         val tablet = resources.getBoolean(R.bool.marco_es_tablet)
@@ -141,8 +144,6 @@ class MarcoActivity : AppCompatActivity() {
             TransitionManager.beginDelayedTransition(binding.root as android.view.ViewGroup)
             binding.contenidoFiltros.visibility = visibilidadContenido
         }
-
-        renderCatalogo(state.catalogo, state.conglomerados)
 
         val habilitado = !state.busquedaActiva
         binding.tilOdei.isEnabled = habilitado
