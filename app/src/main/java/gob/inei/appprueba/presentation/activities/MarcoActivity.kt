@@ -18,6 +18,7 @@ import gob.inei.appprueba.R
 import gob.inei.appprueba.databinding.ActivityMarcoBinding
 import gob.inei.appprueba.databinding.DialogDetalleViviendaBinding
 import gob.inei.appprueba.databinding.DialogMarcoAccionBinding
+import gob.inei.appprueba.databinding.DialogMarcoAccionSimpleBinding
 import gob.inei.appprueba.domain.entities.CatalogoMarco
 import gob.inei.appprueba.domain.entities.DetalleViviendaMarco
 import gob.inei.appprueba.domain.entities.FilaMarco
@@ -260,7 +261,15 @@ class MarcoActivity : AppCompatActivity() {
     }
 
     private fun mostrarAccion(accion: AccionMarco, fila: FilaMarco) {
-        val vista = DialogMarcoAccionBinding.inflate(layoutInflater)
+        when (accion) {
+            AccionMarco.ACCION -> mostrarDialogoAccion(fila)
+            AccionMarco.APERTURAR,
+            AccionMarco.EXPORTAR -> mostrarDialogoAccionSimple(accion, fila)
+        }
+    }
+
+    private fun mostrarDialogoAccionSimple(accion: AccionMarco, fila: FilaMarco) {
+        val vista = DialogMarcoAccionSimpleBinding.inflate(layoutInflater)
         vista.tvAccionConglomerado.text = valor(fila.conglome)
         vista.tvAccionNumero.text = valor(fila.nroVivienda)
         vista.tvAccionVivienda.text = valor(fila.vivienda)
@@ -273,6 +282,80 @@ class MarcoActivity : AppCompatActivity() {
             .setTitle(titulo)
             .setView(vista.root)
             .setPositiveButton(R.string.marco_detalle_cerrar, null)
+            .show()
+    }
+
+    private fun mostrarDialogoAccion(fila: FilaMarco) {
+        val vista = DialogMarcoAccionBinding.inflate(layoutInflater)
+        vista.tvAccionConglomerado.text = valor(fila.conglome)
+        vista.tvAccionNumero.text = valor(fila.nroVivienda)
+        vista.tvAccionVivienda.text = valor(fila.vivienda)
+
+        val cuestionarios = resources.getStringArray(R.array.marco_cuestionarios)
+        val capitulos = resources.getStringArray(R.array.marco_capitulos_enaho01)
+        val seleccione = getString(R.string.marco_seleccione)
+        val enaho01 = getString(R.string.marco_cuestionario_enaho01)
+
+        vista.spCuestionario.setSimpleItems(cuestionarios)
+        vista.spCuestionario.setText(seleccione, false)
+        vista.spCapitulo.setText("", false)
+        vista.tilCapitulo.isEnabled = false
+        vista.spCapitulo.isEnabled = false
+
+        vista.spCuestionario.setOnItemClickListener { _, _, position, _ ->
+            vista.tilCuestionario.error = null
+            if (cuestionarios.getOrNull(position) == enaho01) {
+                vista.tilCapitulo.isEnabled = true
+                vista.spCapitulo.isEnabled = true
+                vista.spCapitulo.setSimpleItems(capitulos)
+                vista.spCapitulo.setText("", false)
+            } else {
+                vista.tilCapitulo.isEnabled = false
+                vista.spCapitulo.isEnabled = false
+                vista.spCapitulo.setSimpleItems(emptyArray())
+                vista.spCapitulo.setText("", false)
+            }
+        }
+
+        val dialogo = MaterialAlertDialogBuilder(this)
+            .setView(vista.root)
+            .create()
+
+        vista.btnAccionAperturar.setOnClickListener {
+            mostrarAvisoProximamente(R.string.marco_accion_aperturar)
+        }
+        vista.btnAccionExportar.setOnClickListener {
+            mostrarAvisoProximamente(R.string.marco_accion_exportar)
+        }
+        vista.btnAccionImportar.setOnClickListener {
+            mostrarAvisoProximamente(R.string.marco_accion_importar)
+        }
+        vista.btnAccionIntercambiar.setOnClickListener {
+            mostrarAvisoProximamente(R.string.marco_accion_intercambiar)
+        }
+        vista.btnMostrar.setOnClickListener {
+            val cuestionario = vista.spCuestionario.text?.toString().orEmpty()
+            if (cuestionario.isBlank() || cuestionario == seleccione) {
+                vista.tilCuestionario.error =
+                    getString(R.string.marco_accion_error_cuestionario)
+            } else {
+                vista.tilCuestionario.error = null
+                MaterialAlertDialogBuilder(this)
+                    .setTitle(R.string.marco_accion_proximamente)
+                    .setPositiveButton(R.string.marco_accion_aceptar, null)
+                    .show()
+            }
+        }
+        vista.btnCancelarAccion.setOnClickListener { dialogo.dismiss() }
+        dialogo.show()
+    }
+
+    private fun mostrarAvisoProximamente(titulo: Int) {
+        MaterialAlertDialogBuilder(this)
+            .setTitle(titulo)
+            .setMessage(R.string.marco_accion_mensaje_proximamente)
+            .setPositiveButton(R.string.marco_accion_aceptar, null)
+            .setNegativeButton(R.string.marco_accion_cancelar, null)
             .show()
     }
 

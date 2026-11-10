@@ -1,9 +1,10 @@
 # TASKS: Marco de viviendas
 
-**SPEC:** docs/features/marco/SPEC.md (Aprobada 2026-10-22; actualizada 2026-11-09 por CR-006)
-**PLAN:** docs/features/marco/PLAN.md (Aprobado 2026-10-22; actualizado 2026-11-09 por CR-006)
-**Estado general:** Completada <!-- Pendiente | En curso | Completada -->
+**SPEC:** docs/features/marco/SPEC.md (Aprobada 2026-10-22; actualizada y aprobada 2026-11-10 por CR-007)
+**PLAN:** docs/features/marco/PLAN.md (Aprobado 2026-10-22; actualizado y aprobado 2026-11-10 por CR-007)
+**Estado general:** Finalizada (CR-007) <!-- Pendiente | En curso | Completada -->
 **CR-006:** `Implementado`; MA-36/MA-37 completadas y validadas.
+**CR-007:** `Implementado`; MA-38 completada; MA-39..MA-41 completadas.
 
 Tareas derivadas del PLAN aprobado. El orden respeta las dependencias
 técnicas; no se inicia una tarea hasta completar y validar sus dependencias.
@@ -296,6 +297,36 @@ Los identificadores usan el prefijo `MA-` (Marco) para no colisionar con
   - **Criterios:** CA-13 y regresión de CA-01..CA-29.
   - **Validación:** `.\gradlew.bat :app:assembleDebug`, `.\gradlew.bat :app:testDebugUnitTest`, `.\gradlew.bat :app:lintDebug`, `.\gradlew.bat :app:assembleDebugAndroidTest` y `.\gradlew.bat :app:connectedDebugAndroidTest`; registrar evidencias y pendientes. **Ejecutada 2026-11-09:** `assembleDebug` OK; unitarios **161/161**, 0 fallos; `lintDebug` **0 errores / 53 warnings**; `assembleDebugAndroidTest` OK; conectadas **70 casos (69 ejecutados + 1 omitido), 0 fallos** en `TB311XU - 16`. CR-006 y `CHANGELOG.md` actualizados; sin pendientes de validación.
 
+## Fase 6 — CR-007: diálogo de Acción con acciones y atajos
+
+- [x] **MA-38 · CR-007: documentación de RF-23/RF-24/RF-25 y CA-30..CA-34**
+  - **Objetivo:** crear CR-007 y actualizar SPEC/PLAN/TASKS con el diálogo de Acción, sus reglas y su validación.
+  - **Alcance:** `docs/changes/CR-007-marco-dialogo-accion-atajos.md`, `docs/features/marco/SPEC.md`, `docs/features/marco/PLAN.md`, `docs/features/marco/TASKS.md`.
+  - **Dependencias:** Ninguna para la documentación; aprobación del usuario antes de implementar.
+  - **Criterios:** RF-23, RF-24, RF-25; CA-30..CA-34.
+  - **Validación:** revisión de coherencia entre RF, CA, PLAN y TASKS; no requiere build por ser cambio documental. **Ejecutada 2026-11-10:** documentación revisada y aprobada por el usuario; CR-007 en `Aprobado`. La implementación sigue pendiente de autorización explícita.
+
+-s[x] **MA-39 · CR-007: recursos y layout del diálogo de Acción**
+  - **Objetivo:** añadir strings, arrays de Cuestionario/Capítulo y `marco_accion_columnas` (2/4); rediseñar `dialog_marco_accion.xml` con cabecera, divisores Material 3, sección Acciones con cuatro botones, sección Atajos con dos desplegables y Mostrar, divisor, Cancelar y contenido desplazable.
+  - **Alcance:** `res/values/strings.xml`, `res/values/arrays.xml` (nuevo), `res/values/integers.xml`, `res/values-sw600dp/integers.xml`, `res/layout/dialog_marco_accion.xml`.
+  - **Dependencias:** MA-38 y aprobación explícita de implementación.
+  - **Criterios:** RF-24, RF-25; CA-30, CA-32, CA-34.
+  - **Validación:** `.\gradlew.bat :app:assembleDebug`; inspección de jerarquía, orden de secciones, 2×2/1×4, scroll y áreas táctiles; prueba manual en teléfono/tablet y fuente 200 %. **Pendiente.**
+
+-s[x] **MA-40 · CR-007: lógica de presentación del diálogo de Acción**
+  - **Objetivo:** ampliar `MarcoActivity.mostrarAccion` para `AccionMarco.ACCION`: cabecera con identificación, opciones de Cuestionario/Capítulo, dependencia ENAHO-01 (Capítulo inicia vacío y no usa `--Seleccione--`), validación de Mostrar con error, aviso "Próximamente", diálogos informativos de las cuatro acciones y Cancelar; conservar Aperturar/Exportar informativos.
+  - **Alcance:** `presentation/activities/MarcoActivity.kt`; sin cambios en dominio, datos, Room, DataStore ni ViewModel.
+  - **Dependencias:** MA-39.
+  - **Criterios:** RF-23, RF-24, RF-25; CA-30..CA-34.
+  - **Validación:** `.\gradlew.bat :app:assembleDebug`; `MarcoEspressoTest` de cabecera, acciones, dependencia de Capítulo, validación de Mostrar y no replicación. **Pendiente.**
+
+-s[x] **MA-41 · CR-007: pruebas y validación integral/cierre**
+  - **Objetivo:** añadir los casos Espresso de CA-30..CA-34, ejecutar la batería completa, validar manualmente teléfono/tablet, claro/oscuro, fuente 200 % y TalkBack, y actualizar CR-007/CHANGELOG solo si todo pasa.
+  - **Alcance:** `app/src/androidTest/java/gob/inei/appprueba/presentation/activities/MarcoEspressoTest.kt`, `docs/changes/CR-007-marco-dialogo-accion-atajos.md`, `docs/CHANGELOG.md`, este archivo.
+  - **Dependencias:** MA-40.
+  - **Criterios:** CA-30..CA-34 y regresión de CA-01..CA-29.
+  - **Validación:** `.\gradlew.bat :app:assembleDebug`, `.\gradlew.bat :app:testDebugUnitTest`, `.\gradlew.bat :app:lintDebug`, `.\gradlew.bat :app:assembleDebugAndroidTest` y `.\gradlew.bat :app:connectedDebugAndroidTest`; registrar evidencias y pendientes. **Pendiente.**
+
 ---
 
 ## Registro de evidencia
@@ -393,3 +424,7 @@ lint 0 errores / 53 warnings.
 | MA-35 | Completada | CR-005: build, unitarios 161/161, lint 0 errores/53 warnings, androidTest y conectadas 69+1 (70), 0 fallos; CR y CHANGELOG actualizados (2026-11-09) | — |
 | MA-36 | Completada | CR-006: `TIPOSELECCION = 3` + ESTRATO 7-8 → `RURAL->PANEL`; 9+ → `SIN CLASIFICAR`; `MarcoReglasTest` 5/5, 0 fallos (2026-11-09) | — |
 | MA-37 | Completada | CR-006: build, unitarios 161/161, lint 0 errores/53 warnings, androidTest y conectadas 69+1 (70), 0 fallos; CR y CHANGELOG actualizados (2026-11-09) | — |
+| MA-38 | Completada | CR-007: documentación revisada y aprobada por el usuario; SPEC/PLAN en estado aprobado (2026-11-10) | — |
+| MA-39 | Pendiente | — | Implementación autorizada |
+| MA-40 | Pendiente | — | MA-39 |
+| MA-41 | Pendiente | — | MA-40 |

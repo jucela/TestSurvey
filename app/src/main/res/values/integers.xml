@@ -4,4 +4,6 @@
     <integer name="preguntas_columnas">1</integer>
     <!-- Indicadores de Marco en telefono: 2x2 -->
     <integer name="marco_indicadores_columnas">2</integer>
+    <!-- Botones de Acciones del dialogo de Accion en telefono: 2x2 -->
+    <integer name="marco_accion_columnas">2</integer>
 </resources>

@@ -1,7 +1,7 @@
 # SPEC: Marco de viviendas
 
 **Estado:** Aprobada <!-- Borrador | En revisión | Aprobada -->
-**Última actualización:** 2026-11-09 (CR-006)
+**Última actualización:** 2026-11-10 (CR-007 aprobado)
 
 <!-- PARA LA PERSONA
 Copia esta plantilla como SPEC.md en una carpeta de la funcionalidad.
@@ -69,7 +69,9 @@ criterios, decisiones del plan y tareas. -->
 - **RF-20:** Funcionar con `CAMPO_VIVIENDA`/`CAMPO_HOGAR` vacías y con datos; tolerar nulos y espacios en blanco sin excepciones ni cierres.
 - **RF-21:** Estados seguros: sin muestra/conglomerados y sin resultados → mensaje informativo sin error; carga → indicador sin bloquear; error de consulta → estado seguro sin cerrar la app.
 - **RF-22:** Mantener UI, estado de filtros, reglas, consultas, modelos y persistencia separados; sin SQL en Activity/Fragment; consultas fuera del hilo principal; búsqueda reactiva; no recrear toda la pantalla por cada cambio.
-- **RF-23:** Acciones por fila: columnas Aperturar, Exportar y Acción, cada una con un icono distinto por fila. Al pulsar el icono se abre un diálogo informativo con la identificación de la fila (Conglomerado, `NROVIVIENDA` y `VIVIENDA`). Los diálogos de Aperturar, Exportar y Acción no ejecutan operaciones ni modifican datos en este alcance. Iconos con descripción accesible y área táctil adecuada; los diálogos se cierran sin cambios.
+- **RF-23:** Acciones por fila: columnas Aperturar, Exportar y Acción, cada una con un icono distinto por fila. Al pulsar Aperturar o Exportar se abre un diálogo informativo con la identificación de la fila (Conglomerado, `NROVIVIENDA` y `VIVIENDA`). Al pulsar Acción se abre el diálogo de RF-24. Ninguno de estos diálogos ejecuta operaciones reales ni modifica datos en este alcance. Iconos con descripción accesible y área táctil adecuada; los diálogos se cierran sin cambios.
+- **RF-24:** Diálogo de Acción, exclusivo de la columna Acción de la tabla Marco. Orden del contenido: (1) cabecera en una fila con Conglomerado, N° vivienda y Vivienda de la fila, que sustituye al título del diálogo; (2) divisor Material 3; (3) sección "Acciones:" con cuatro botones: Aperturar, Exportar, Importar e Intercambiar; (4) sección "Atajos:" con los desplegables Cuestionario y Capítulo y el botón Mostrar; (5) divisor Material 3; (6) botón Cancelar. Los cuatro botones de Acciones abren un diálogo informativo con el título de la acción, el mensaje "Esta acción estará disponible próximamente." y botones Aceptar y Cancelar; Aceptar solo cierra y no ejecuta la acción. En teléfono y tablet los cuatro botones se distribuyen en 2×2; el contenido es desplazable si no cabe. El diálogo no se replica en Detalle, Aperturar ni Exportar.
+- **RF-25:** Atajos del diálogo de Acción. Cuestionario ofrece, en este orden, `--Seleccione--`, ENAHO-01, ENAHO-01A, ENAHO-01B, ENAHO-02 y ENAHO-04. Capítulo solo se habilita cuando Cuestionario es ENAHO-01; al habilitarse inicia vacío y ofrece Cap100, Cap100-Agua, Cap-Mascotas, Cap200, Cap600, Cap700, Cap700A, Cap800 e Ins. Alimentaria; con cualquier otra opción de Cuestionario, Capítulo se vacía y queda deshabilitado. Mostrar exige un Cuestionario seleccionado: sin Cuestionario muestra un error y no avanza; con Cuestionario distinto de ENAHO-01 (una selección) o con ENAHO-01 con o sin Capítulo (una o dos selecciones) muestra el aviso "Próximamente" y no navega. Las listas son fijas en este alcance; no provienen de catálogos ni de Room.
 
 ## Fuera de alcance
 
@@ -77,8 +79,10 @@ criterios, decisiones del plan y tareas. -->
 adicionales, indícalo tras revisarlo con la persona. -->
 
 - Edición, alta o baja de viviendas/hogares y registro de encuestas; `CAMPO_VIVIENDA`/`CAMPO_HOGAR` se llenan en el trabajo de campo.
-- Exportación real, cobertura, FTP y sincronización. La columna/acción "Exportar" de RF-23 solo abre un diálogo informativo en este alcance.
-- Operaciones reales de apertura o gestión de encuestas desde Aperturar/Acción; por ahora solo muestran identificación de la fila.
+- Exportación real, importación desde servidor, intercambio de vivienda, cobertura, FTP y sincronización. Los botones Exportar, Importar e Intercambiar de RF-24 solo muestran un aviso informativo en este alcance.
+- Operaciones reales de apertura o gestión de encuestas desde Aperturar/Acción, y navegación a la primera pantalla del cuestionario/capítulo desde Mostrar; por ahora solo muestran identificación o avisos informativos.
+- Persistencia de las selecciones de Atajos, del estado del diálogo o de la acción elegida.
+- Catálogos dinámicos de cuestionarios/capítulos; en este alcance son listas fijas.
 - Insertar datos de prueba o seeds; incluido no ejecutar los INSERT del SQL.
 - Cambiar la restricción SIS existente.
 - Cambios al menú lateral, a otras pantallas o al esquema de las tablas existentes.
@@ -95,7 +99,7 @@ Incluye pantallas afectadas, navegación y alternativas relevantes. -->
 4. El usuario elige un conglomerado y ve Estrato, Tipo y N° Conglomerados; ajusta el Switch y/o escribe en la búsqueda; tabla e indicadores se actualizan.
 5. Al limpiar la búsqueda, se rehabilitan los cuatro menús y se restauran las selecciones previas.
 6. El usuario pulsa el icono de detalle y revisa la identificación y la dirección; cierra el diálogo sin cambios.
-7. El usuario pulsa los iconos de Aperturar, Exportar o Acción y revisa la identificación de la fila; cierra el diálogo sin que se ejecute ninguna operación.
+7. El usuario pulsa Aperturar o Exportar y revisa la identificación de la fila; cierra el diálogo sin que se ejecute ninguna operación. Al pulsar Acción se abre el diálogo con cabecera, Acciones y Atajos; los cuatro botones de Acciones muestran el aviso "Esta acción estará disponible próximamente." y Mostrar valida el cuestionario/capítulo y muestra "Próximamente"; Cancelar cierra sin cambios.
 8. Al salir y volver, o tras cerrar/iniciar sesión, se recuperan los filtros del usuario.
 9. "Atrás" vuelve al menú principal.
 
@@ -121,6 +125,8 @@ y comportamiento, sin diseñar tablas, DTO, DAO ni almacenamiento. -->
 - La búsqueda no se persiste (no forma parte de los cinco datos solicitados); tras reiniciar el proceso puede iniciar vacía.
 - Orden de tabla: `CONGLOME`, `NROVIVIENDA`, `VIVIENDA`, `HOGAR` ascendente, con nulos/vacíos ordenados de forma segura y determinista.
 - Identificación de fila en diálogos (Detalle, Aperturar, Exportar y Acción): Conglomerado, `NROVIVIENDA` (o `--` si no hay valor) y `VIVIENDA`; no se muestran cadenas vacías ni "null".
+- Diálogo de Acción (RF-24/RF-25): solo se abre desde la columna Acción. La cabecera usa Conglomerado, `NROVIVIENDA` y `VIVIENDA` con las mismas reglas de `--` que el resto de diálogos. Los botones Aperturar, Exportar, Importar e Intercambiar no ejecutan la acción: abren un diálogo con el título de la acción, el mensaje "Esta acción estará disponible próximamente." y Aceptar/Cancelar; Aceptar solo cierra. El botón Cancelar del diálogo de Acción cierra sin modificar datos ni filtros.
+- Atajos: las opciones de Cuestionario y Capítulo son listas fijas. Capítulo depende de ENAHO-01: con ENAHO-01 se habilita vacío y permite elegir capítulo; con `--Seleccione--` o cualquier otro cuestionario se deshabilita y se vacía. Mostrar valida que haya Cuestionario; si no, muestra el error "Seleccione un cuestionario" y no avanza. Si hay Cuestionario, la selección es válida con 1 opción (solo Cuestionario) o 2 (ENAHO-01 + Capítulo) y muestra el aviso "Próximamente"; no navega ni persiste la selección.
 
 ## Comportamiento mobile y casos alternativos
 
@@ -136,10 +142,14 @@ ni conservación de todo el estado. Expresa resultados, no mecanismos técnicos.
 | Entrada inválida | La búsqueda admite texto libre; se aplica trim; caracteres especiales se tratan como texto; sin excepciones. |
 | Error o espera excesiva | Estado de error seguro con opción de reintentar o volver; no cierra la app ni expone detalles técnicos. |
 | Sin conexión o conexión interrumpida | No aplica: los datos son locales (Room/DataStore) y la pantalla no requiere red. |
-| Cancelar o volver atrás | "Atrás" vuelve al menú; el diálogo se cierra sin cambios; los filtros quedan guardados. |
+| Cancelar o volver atrás | "Atrás" vuelve al menú; el diálogo se cierra sin cambios; los filtros quedan guardados. Cancelar en el diálogo de Acción cierra sin modificar datos ni filtros. |
 | Pasar a segundo plano y regresar | Conserva filtros, búsqueda, Switch y estado; los datos siguen vigentes. |
 | Recrear la pantalla (rotación) | Conserva filtros, búsqueda, Switch, estado expandido y posición razonable de la lista; los cuatro menús siguen mostrando todas sus opciones, no solo la seleccionada. |
+| Recrear la pantalla con el diálogo de Acción abierto | El diálogo se cierra sin ejecutar operaciones; las selecciones de Atajos no se persisten. |
 | Reabrir después de terminarse el proceso | Restaura los cinco filtros desde DataStore; la búsqueda puede iniciar vacía. |
+| Diálogo de Acción en pantalla pequeña o fuente grande | Contenido desplazable; cuatro botones en 2×2; sin recortes; Cancelar accesible. |
+| Diálogo de Acción en tablet | Cuatro botones en 1×4; cabecera, secciones y divisores visibles. |
+| Validación de Atajos | Sin Cuestionario se muestra error y no se avanza; con 1 o 2 selecciones se muestra "Próximamente"; Capítulo deshabilitado fuera de ENAHO-01. |
 | Varios hogares por vivienda | Una fila por hogar; la vivienda se repite intencionalmente; el conteo no se infla. |
 | Valores inesperados | Aplicar los criterios seguros de RESFIN/TIPOVIVIENDA/activo; sin excepciones. |
 | Accesibilidad | Etiquetas y descripciones; área táctil adecuada; contraste; el color no es el único indicador. |
@@ -162,6 +172,12 @@ No conviertas una preferencia del agente en una restricción. -->
 - Sin dependencias innecesarias; el colapso se resuelve con mecanismos del proyecto.
 - Colores por tokens del DS, sin hardcode.
 - Accesibilidad: etiquetas, descripción del icono, área táctil, contraste; el color no es el único indicador.
+- El diálogo de Acción es el único que se amplía; Detalle, Aperturar y Exportar conservan su contenido y comportamiento.
+- Orden exacto del diálogo de Acción: cabecera, divisor Material 3, Acciones, Atajos, divisor Material 3 y Cancelar.
+- Los cuatro botones de Acciones y el botón Mostrar no ejecutan operaciones ni navegación real en este alcance; solo muestran avisos.
+- Opciones fijas de Cuestionario y Capítulo; no se crean catálogos ni tablas.
+- Cuatro botones en 2×2 en teléfono y 2×2 en tablet; contenido desplazable si no cabe.
+- Sin Compose; XML + Material 3; reutilizar `MaterialAlertDialogBuilder`, `TextInputLayout` y `MaterialAutoCompleteTextView`.
 - No insertar datos de prueba en la base de la app; las pruebas con datos usan una base aislada/fixtures.
 - Conservar Clean Architecture, MVVM, Hilt, Coroutines/Flow, ViewBinding, RecyclerView y las convenciones existentes.
 - No afirmar pruebas no ejecutadas.
@@ -201,6 +217,11 @@ Repite el formato según sea necesario. -->
 - **CA-27 · RF-23:** Las columnas Aperturar, Exportar y Acción muestran iconos distintos por fila; al pulsar cada uno se abre un diálogo con Conglomerado, `NROVIVIENDA` y `VIVIENDA` de esa fila; cerrar no modifica datos ni estado.
 - **CA-28 · RF-23:** Los iconos de Aperturar, Exportar y Acción tienen descripción accesible y área táctil adecuada; los diálogos son legibles y cerrables sin ejecutar operaciones reales.
 - **CA-29 · RF-14:** "N° Conglomerados" cuenta `CONGLOME` distintos de `CAMPO_CONGLOMERADO` con `TRIM(ANHO) = '2026'`. Sin ODEI o con búsqueda activa muestra `--`; con ODEI sola, ODEI+MES, ODEI+MES+PERIODO o ODEI+MES+PERIODO+CONGLOMERADO muestra el conteo (o `1`); cualquier otra combinación muestra `--`. El Switch no lo altera; con ODEI y sin datos muestra `0`.
+- **CA-30 · RF-24:** Al pulsar Acción se abre un diálogo sin título "Acción" cuya cabecera muestra, en una fila, Conglomerado, N° vivienda y Vivienda; debajo aparece un divisor Material 3, la sección "Acciones:" con Aperturar, Exportar, Importar e Intercambiar, la sección "Atajos:" con Cuestionario, Capítulo y Mostrar, otro divisor Material 3 y el botón Cancelar.
+- **CA-31 · RF-24:** Cada botón de Acciones abre un diálogo con el título de la acción, el mensaje "Esta acción estará disponible próximamente." y botones Aceptar y Cancelar; Aceptar y Cancelar solo cierran y no modifican datos ni estado.
+- **CA-32 · RF-25:** Cuestionario lista `--Seleccione--`, ENAHO-01, ENAHO-01A, ENAHO-01B, ENAHO-02 y ENAHO-04; Capítulo está deshabilitado y vacío salvo con ENAHO-01, donde se habilita, inicia vacío y lista Cap100, Cap100-Agua, Cap-Mascotas, Cap200, Cap600, Cap700, Cap700A, Cap800 e Ins. Alimentaria.
+- **CA-33 · RF-25:** Mostrar sin Cuestionario muestra el error "Seleccione un cuestionario" y no avanza; con Cuestionario distinto de ENAHO-01 (1 selección) o con ENAHO-01 con o sin Capítulo (1 o 2 selecciones) muestra el aviso "Próximamente" y no navega.
+- **CA-34 · RF-24/RF-25:** El diálogo de Acción se adapta a 2×2 en teléfono y 2×2 en tablet, permite desplazarse sin recortes, tiene etiquetas/descripciones y áreas táctiles adecuadas, y no se replica en Detalle, Aperturar ni Exportar.
 
 ## Cómo se comprueba el comportamiento
 
@@ -243,13 +264,18 @@ No marques los criterios como superados durante la especificación. -->
 | CA-27 | Pulsar Aperturar, Exportar y Acción en varias filas. | Diálogos con Conglomerado, `NROVIVIENDA` y `VIVIENDA`; sin cambios de datos. |
 | CA-28 | Revisar iconos y diálogos con TalkBack. | Descripciones accesibles, área táctil y cierre correctos; sin operaciones reales. |
 | CA-29 | Probar ODEI sola, ODEI+MES, ODEI+MES+PERIODO, +CONGLOMERADO, ODEI+PERIODO y búsqueda activa; revisar año 2026. | Conteo distinto de conglomerados 2026, `1`, `0` o `--` según la combinación; el Switch no cambia el valor. |
+| CA-30 | Abrir Acción en una fila. | Cabecera, divisores, secciones y botones en el orden indicado; sin título "Acción". |
+| CA-31 | Pulsar cada botón de Acciones y Aceptar/Cancelar. | Diálogo con título, mensaje y botones; sin cambios de datos. |
+| CA-32 | Abrir Cuestionario; elegir ENAHO-01 y otra opción; abrir Capítulo. | Opciones exactas; Capítulo solo con ENAHO-01, inicia vacío; vacío/disabled en otros casos. |
+| CA-33 | Pulsar Mostrar sin Cuestionario, con ENAHO-01, con ENAHO-01+Capítulo y con otro cuestionario. | Error sin Cuestionario; aviso "Próximamente" en los casos válidos; sin navegación. |
+| CA-34 | Teléfono y tablet; fuente 200 %; TalkBack; abrir Detalle/Aperturar/Exportar. | 2×2/1×4, scroll, accesibilidad y diálogos sin cambios. |
 
 ## Decisiones pendientes
 
 <!-- Al resolverlas, actualiza las secciones afectadas. Escribe Ninguna cuando
 no queden pendientes funcionales ni restricciones por decidir. -->
 
-Ninguna. Quedaron confirmadas: una fila por hogar (conteo por vivienda), Switch afecta conteos, DataStore por usuario, búsqueda por contenido sin distinguir mayúsculas, criterios seguros para valores inesperados, tokens nuevos de color, colapso sin dependencias, `--` sin conglomerado único, datos reales + SIN CLASIFICAR y restricción SIS. La búsqueda suspende los cuatro filtros y los restaura al limpiar. Para CR-003 se confirmó: orden por `CONGLOME`, `NROVIVIENDA`, `VIVIENDA` y `HOGAR`; identificación con `NROVIVIENDA` y `VIVIENDA` en todos los diálogos; acciones registradas como RF-23; iconos propuestos por el agente. Para CR-004 se confirmó: año base 2026; solo las combinaciones ODEI, ODEI+MES, ODEI+MES+PERIODO y ODEI+MES+PERIODO+CONGLOMERADO muestran número; las demás muestran `--`; ODEI obligatorio; búsqueda activa muestra `--`; el Switch no altera N° Conglomerados; con conglomerado seleccionado y Switch ocultando todas sus viviendas se muestra `1`; layout 2×2 en teléfono y 1×4 en tablet. Para CR-005 se mantiene el alcance existente: tras rotar se conservan las selecciones y las listas completas de opciones de los cuatro filtros; no se agrega un RF nuevo. Para CR-006 se confirma: `TIPOSELECCION = 3` + ESTRATO 7 u 8 → `RURAL->PANEL`; ESTRATO 9 o mayor → `SIN CLASIFICAR`; no se agrega un RF nuevo.
+Ninguna. Quedaron confirmadas: una fila por hogar (conteo por vivienda), Switch afecta conteos, DataStore por usuario, búsqueda por contenido sin distinguir mayúsculas, criterios seguros para valores inesperados, tokens nuevos de color, colapso sin dependencias, `--` sin conglomerado único, datos reales + SIN CLASIFICAR y restricción SIS. La búsqueda suspende los cuatro filtros y los restaura al limpiar. Para CR-003 se confirmó: orden por `CONGLOME`, `NROVIVIENDA`, `VIVIENDA` y `HOGAR`; identificación con `NROVIVIENDA` y `VIVIENDA` en todos los diálogos; acciones registradas como RF-23; iconos propuestos por el agente. Para CR-004 se confirmó: año base 2026; solo las combinaciones ODEI, ODEI+MES, ODEI+MES+PERIODO y ODEI+MES+PERIODO+CONGLOMERADO muestran número; las demás muestran `--`; ODEI obligatorio; búsqueda activa muestra `--`; el Switch no altera N° Conglomerados; con conglomerado seleccionado y Switch ocultando todas sus viviendas se muestra `1`; layout 2×2 en teléfono y 1×4 en tablet. Para CR-005 se mantiene el alcance existente: tras rotar se conservan las selecciones y las listas completas de opciones de los cuatro filtros; no se agrega un RF nuevo. Para CR-006 se confirma: `TIPOSELECCION = 3` + ESTRATO 7 u 8 → `RURAL->PANEL`; ESTRATO 9 o mayor → `SIN CLASIFICAR`; no se agrega un RF nuevo. Para CR-007 se confirmó: el alcance de esta iteración es UI + validación; los cuatro botones de Acciones muestran un diálogo informativo con título, mensaje "Esta acción estará disponible próximamente." y Aceptar/Cancelar; Mostrar válido muestra el aviso "Próximamente" y no navega; distribución 2×2 en teléfono y 2×2 en tablet; la cabecera de identificación sustituye al título "Acción"; Capítulo solo se habilita con ENAHO-01, inicia vacío y no usa `--Seleccione--`; las listas son fijas; el cambio solo aplica al diálogo de Acción.
 
 <!-- ANTES DE SOLICITAR APROBACIÓN
 Comprueba que el alcance está acordado, los flujos son coherentes, los puntos

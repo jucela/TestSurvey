@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="marco_cuestionarios">
+        <item>@string/marco_seleccione</item>
+        <item>ENAHO-01</item>
+        <item>ENAHO-01A</item>
+        <item>ENAHO-01B</item>
+        <item>ENAHO-02</item>
+        <item>ENAHO-04</item>
+    </string-array>
+
+    <string-array name="marco_capitulos_enaho01">
+        <item>Cap100</item>
+        <item>Cap100-Agua</item>
+        <item>Cap-Mascotas</item>
+        <item>Cap200</item>
+        <item>Cap600</item>
+        <item>Cap700</item>
+        <item>Cap700A</item>
+        <item>Cap800</item>
+        <item>Ins. Alimentaria</item>
+    </string-array>
+</resources>

@@ -16,11 +16,12 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onData
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.clearText
 import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.action.ViewActions.replaceText
 import androidx.test.espresso.action.ViewActions.replaceText
 import androidx.test.espresso.action.ViewActions.swipeUp
 import androidx.test.espresso.action.ViewActions.typeText
+import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.NavigationViewActions
 import androidx.test.espresso.contrib.RecyclerViewActions
@@ -267,11 +268,10 @@ class MarcoEspressoTest {
     }
 
     @Test
-    fun las_acciones_abren_dialogos_con_la_identificacion_de_la_fila() {
+    fun las_acciones_aperturar_y_exportar_abren_dialogos_con_la_identificacion_de_la_fila() {
         val acciones = listOf(
             R.id.btnAperturar to R.string.marco_accion_aperturar,
-            R.id.btnExportar to R.string.marco_accion_exportar,
-            R.id.btnAccion to R.string.marco_accion_accion
+            R.id.btnExportar to R.string.marco_accion_exportar
         )
         ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
             esperarHastaFilas(scenario, 4)
@@ -289,6 +289,155 @@ class MarcoEspressoTest {
                     .inRoot(isDialog())
                     .check(matches(withText("001")))
                 onView(withText(R.string.marco_detalle_cerrar)).perform(click())
+            }
+        }
+    }
+
+    @Test
+    fun el_dialogo_de_accion_muestra_cabecera_acciones_y_atajos() {
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            esperarHastaFilas(scenario, 4)
+
+            pulsarAccionDeFila(scenario, 0, R.id.btnAccion)
+
+            onView(withText(R.string.marco_accion_accion))
+                .inRoot(isDialog())
+                .check(doesNotExist())
+            onView(withId(R.id.tvAccionConglomerado))
+                .inRoot(isDialog())
+                .check(matches(withText("016335")))
+            onView(withId(R.id.tvAccionNumero))
+                .inRoot(isDialog())
+                .check(matches(withText("01")))
+            onView(withId(R.id.tvAccionVivienda))
+                .inRoot(isDialog())
+                .check(matches(withText("001")))
+            onView(withText(R.string.marco_accion_seccion_acciones))
+                .inRoot(isDialog())
+                .check(matches(isDisplayed()))
+            onView(withText(R.string.marco_accion_seccion_atajos))
+                .inRoot(isDialog())
+                .check(matches(isDisplayed()))
+            listOf(
+                R.id.btnAccionAperturar,
+                R.id.btnAccionExportar,
+                R.id.btnAccionImportar,
+                R.id.btnAccionIntercambiar,
+                R.id.btnMostrar,
+                R.id.btnCancelarAccion,
+                R.id.divisorAccionSuperior,
+                R.id.divisorAccionInferior
+            ).forEach { id ->
+                onView(withId(id)).inRoot(isDialog()).check(matches(isDisplayed()))
+            }
+        }
+    }
+
+    @Test
+    fun las_acciones_del_dialogo_muestran_aviso_de_proximamente() {
+        val acciones = listOf(
+            R.id.btnAccionAperturar to R.string.marco_accion_aperturar,
+            R.id.btnAccionExportar to R.string.marco_accion_exportar,
+            R.id.btnAccionImportar to R.string.marco_accion_importar,
+            R.id.btnAccionIntercambiar to R.string.marco_accion_intercambiar
+        )
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            esperarHastaFilas(scenario, 4)
+
+            acciones.forEach { (boton, titulo) ->
+                pulsarAccionDeFila(scenario, 0, R.id.btnAccion)
+                onView(withId(boton)).inRoot(isDialog()).perform(click())
+                onView(withText(titulo)).inRoot(isDialog()).check(matches(isDisplayed()))
+                onView(withText(R.string.marco_accion_mensaje_proximamente))
+                    .inRoot(isDialog())
+                    .check(matches(isDisplayed()))
+                onView(withText(R.string.marco_accion_aceptar))
+                    .inRoot(isDialog())
+                    .perform(click())
+                onView(withId(R.id.btnCancelarAccion)).inRoot(isDialog()).perform(click())
+            }
+        }
+    }
+
+    @Test
+    fun el_capitulo_se_habilita_solo_con_enaho01() {
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            esperarHastaFilas(scenario, 4)
+
+            pulsarAccionDeFila(scenario, 0, R.id.btnAccion)
+            onView(withId(R.id.spCapitulo)).inRoot(isDialog()).check(matches(not(isEnabled())))
+
+            seleccionarEnDialogo(R.id.spCuestionario, "ENAHO-01A")
+            onView(withId(R.id.spCapitulo)).inRoot(isDialog()).check(matches(not(isEnabled())))
+
+            seleccionarEnDialogo(R.id.spCuestionario, "ENAHO-01")
+            onView(withId(R.id.spCapitulo)).inRoot(isDialog()).check(matches(isEnabled()))
+            onView(withId(R.id.spCapitulo)).inRoot(isDialog()).check(matches(withText("")))
+            onView(withId(R.id.spCapitulo)).inRoot(isDialog()).perform(click())
+            onData(equalTo("Cap100")).inRoot(isPlatformPopup()).check(matches(isDisplayed()))
+            onData(equalTo("Ins. Alimentaria")).inRoot(isPlatformPopup())
+                .check(matches(isDisplayed()))
+            onData(equalTo("Cap700A")).inRoot(isPlatformPopup()).perform(click())
+            onView(withId(R.id.spCapitulo)).inRoot(isDialog())
+                .check(matches(withText("Cap700A")))
+
+            seleccionarEnDialogo(R.id.spCuestionario, "ENAHO-02")
+            onView(withId(R.id.spCapitulo)).inRoot(isDialog()).check(matches(not(isEnabled())))
+            onView(withId(R.id.spCapitulo)).inRoot(isDialog()).check(matches(withText("")))
+        }
+    }
+
+    @Test
+    fun mostrar_valida_cuestionario_y_muestra_proximamente() {
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            esperarHastaFilas(scenario, 4)
+
+            pulsarAccionDeFila(scenario, 0, R.id.btnAccion)
+            onView(withId(R.id.btnMostrar)).inRoot(isDialog()).perform(click())
+            onView(withText(R.string.marco_accion_error_cuestionario))
+                .inRoot(isDialog())
+                .check(matches(isDisplayed()))
+
+            seleccionarEnDialogo(R.id.spCuestionario, "ENAHO-01")
+            onView(withText(R.string.marco_accion_error_cuestionario))
+                .inRoot(isDialog())
+                .check(doesNotExist())
+            onView(withId(R.id.btnMostrar)).inRoot(isDialog()).perform(click())
+            onView(withText(R.string.marco_accion_proximamente))
+                .inRoot(isDialog())
+                .check(matches(isDisplayed()))
+            onView(withText(R.string.marco_accion_aceptar))
+                .inRoot(isDialog())
+                .perform(click())
+
+            seleccionarEnDialogo(R.id.spCapitulo, "Cap100")
+            onView(withId(R.id.btnMostrar)).inRoot(isDialog()).perform(click())
+            onView(withText(R.string.marco_accion_proximamente))
+                .inRoot(isDialog())
+                .check(matches(isDisplayed()))
+            onView(withText(R.string.marco_accion_aceptar))
+                .inRoot(isDialog())
+                .perform(click())
+
+            seleccionarEnDialogo(R.id.spCuestionario, "ENAHO-02")
+            onView(withId(R.id.btnMostrar)).inRoot(isDialog()).perform(click())
+            onView(withText(R.string.marco_accion_proximamente))
+                .inRoot(isDialog())
+                .check(matches(isDisplayed()))
+        }
+    }
+
+    @Test
+    fun el_dialogo_de_accion_distribuye_los_botones_segun_la_pantalla() {
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            esperarHastaFilas(scenario, 4)
+
+            pulsarAccionDeFila(scenario, 0, R.id.btnAccion)
+            onView(withId(R.id.gridAcciones)).inRoot(isDialog()).check { vista, error ->
+                if (error != null) throw error
+                val grid = vista as GridLayout
+                val esperado = vista.resources.getInteger(R.integer.marco_accion_columnas)
+                assertEquals(esperado, grid.columnCount)
             }
         }
     }
@@ -553,6 +702,15 @@ class MarcoEspressoTest {
         scenario.onActivity { activity ->
             activity.findViewById<MaterialAutoCompleteTextView>(campoId).dismissDropDown()
         }
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+    }
+
+    private fun seleccionarEnDialogo(campoId: Int, etiqueta: String) {
+        onView(withId(campoId)).inRoot(isDialog()).perform(clearText())
+        onView(withId(campoId)).inRoot(isDialog()).perform(click())
+        Thread.sleep(200)
+        onData(equalTo(etiqueta)).inRoot(isPlatformPopup()).perform(click())
+        Thread.sleep(300)
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
     }
 

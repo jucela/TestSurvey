@@ -1,7 +1,7 @@
 # PLAN: Marco de viviendas
 
 **SPEC de referencia:** docs/features/marco/SPEC.md
-**Versión de la spec revisada:** SPEC aprobada el 2026-10-22; actualizada el 2026-11-09 por CR-006
+**Versión de la spec revisada:** SPEC aprobada el 2026-10-22; actualizada y aprobada el 2026-11-10 por CR-007
 **Estado:** Aprobado <!-- Borrador | En revisión | Aprobado -->
 
 <!-- PARA LA PERSONA
@@ -40,6 +40,7 @@ derivar TASKS.md con tareas, dependencias y comprobaciones.
 | Navegación lateral | `presentation/activities/MainActivity.kt`, `res/menu/drawer_options.xml` | `action_marco` ya existe y hoy abre `SectionPlaceholderActivity`; `aplicarRestricciones` deshabilita Marco para SIS. |
 | Patrón de pantalla | `presentation/activities/CargarMuestraActivity.kt`, `viewmodel/CargaMuestraViewModel.kt`, `viewmodel/CargaMuestraUiState.kt` | `by viewModels()`, `repeatOnLifecycle(STARTED)`, `StateFlow`, ViewBinding, toolbar con `ic_login_arrow` y `MaterialAlertDialogBuilder`. |
 | Desplegables de filtros | `presentation/activities/MarcoActivity.kt`, `res/layout/activity_marco.xml` | `MaterialAutoCompleteTextView` no editables con `setSimpleItems`; al recrear la Activity, el texto de la etiqueta filtra el adaptador y oculta el resto de opciones. Se configura el campo para que el texto no filtre y se cargan los adaptadores antes de aplicar las etiquetas, sin perder la selección. |
+| Diálogo de Acción actual | `presentation/activities/MarcoActivity.kt` (`mostrarAccion`), `res/layout/dialog_marco_accion.xml`, `presentation/viewmodel/MarcoUiState.kt` (`AccionMarco`, `MostrarAccion`) | Hoy muestra solo Conglomerado, N° vivienda y Vivienda. Se amplía solo para `AccionMarco.ACCION`; Aperturar y Exportar siguen siendo informativos. |
 | Patrón de catálogo | `domain/entities/OpcionMuestra.kt`, `data/repositories/CatalogoMuestraRepositoryImpl.kt`, `usecases/ObtenerCatalogoMuestraUseCase.kt` | `OpcionMuestra(codigo, nombre)` reutilizable para ODEI/MES/PERIODO. |
 | Persistencia de sesión | `data/sources/SessionDataStore.kt`, `data/repositories/AuthRepositoryImpl.kt` | `ultimoUsuario` identifica al usuario autenticado; `logout()` no borra ese valor. Se usa como clave de los filtros por usuario. |
 | Patrón de lista | `presentation/adapters/CargaArchivoAdapter.kt`, `res/layout/item_carga_archivo.xml` | RecyclerView con ViewBinding y actualización por lista; para Marco se usará `ListAdapter`/`DiffUtil`. |
@@ -91,10 +92,15 @@ Flujo de datos:
    tabla se actualiza. La búsqueda no se persiste.
 5. El detalle se pide al pulsar el icono de información de una fila y se
    entrega a la Activity mediante un evento de un solo consumo. El diálogo es
-   de solo lectura. Las acciones Aperturar, Exportar y Acción siguen el mismo
-   patrón: un evento por acción entrega la identificación de la fila y la
-   Activity muestra un diálogo informativo reutilizable, sin ejecutar
-   operaciones reales.
+   de solo lectura. Aperturar y Exportar siguen el mismo patrón informativo.
+   Para `AccionMarco.ACCION`, la Activity muestra el diálogo enriquecido de
+   RF-24/RF-25: cabecera con identificación, divisor Material 3, sección
+   Acciones con cuatro botones, sección Atajos con Cuestionario, Capítulo y
+   Mostrar, divisor Material 3 y Cancelar. Los cuatro botones abren un diálogo
+   informativo con el título de la acción, el mensaje "Esta acción estará
+   disponible próximamente." y Aceptar/Cancelar; Mostrar valida el cuestionario
+   y el capítulo y muestra el aviso "Próximamente". No se ejecutan operaciones
+   ni navegación real.
 6. Al recrear la Activity por rotación, el ViewModel conserva filtros y
    catálogos, pero la Activity vuelve a aplicar la etiqueta seleccionada al
    `MaterialAutoCompleteTextView`. Ese texto filtra el adaptador y el
@@ -148,14 +154,15 @@ Señala impacto sobre modelos, contratos o componentes compartidos. -->
 | `presentation/viewmodel/MarcoViewModel.kt` | Crear | Carga, validación, filtros, búsqueda, debounce, estado, eventos y reintento. | RF-05..RF-21 |
 | `presentation/viewmodel/MarcoUiState.kt` | Modificar | Estado inmutable, estados derivados y eventos de detalle y acciones por fila. | RF-05..RF-23 |
 | `presentation/adapters/MarcoAdapter.kt` | Modificar | Textos, colores, detalle y callbacks de Aperturar, Exportar y Acción por fila. | RF-15..RF-18, RF-23 |
-| `presentation/activities/MarcoActivity.kt` | Modificar | Render, dropdowns, Switch, colapso, lista, diálogo de detalle, diálogos de acciones por fila y restauración del filtro de los desplegables al recrear la pantalla. | RF-03..RF-18, RF-21, RF-23 |
+| `presentation/activities/MarcoActivity.kt` | Modificar | Render, dropdowns, Switch, colapso, lista, diálogo de detalle, diálogos de acciones por fila, diálogo de Acción enriquecido (cabecera, Acciones, Atajos, validación de Mostrar y avisos informativos) y restauración del filtro de los desplegables al recrear la pantalla. | RF-03..RF-18, RF-21, RF-23, RF-24, RF-25 |
 | `presentation/activities/MainActivity.kt` | Modificar | Abrir `MarcoActivity` para `action_marco`; mantener el placeholder para el resto. | RF-01 |
 | `app/src/main/AndroidManifest.xml` | Modificar | Registrar `MarcoActivity` no exportada y con padre `MainActivity`. | RF-01 |
 | `res/layout/activity_marco.xml` | Modificar | Toolbar, título exacto centrado con `TextAppearance.AppPrueba.TopBar`, tarjeta de filtros, indicadores y tabla adaptable con once columnas. | RF-03..RF-15 |
 | `res/layout/item_marco_fila.xml` | Modificar | Fila con once columnas, incluidos los tres iconos de acción con área táctil y descripción accesible. | RF-15, RF-18, RF-23 |
 | `res/layout/dialog_detalle_vivienda.xml` | Modificar | Identificación de fila (Conglomerado, `NROVIVIENDA`, `VIVIENDA`), seis campos de dirección y botón Cerrar. | RF-17, RF-23 |
-| `res/layout/dialog_marco_accion.xml` | Crear | Diálogo informativo reutilizable para Aperturar, Exportar y Acción con identificación de fila. | RF-23 |
-| `res/values/{strings,colors,dimens,styles}.xml`, `values-night/colors.xml`, `values/bools.xml`, `values-sw600dp/bools.xml`, `res/drawable/{ic_search,ic_expand_more,ic_aperturar,ic_exportar,ic_accion}.xml` | Crear/Modificar | Textos, tokens de fila, dimensiones de tabla, bandera de colapso e iconos de acciones. | RF-03..RF-18, RF-23 |
+| `res/layout/dialog_marco_accion.xml` | Modificar | Diálogo de Acción con cabecera, divisores Material 3, cuatro botones (2×2/1×4), Cuestionario/Capítulo, Mostrar, Cancelar y contenido desplazable; Aperturar/Exportar conservan el diálogo informativo. | RF-23, RF-24, RF-25 |
+| `res/values/{strings,arrays,colors,dimens,styles,integers}.xml`, `values-night/colors.xml`, `values/bools.xml`, `values-sw600dp/{bools,integers}.xml`, `res/drawable/{ic_search,ic_expand_more,ic_aperturar,ic_exportar,ic_accion}.xml` | Crear/Modificar | Textos, arrays de Cuestionario/Capítulo, `marco_accion_columnas` 2/4, tokens de fila, dimensiones de tabla, bandera de colapso e iconos de acciones. | RF-03..RF-18, RF-23, RF-24, RF-25 |
+| `app/src/androidTest/java/gob/inei/appprueba/presentation/activities/MarcoEspressoTest.kt` | Modificar | Casos de cabecera, acciones, dependencia Cuestionario→Capítulo, validación de Mostrar, adaptabilidad y no replicación del diálogo de Acción. | RF-23, RF-24, RF-25 |
 | `docs/design/DESIGN_SYSTEM.md` | Modificar | Documentar los dos tokens nuevos de fila (claro/oscuro) y su uso. | RF-18 |
 
 ## Datos y contratos
@@ -184,6 +191,7 @@ Señala impacto sobre modelos, contratos o componentes compartidos. -->
   - Detalle: para cada campo, `NOMBREVIA/PUERTA/INTERIOR/PISO/MZ/LOTE` de `CAMPO_VIVIENDA` con `trim` no vacío; si no, el mismo campo de `CAMPO_VIVIENDA_MARCO`; si ambos vacíos, `null` → `--`.
   - Etiquetas sin normalizar: ODEI `CODODEI-NOMODEI`, MES `CODIGO-NOMBRE`, PERIODO `NOMPER`; si un nombre es nulo, se usa el código como fallback seguro.
 - **Persistencia, consultas y actualizaciones:** DataStore guarda por usuario `solo_activos`, `odei`, `mes`, `periodo` y `conglomerado`, con claves prefijadas `marco_<usuario>_...`; los valores nulos se eliminan. La búsqueda no se persiste. Las consultas son `@Query` con bind params y `Flow`; Room las ejecuta fuera del hilo principal. La búsqueda escapa `\`, `%` y `_` antes de `LIKE ... ESCAPE '\'` y usa `LOWER` para no distinguir mayúsculas. No se concatena texto del usuario en SQL.
+- **Diálogo de Acción (CR-007):** no hay cambios de modelos, contratos, Room ni DataStore. La cabecera reutiliza `FilaMarco` (`conglome`, `nroVivienda`, `vivienda`). Las opciones de Cuestionario y Capítulo son listas fijas de recursos; el estado de los desplegables y la validación viven en la Activity y son transitorios (no se persisten). No se añaden operaciones de dominio.
 - **Convivencia entre datos locales y remotos:** No aplica. Toda la pantalla es offline; no hay red, FTP ni sincronización en este alcance.
 - **Compatibilidad y migraciones de datos existentes:** `MIGRATION_7_8` crea únicamente las dos tablas y sus índices, con `IF NOT EXISTS`, sin seeds y sin `DROP`/`ALTER` de otras tablas. Los tipos Room son `TEXT` para `CHAR`/`VARCHAR`/`DATETIME` e `INTEGER` para `SMALLINT`; las columnas opcionales quedan anulables. Se exporta el esquema `8.json` y se valida con `MigrationTestHelper`.
 
@@ -255,7 +263,8 @@ Referencia RF/CA y aplica las consideraciones relevantes de MOBILE_GUIDELINES.md
   - **Sin muestra/sin resultados:** `sinMuestra` se deriva de `totalConglomerados == 0`; `sinResultados` de filas vacías con muestra existente. Son mensajes informativos, no errores. Indicadores en `0`/`--` cuando no hay datos.
   - **Formularios:** búsqueda de texto libre con `trim`; no hay validación de formato. Caracteres especiales se tratan literalmente mediante escape de `LIKE`.
   - **Pantalla y orientación:** `CoordinatorLayout` con `AppBarLayout` desplazable para título/filtros/indicadores y tabla con `HorizontalScrollView` + `RecyclerView` que ocupa el resto; la cabecera de tabla queda fija sobre la lista. En `sw600dp` se muestran las tres filas; en móvil el contenido de filtros se colapsa con `TransitionManager`/`AutoTransition`. Se usan dimensiones tokenizadas para columnas y áreas táctiles de 48dp. La fila de indicadores usa `GridLayout` con `@integer/marco_indicadores_columnas` (2 en móvil, 4 en `sw600dp`).
-  - **Accesibilidad:** `TextInputLayout` con hints; Switch con etiqueta; iconos de detalle, Aperturar, Exportar y Acción con `contentDescription` que incluye la acción, vivienda y conglomerado; cabecera con textos; el resultado y la columna Reemplazo comunican la información además del color; contraste verificado en claro/oscuro; el botón de colapso actualiza su descripción.
+  - **Accesibilidad:** `TextInputLayout` con hints; Switch con etiqueta; iconos de detalle, Aperturar, Exportar y Acción con `contentDescription` que incluye la acción, vivienda y conglomerado; cabecera con textos; el resultado y la columna Reemplazo comunican la información además del color; contraste verificado en claro/oscuro; el botón de colapso actualiza su descripción. En el diálogo de Acción, los botones y desplegables tienen texto/etiqueta, área táctil de 48dp y el error de Mostrar se comunica con texto.
+  - **Diálogo de Acción:** se muestra desde la Activity al recibir `MostrarAccion` con `AccionMarco.ACCION`; el contenido usa `NestedScrollView`/`ScrollView` para pantallas pequeñas y fuente grande. Los cuatro botones usan `GridLayout` con `@integer/marco_accion_columnas` (2 en móvil, 4 en `sw600dp`) y abren un `MaterialAlertDialogBuilder` informativo; Aceptar/Cancelar solo cierran. Cuestionario y Capítulo son `TextInputLayout` Outlined con `MaterialAutoCompleteTextView`, `threshold = Int.MAX_VALUE`; Capítulo inicia vacío con ENAHO-01, no usa `--Seleccione--` y se deshabilita y vacía fuera de ENAHO-01. Mostrar valida y muestra el aviso "Próximamente". El diálogo no se persiste: si la Activity se recrea, se cierra sin ejecutar operaciones.
   - **Ciclo de vida:** no se guardan referencias a vistas en el ViewModel; el diálogo se muestra desde la Activity al recibir un evento. El canal de eventos es `BUFFERED`.
   - **Privacidad/red/permisos:** no aplica; no hay red, permisos, cámara ni GPS.
 
@@ -308,8 +317,13 @@ Una captura aislada no demuestra persistencia ni ausencia de peticiones de red. 
 | CA-27 | UI: `MarcoEspressoTest` + unitario de VM | Filas con `NROVIVIENDA`/`VIVIENDA` distintas; pulsar cada acción | Diálogos con Conglomerado, `NROVIVIENDA` y `VIVIENDA`; sin cambios de datos |
 | CA-28 | UI + manual con TalkBack | Iconos de acción y diálogos | Descripciones accesibles, área táctil, cierre correcto; sin operaciones reales |
 | CA-29 | DAO/integración: `MarcoDaoTest` + repositorio + UI | Fixtures 2026/2027, dos conglomerados, ODEI/MES/PERIODO/CONGLOMERADO, búsqueda y Switch | Conteo 2026 correcto; `1`, `0` o `--` según combinación; Switch no altera |
+| CA-30 | UI: `MarcoEspressoTest` (nuevo) + inspección de layout | Activity Marco con fila de prueba | Cabecera, divisores, secciones y botones en orden; sin título "Acción" |
+| CA-31 | UI: `MarcoEspressoTest` (nuevo) | Activity Marco; pulsar cada botón de Acciones | Diálogo con título/mensaje/Aceptar/Cancelar; sin cambios |
+| CA-32 | UI: `MarcoEspressoTest` (nuevo) | Activity Marco; abrir Cuestionario y Capítulo | Opciones exactas; Capítulo solo con ENAHO-01, inicia vacío; vacío/disabled en otros casos |
+| CA-33 | UI: `MarcoEspressoTest` (nuevo) | Activity Marco; Mostrar en combinaciones válidas e inválidas | Error sin Cuestionario; "Próximamente" en válidos; sin navegación |
+| CA-34 | UI: `MarcoEspressoTest` (nuevo) + manual | Teléfono/tablet, fuente 200 %, TalkBack; Detalle/Aperturar/Exportar | 2×2/1×4, scroll, accesibilidad; diálogos sin cambios |
 
-**Comprobaciones de regresión:** ejecutar la suite unitaria completa (154 tests actuales + nuevos), la suite instrumentada completa (65 actuales + nuevas), `assembleDebug` y `lintDebug`. Verificar que login, drawer, `CargarMuestraActivity`, restricción SIS y encuesta no cambian. No debe aparecer `fallbackToDestructiveMigration` ni una versión distinta de 8.
+**Comprobaciones de regresión:** ejecutar la suite unitaria completa (161 tests actuales + nuevos), la suite instrumentada completa (70 actuales + nuevas), `assembleDebug` y `lintDebug`. Verificar que login, drawer, `CargarMuestraActivity`, restricción SIS y encuesta no cambian. No debe aparecer `fallbackToDestructiveMigration` ni una versión distinta de 8.
 
 **Comandos verificados para compilar y ejecutar tests:**
 
@@ -351,6 +365,7 @@ Incluye puntos de comprobación para avanzar con cambios pequeños. -->
 9. **CR-004 (RF-14):** agregar `conglomerados` a `IndicadoresMarco`; consulta de conteo en `MarcoDao`; validar combinación/búsqueda/ODEI en `MarcoRepositoryImpl`; `GridLayout` 2/4 y string del cuarto indicador; actualizar pruebas. Comprobación: `MarcoDaoTest`, `MarcoRepositoryTest`, `MarcoMappersTest`, `MarcoViewModelTest`, `MarcoEspressoTest` y batería completa.
 10. **CR-005 (RF-05/RF-13):** corregir la pérdida de opciones de los cuatro desplegables al recrear la pantalla; impedir que el texto seleccionado filtre las opciones, cargar los adaptadores antes de aplicar las etiquetas y cubrir rotación con y sin selección. Comprobación: `MarcoEspressoTest` y batería completa.
 11. **CR-006 (RF-11):** ajustar la regla de área para `TIPOSELECCION = 3` con ESTRATO 7 u 8 → `RURAL->PANEL`; ESTRATO 9+ → `SIN CLASIFICAR`; actualizar `MarcoReglasTest` y la documentación. Comprobación: `MarcoReglasTest` y batería completa.
+12. **CR-007 (RF-23/RF-24/RF-25):** rediseñar `dialog_marco_accion.xml` con cabecera, divisores, cuatro botones 2×2/1×4, Cuestionario/Capítulo, Mostrar y Cancelar; añadir strings/arrays/`marco_accion_columnas`; ampliar `MarcoActivity.mostrarAccion` para `AccionMarco.ACCION` con la dependencia ENAHO-01, validación de Mostrar y diálogos informativos; conservar Aperturar/Exportar informativos; actualizar `MarcoEspressoTest`. Comprobación: `assembleDebug`, `MarcoEspressoTest` y batería completa.
 
 ## Riesgos y decisiones pendientes
 
@@ -371,7 +386,11 @@ Escribe Ninguna en las decisiones pendientes cuando estén resueltas. -->
   - **Conteo de N° Conglomerados:** se calcula desde `CAMPO_CONGLOMERADO` con `TRIM(ANHO) = '2026'` y `COUNT(DISTINCT CONGLOME)`; no se une `CAMPO_VIVIENDA_MARCO`, por lo que el Switch no lo altera. La combinación inválida y la búsqueda se resuelven en el repositorio con `null` → `--`; tests con 2027 y combinaciones parciales.
   - **Pérdida de opciones tras rotación:** el texto de la etiqueta seleccionada filtra el `AutoCompleteTextView`; se configura el campo para que el texto no reduzca las opciones, se cargan los adaptadores antes de aplicar las etiquetas y se prueba con `--Seleccione--` y con selección. No se cambia la persistencia ni el ViewModel.
   - **Límite de estrato 7-8:** la regla anterior documentaba ≥7 y el código solo reconocía 7; el cambio fija 7-8 como rural y 9+ como `SIN CLASIFICAR`. Se cubre con unitarios de 7, 8 y 9+ para evitar otra discrepancia entre SPEC y código.
-- **Decisiones pendientes:** Ninguna. Las decisiones de producto y de alcance están resueltas en la SPEC aprobada; las elecciones técnicas de este plan no cambian el comportamiento. Para CR-004 quedaron confirmados el año base 2026, las cuatro combinaciones válidas, ODEI obligatorio, `--` con búsqueda activa, Switch sin efecto sobre N° Conglomerados y layout 2×2/1×4. Para CR-005 se corrige un defecto de presentación: tras rotar se conservan las selecciones y las listas completas de opciones; no hay RF nuevo ni cambio de datos. Para CR-006 se confirma el límite 7-8 para `RURAL->PANEL` y `SIN CLASIFICAR` desde 9; no hay RF nuevo ni cambio de datos.
+  - **Altura del diálogo de Acción:** en teléfono o fuente 200 % el contenido puede exceder la pantalla; se usa scroll y distribución 2×2, con prueba manual/Espresso en tamaños pequeños.
+  - **Dependencia Cuestionario→Capítulo:** el cambio de cuestionario debe vaciar y deshabilitar Capítulo fuera de ENAHO-01; con ENAHO-01 inicia vacío y sin `--Seleccione--`. Se cubre con Espresso y revisión manual.
+  - **Estado transitorio del diálogo:** al recrear la Activity el diálogo se cierra y no se persisten selecciones; no hay operaciones que puedan duplicarse.
+  - **No replicación:** el diálogo enriquecido se limita a `AccionMarco.ACCION`; Detalle, Aperturar y Exportar se verifican como regresión.
+- **Decisiones pendientes:** Ninguna. Las decisiones de producto y de alcance están resueltas en la SPEC aprobada; las elecciones técnicas de este plan no cambian el comportamiento. Para CR-004 quedaron confirmados el año base 2026, las cuatro combinaciones válidas, ODEI obligatorio, `--` con búsqueda activa, Switch sin efecto sobre N° Conglomerados y layout 2×2/1×4. Para CR-005 se corrige un defecto de presentación: tras rotar se conservan las selecciones y las listas completas de opciones; no hay RF nuevo ni cambio de datos. Para CR-006 se confirma el límite 7-8 para `RURAL->PANEL` y `SIN CLASIFICAR` desde 9; no hay RF nuevo ni cambio de datos. Para CR-007 se confirma: alcance UI + validación; los cuatro botones de Acciones muestran un diálogo informativo con título, mensaje "Esta acción estará disponible próximamente." y Aceptar/Cancelar; Mostrar válido muestra "Próximamente" y no navega; 2×2 en teléfono y 1×4 en tablet; la cabecera sustituye al título "Acción"; Capítulo solo con ENAHO-01, inicia vacío y no usa `--Seleccione--`; listas fijas; solo aplica al diálogo de Acción.
 
 <!-- ANTES DE SOLICITAR APROBACIÓN
 Comprueba que el plan cubre los requisitos, respeta las exclusiones, reutiliza

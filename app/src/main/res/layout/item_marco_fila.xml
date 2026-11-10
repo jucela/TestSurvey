@@ -65,7 +65,7 @@
         android:layout_height="48dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="@string/marco_detalle_descripcion"
-        android:src="@drawable/ic_info"
+        android:src="@drawable/outline_info_black_24dp"
         app:tint="?attr/colorPrimary" />
 
     <ImageButton
@@ -83,7 +83,7 @@
         android:layout_height="48dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="@string/marco_accion_exportar"
-        android:src="@drawable/ic_exportar"
+        android:src="@drawable/baseline_cloud_upload_black_24dp"
         app:tint="?attr/colorPrimary" />
 
     <ImageButton
