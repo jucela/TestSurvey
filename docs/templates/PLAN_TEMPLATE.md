@@ -18,7 +18,10 @@ derivar TASKS.md con tareas, dependencias y comprobaciones.
   Reutiliza lo existente y justifica nuevas dependencias o cambios de arquitectura.
 - Distingue hechos, decisiones confirmadas y propuestas. Consulta las decisiones
   no resueltas; haz pocas preguntas por vez y actualiza el plan con las respuestas.
-- Referencia los requisitos y criterios por su ID, sin copiar toda la spec.
+- Referencia los requisitos funcionales (RF), no funcionales (RNF) y criterios de aceptación (CA) por sus identificadores, sin copiar toda la SPEC.
+- Analiza cómo la solución técnica atenderá cada RF y RNF aplicable. No omitas los RNF por centrarse únicamente en implementar funcionalidades.
+- Si un requisito no necesita una decisión técnica específica, no fuerces una solución ni agregues complejidad innecesaria.
+- Mantén la trazabilidad entre requisitos, componentes afectados, decisiones técnicas, criterios de aceptación y estrategia de validación.
 - Si una decisión cambia el comportamiento o alcance, vuelve a la spec y solicita
   confirmación. No resuelvas una duda de producto mediante una suposición técnica.
 - Conserva estos comentarios. No implementes durante la planificación.
@@ -38,8 +41,11 @@ derivar TASKS.md con tareas, dependencias y comprobaciones.
 
 ## Solución propuesta
 
-<!-- Explica el enfoque y sus motivos. Describe las responsabilidades y el
-recorrido de datos y eventos hasta la interfaz. Usa un diagrama si aporta claridad. -->
+<!-- Explica el enfoque técnico y sus motivos. Describe cómo se implementarán
+los RF y cómo se atenderán las condiciones de calidad establecidas en los RNF.
+Describe las responsabilidades y el recorrido de datos y eventos hasta la interfaz.
+Indica las decisiones técnicas relevantes y su justificación.
+Usa un diagrama si aporta claridad. -->
 
 [PENDIENTE]
 
@@ -56,7 +62,10 @@ modularización fuera del alcance; marca la tabla de módulos como No aplica. --
 | [Módulo y ruta] | [Existente / propuesto] | [Qué cambia] | [Qué módulos utiliza o pasan a depender de él] |
 
 <!-- Distingue lo que se reutiliza, modifica o crea. Las rutas nuevas son propuestas.
-Señala impacto sobre modelos, contratos o componentes compartidos. -->
+Señala impacto sobre modelos, contratos o componentes compartidos.
+Relaciona cada componente con los RF y/o RNF que atiende.
+Un componente puede estar relacionado con varios requisitos. No asignes
+requisitos sin una relación técnica justificada. -->
 
 | Componente o ruta | Acción | Cambio y responsabilidad | Requisito relacionado |
 | --- | --- | --- | --- |
@@ -75,8 +84,11 @@ Señala impacto sobre modelos, contratos o componentes compartidos. -->
 
 ## Estado, operaciones y errores
 
-<!-- Cómo se implementan los comportamientos aprobados en la spec.
-Referencia RF/CA y aplica las consideraciones relevantes de MOBILE_GUIDELINES.md. -->
+<!-- Define cómo se implementarán los comportamientos aprobados en la SPEC.
+Considera los RF y RNF aplicables, incluyendo las condiciones de calidad
+relacionadas con rendimiento, robustez, concurrencia, cancelación y estabilidad.
+Referencia los requisitos y criterios de aceptación correspondientes.
+Aplica las consideraciones relevantes de MOBILE_GUIDELINES.md. -->
 
 - **Gestión del estado de interfaz y navegación:** [PENDIENTE]
 - **Conservación y restauración del estado:** [PENDIENTE]
@@ -93,10 +105,17 @@ con el proyecto y justifica las incorporaciones. No agregues dependencias por de
 
 ## Estrategia de validación
 
-<!-- Una fila por criterio de la spec. Selecciona el método capaz de demostrarlo:
-test unitario, integración, UI o prueba manual. No todos requieren todos los métodos.
-Identifica tests existentes y separa los nuevos propuestos. Incluye regresiones relevantes.
-Una captura aislada no demuestra persistencia ni ausencia de peticiones de red. -->
+<!-- Una fila por criterio de aceptación de la SPEC, tanto si verifica RF como RNF.
+Selecciona el método capaz de demostrarlo: test unitario, integración, UI o prueba
+manual. Un criterio puede verificar varios requisitos relacionados.
+
+Comprueba que todos los criterios de aceptación tengan una estrategia de validación.
+No todos requieren todos los métodos.
+
+Identifica tests existentes y separa los nuevos propuestos. Incluye regresiones
+relevantes. Una captura aislada no demuestra persistencia ni ausencia de peticiones
+de red. -->
+
 
 | Criterio | Método y test existente o propuesto | Entorno y datos necesarios | Evidencia prevista |
 | --- | --- | --- | --- |

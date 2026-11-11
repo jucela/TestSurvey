@@ -31,6 +31,7 @@ El cambio puede corresponder a uno o varios de los siguientes escenarios:
 ### ESCENARIO A: MODIFICACIÓN DE RF EXISTENTES
 
 Cuando se necesite:
+
 - Corregir un requisito funcional.
 - Modificar su comportamiento.
 - Ampliar sus reglas de negocio.
@@ -42,6 +43,7 @@ Cuando se necesite:
 ### ESCENARIO B: INCORPORACIÓN DE NUEVAS FUNCIONALIDADES
 
 Cuando se necesite:
+
 - Incorporar nuevas capacidades al feature.
 - Agregar nuevas pantallas, componentes o procesos.
 - Incorporar nuevas operaciones o reglas de negocio.
@@ -57,6 +59,18 @@ Cuando se necesite modificar requisitos existentes y agregar nuevas funcionalida
 
 Debes mantener la trazabilidad entre los RF existentes, los nuevos RF y los cambios realizados.
 
+### CLASIFICACIÓN RF Y RNF
+
+Durante cualquiera de los escenarios anteriores, determina si los cambios afectan:
+
+- Requisitos funcionales (RF).
+- Requisitos no funcionales (RNF).
+- Ambos tipos de requisitos.
+
+No todos los cambios requieren RNF. Un feature puede tener únicamente RF o combinar RF y RNF.
+
+El objetivo es identificar las condiciones de calidad que realmente correspondan al cambio, sin inventar requisitos ni forzar clasificaciones.
+
 ## 3. CLASIFICACIÓN INICIAL DEL CAMBIO
 
 Antes de modificar documentación o código:
@@ -66,17 +80,32 @@ Antes de modificar documentación o código:
 3. Identifica los RF existentes afectados.
 4. Identifica los posibles nuevos RF.
 5. Determina si el cambio pertenece realmente al feature indicado.
+6. Identifica los RF existentes y nuevos que correspondan.
+7. Identifica los RNF existentes que puedan verse afectados y determina si el cambio requiere incorporar nuevos RNF.
+8. Evalúa si existen requisitos que mezclan comportamiento funcional y condiciones de calidad.
 
 IMPORTANTE:
 
 No asumas que toda nueva funcionalidad debe incorporarse al feature existente.
 
 Evalúa si la funcionalidad:
+
 - Pertenece a la responsabilidad funcional del feature actual.
 - Es una extensión natural de sus procesos.
 - Comparte entidades, reglas de negocio o flujos con el feature.
 
 Si representa una capacidad funcional independiente, recomienda crear un nuevo feature y explica por qué. No lo crees automáticamente sin autorización.
+
+### Criterios para clasificar los requisitos
+
+- **RF:** describe una capacidad, acción, regla o comportamiento que el sistema debe ofrecer.
+- **RNF:** establece una condición de calidad o una característica bajo la cual debe funcionar el sistema, como rendimiento, seguridad, accesibilidad, usabilidad, adaptabilidad, robustez o confiabilidad.
+- No clasifiques automáticamente como RNF las validaciones, los mensajes de error, los estados vacíos, los escenarios alternativos o los comportamientos ante interrupciones. Analiza qué está exigiendo realmente el requisito.
+- Cuando un requisito incluya aspectos funcionales y no funcionales que puedan verificarse de manera independiente, propón separarlos y relacionarlos.
+- Si separarlos hace perder claridad o contexto, conserva el requisito original y justifica la decisión.
+- No inventes RNF ni agregues requisitos de calidad únicamente para completar una sección.
+
+No cambies la clasificación de requisitos existentes sin justificarlo y documentarlo.
 
 ## 4. GESTIÓN DEL CHANGE REQUEST (CR)
 
@@ -101,6 +130,10 @@ El CR debe documentar, según corresponda:
 - Comportamiento esperado.
 - RF existentes afectados.
 - Nuevos RF propuestos.
+- RNF existentes afectados, cuando corresponda.
+- Nuevos RNF propuestos, cuando corresponda.
+- Requisitos mixtos identificados y justificación de su tratamiento.
+- Criterios de aceptación propuestos o modificados y su relación con RF y RNF.
 - Alcance y exclusiones.
 - Impacto funcional y técnico.
 - Documentación afectada.
@@ -129,6 +162,11 @@ Analiza los documentos actuales del feature y determina:
 - Qué comportamiento debe mantenerse.
 - Qué comportamiento debe modificarse.
 - Qué funcionalidades nuevas deben incorporarse.
+- Qué RNF existen actualmente, si están documentados.
+- Qué condiciones de calidad podrían verse afectadas por el cambio.
+- Si se necesitan nuevos RNF para establecer condiciones de calidad verificables.
+- Qué criterios de aceptación verifican RF y cuáles verifican RNF.
+- Si existen requisitos que mezclan comportamiento funcional y condiciones de calidad.
 
 No elimines requisitos existentes sin justificarlo.
 
@@ -137,6 +175,19 @@ No dupliques RF que ya estén documentados.
 No inventes reglas de negocio que no hayan sido proporcionadas o verificadas.
 
 Cuando exista ambigüedad que afecte el comportamiento funcional, presenta la duda y solicita aclaración antes de asumir una solución.
+
+### Clasificación de los requisitos
+
+Aplica los siguientes criterios:
+
+1. Conserva los RF existentes que sigan representando el mismo comportamiento.
+2. Modifica los RF afectados sin cambiar sus identificadores cuando mantengan su identidad.
+3. Incorpora nuevos RF cuando se agreguen capacidades o comportamientos.
+4. Incorpora RNF únicamente cuando el cambio requiera establecer condiciones de calidad específicas y verificables.
+5. No es obligatorio que todo cambio genere RNF.
+6. Si un requisito mezcla aspectos funcionales y no funcionales, sepáralos cuando puedan verificarse independientemente. Mantén el requisito original cuando la separación no aporte claridad y justifica la decisión.
+7. No conviertas automáticamente los escenarios alternativos o las consideraciones de interfaz en RNF.
+8. Mantén la trazabilidad entre requisitos modificados, nuevos requisitos y criterios de aceptación.
 
 ### 5.2 Análisis técnico
 
@@ -164,24 +215,40 @@ Actualiza incrementalmente los documentos del feature.
 ### 6.1 SPEC.md
 
 Para modificaciones:
+
 - Actualiza los RF afectados.
 - Conserva los identificadores existentes cuando sigan representando el mismo requisito.
 - Actualiza los criterios de aceptación relacionados.
 - Documenta el comportamiento anterior y el nuevo cuando sea necesario.
 - Identifica los RF obsoletos o reemplazados sin perder trazabilidad.
+- Actualiza los RNF afectados cuando corresponda.
+- Conserva los identificadores de los RNF existentes cuando sigan representando el mismo requisito.
+- No conviertas un RNF existente en RF, ni viceversa, sin justificar el cambio y mantener la trazabilidad histórica.
 
 Para nuevas funcionalidades:
-- Incorpora los nuevos RF.
-- Asigna identificadores únicos y consecutivos según las convenciones del proyecto.
+
+- Incorpora los nuevos RF que correspondan.
+- Incorpora RNF únicamente cuando existan condiciones de calidad que deban especificarse y verificarse.
+- Asigna identificadores únicos y consecutivos según las convenciones existentes para RF y RNF.
 - Define objetivo, descripción, reglas de negocio y criterios de aceptación.
-- Identifica dependencias con otros RF.
+- Identifica dependencias con otros RF y RNF cuando corresponda.
 - Define restricciones y escenarios alternativos cuando corresponda.
 
 Para cambios mixtos:
+
 - Aplica ambos procedimientos.
-- Evita duplicidades y contradicciones entre RF.
+- Evita duplicidades y contradicciones entre RF y RNF.
+- Cuando un requisito original se divida en RF y RNF, conserva la trazabilidad con su requisito de origen.
 
 Respeta estrictamente la estructura de la plantilla SPEC existente.
+
+Los criterios de aceptación pueden estar relacionados con:
+
+- Un RF.
+- Un RNF.
+- Una combinación de RF y RNF.
+
+Cada criterio de aceptación debe permitir verificar objetivamente el requisito o los requisitos asociados.
 
 ### 6.2 PLAN.md
 
@@ -196,10 +263,18 @@ Actualiza el plan considerando:
 - Dependencias técnicas.
 - Riesgos.
 - Estrategia de pruebas.
+- Estrategia técnica para satisfacer los RF y RNF aplicables.
+- Decisiones de arquitectura y diseño relacionadas con las condiciones de calidad.
+- Estrategia para verificar el cumplimiento de los RNF.
+- Riesgos técnicos que puedan impedir o comprometer el cumplimiento de los RNF.
 
 No reemplaces todo el plan si solamente se necesitan cambios incrementales.
 
 Respeta la estructura y los estados definidos en la plantilla PLAN.
+
+El PLAN debe explicar cómo la solución propuesta satisface los RF y RNF documentados en el SPEC.
+
+No debe inventar ni modificar requisitos. Si el análisis técnico identifica una condición de calidad no contemplada, propón su incorporación mediante el CR correspondiente.
 
 ### 6.3 TASKS.md
 
@@ -208,10 +283,17 @@ Actualiza las tareas necesarias:
 - Modificar tareas existentes cuando corresponda.
 - Incorporar nuevas tareas para nuevos RF.
 - Mantener dependencias y orden de ejecución.
-- Relacionar cada tarea con los RF y criterios de aceptación correspondientes.
+- Relacionar cada tarea con los RF, RNF y criterios de aceptación correspondientes, cuando aplique.
+- Incluir tareas para implementar las condiciones de calidad establecidas en los RNF.
+- Incluir tareas para verificar el cumplimiento de los RNF.
+- No es obligatorio crear una tarea independiente por cada RF o RNF; agrupa tareas cuando resulte coherente técnicamente.
 - Definir cómo se verificará cada tarea.
 
 Las tareas deben ser concretas, verificables y coherentes con el PLAN.
+
+Las tareas deben cubrir tanto la implementación funcional como la verificación de las condiciones de calidad aplicables.
+
+Ningún RNF debe quedar sin una estrategia de implementación y verificación en el PLAN y TASKS.
 
 No marques tareas como completadas durante la planificación.
 
@@ -221,6 +303,8 @@ Actualiza el CR con las referencias a:
 
 - RF modificados.
 - RF nuevos.
+- RNF modificados o nuevos, cuando corresponda.
+- Criterios de aceptación relacionados con RF y RNF.
 - SPEC.md.
 - PLAN.md.
 - TASKS.md.
@@ -236,13 +320,26 @@ Al terminar el análisis y la actualización documental, presenta un informe con
 2. Resumen del problema o necesidad.
 3. RF existentes afectados.
 4. Nuevos RF propuestos.
-5. Cambios realizados en SPEC.md.
-6. Cambios realizados en PLAN.md.
-7. Cambios realizados en TASKS.md.
-8. CR creado o actualizado.
-9. Componentes de código que se modificarán.
-10. Riesgos y dependencias.
-11. Dudas pendientes de aclaración.
+5. RNF existentes afectados, cuando corresponda.
+6. Nuevos RNF propuestos, cuando corresponda.
+7. Criterios de aceptación afectados o incorporados y su trazabilidad.
+8. Cambios realizados en SPEC.md.
+9. Cambios realizados en PLAN.md.
+10. Cambios realizados en TASKS.md.
+11. CR creado o actualizado.
+12. Componentes de código que se modificarán.
+13. Riesgos y dependencias.
+14. Dudas pendientes de aclaración.
+
+### Verificación previa a la aprobación
+
+Verifica que:
+
+- Los RF y RNF estén correctamente clasificados.
+- Los requisitos mixtos hayan sido tratados y justificados.
+- Los criterios de aceptación permitan verificar los RF y RNF aplicables.
+- El PLAN contemple la solución para todos los requisitos.
+- TASKS contemple su implementación y verificación.
 
 En esta etapa debes detenerte y esperar mi aprobación explícita.
 
@@ -251,6 +348,7 @@ No implementes código.
 No cambies el estado del CR a `Aprobado` hasta recibir mi aprobación explícita de la propuesta documental y del alcance.
 
 Una vez aprobada la documentación:
+
 - Registra la transición del CR de `Propuesto` a `Aprobado`.
 - Registra la fecha, el estado anterior, el nuevo estado y el motivo.
 - Conserva el historial de transiciones.
@@ -276,6 +374,10 @@ Al recibir dicha autorización:
 8. Reutiliza componentes existentes cuando sea apropiado.
 9. No agregues dependencias innecesarias.
 10. No introduzcas cambios fuera del alcance aprobado.
+11. Implementa los RF y cumple los RNF establecidos en el SPEC y desarrollados en el PLAN.
+12. No consideres terminada una funcionalidad por el solo hecho de implementar su comportamiento funcional; verifica también las condiciones de calidad aplicables.
+13. Si durante la implementación identificas que un RNF no puede cumplirse con la solución aprobada, detén esa parte del trabajo y solicita la revisión correspondiente.
+14. Si necesitas modificar o incorporar RF o RNF, documenta el cambio mediante el proceso CR. No modifiques unilateralmente la documentación aprobada.
 
 Si durante la implementación descubres que se necesita ampliar el alcance:
 
@@ -291,6 +393,10 @@ Actualiza TASKS.md conforme avances, sin marcar como completadas tareas que no h
 Al finalizar la implementación:
 
 - Verifica todos los criterios de aceptación.
+- Verifica el cumplimiento de todos los RF modificados y nuevos.
+- Verifica el cumplimiento de los RNF, cuando existan.
+- Comprueba todos los criterios de aceptación asociados a RF y RNF.
+- Verifica que las condiciones de calidad no hayan sido omitidas durante la implementación.
 - Ejecuta las pruebas unitarias correspondientes.
 - Ejecuta las pruebas de integración cuando apliquen.
 - Verifica la compilación del proyecto.
@@ -305,6 +411,7 @@ Solo puedes cambiar el estado del CR a `Implementado` cuando:
 
 - Todas las tareas requeridas estén verificadas.
 - Los criterios de aceptación se hayan cumplido.
+- Los RNF aplicables hayan sido verificados y sus resultados estén documentados.
 - Las pruebas requeridas hayan pasado.
 - La compilación haya sido exitosa.
 - Los resultados estén documentados.
@@ -332,7 +439,14 @@ No realices commits ni modifiques la configuración de Git automáticamente.
 - No dupliques documentación.
 - No elimines información histórica sin justificación.
 - No inventes requisitos ni reglas de negocio.
-- No cambies identificadores de RF sin una justificación documentada.
+- No cambies identificadores de RF o RNF sin una justificación documentada.
+- Distingue correctamente los requisitos funcionales (RF) de los requisitos no funcionales (RNF).
+- No es obligatorio que todos los features tengan RNF.
+- No inventes RNF ni clasifiques automáticamente cualquier escenario alternativo como RNF.
+- Conserva los identificadores y la trazabilidad histórica de RF y RNF.
+- Todo RNF documentado debe tener una estrategia de implementación y verificación.
+- Los criterios de aceptación pueden estar relacionados con RF, RNF o ambos.
+- No declares un cambio como implementado si existen RNF aplicables pendientes de verificación.
 - No modifiques código durante las fases de análisis y documentación.
 - No implementes sin autorización explícita.
 - No marques tareas ni CR como completados sin validación.
@@ -349,6 +463,9 @@ Al terminar cada fase, presenta un resumen estructurado con:
 - Archivos modificados.
 - RF afectados.
 - Nuevos RF.
+- RNF afectados, cuando corresponda.
+- Nuevos RNF, cuando corresponda.
+- Criterios de aceptación afectados o incorporados.
 - CR y estado actual.
 - Validaciones ejecutadas.
 - Resultados.
@@ -382,6 +499,9 @@ Completar la siguiente información para cada solicitud.
 
 **Reglas de negocio y consideraciones adicionales:**
 [DETALLAR LAS REGLAS, RESTRICCIONES Y CONSIDERACIONES]
+
+**Consideraciones de calidad conocidas (opcional):**
+[INDICAR SI EXISTEN CONSIDERACIONES DE RENDIMIENTO, SEGURIDAD, ACCESIBILIDAD, USABILIDAD, ADAPTABILIDAD, ROBUSTEZ U OTRAS. SI NO SE CONOCEN, DEJAR EN BLANCO.]
 
 **Otras observaciones:**
 [INFORMACIÓN ADICIONAL]

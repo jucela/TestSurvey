@@ -19,6 +19,16 @@ TASKS.md organiza los pasos de ejecución.
 - Aplica las consideraciones mobile relevantes sin ampliar el alcance automáticamente.
 - No incluyas diseño de clases, tablas, componentes, archivos o algoritmos:
   esos detalles pertenecen a PLAN.md. Sí registra restricciones explícitas del pedido.
+- Clasifica los requisitos como RF o RNF según su naturaleza. Cuando un
+  requisito contenga aspectos funcionales y no funcionales, analiza si pueden
+  separarse en requisitos independientes y verificables.
+  - Si son separables, crea un RF y un RNF relacionados, conservando la
+    trazabilidad entre ellos.
+  - Si no es conveniente separarlos porque perderían contexto o claridad,
+    conserva el requisito original y justifica la decisión.
+  - No realices separaciones artificiales ni dupliques requisitos.
+  - Respeta los identificadores existentes y el historial de cambios cuando
+    actualices una SPEC aprobada.
 - Mantén el documento breve y proporcional a la funcionalidad. Conserva los comentarios.
 - Un documento completo no está aprobado automáticamente. Solicita aprobación
   antes de marcarlo como Aprobada. No implementes durante esta etapa.
@@ -41,10 +51,27 @@ comportamientos existentes que deben conservarse. No describas la arquitectura. 
 ## Dentro del alcance
 
 <!-- Requisitos concretos, con identificadores estables para vincularlos a
-criterios, decisiones del plan y tareas. -->
+criterios de aceptación, decisiones del plan y tareas.
+
+Clasifica los requisitos según su naturaleza:
+- RF: funcionalidades y comportamientos que debe ofrecer el sistema.
+- RNF: condiciones de calidad que debe cumplir la solución, como rendimiento,
+  accesibilidad, adaptabilidad, seguridad y robustez.
+
+Incluye RNF únicamente cuando existan condiciones de calidad relevantes.
+Un Feature puede tener solo RF o combinar RF y RNF. -->
+
+### Requisitos funcionales (RF)
 
 - **RF-01:** [PENDIENTE]
 - **RF-02:** [PENDIENTE]
+
+### Requisitos no funcionales (RNF)
+
+<!-- Sección opcional. Incluir únicamente cuando el Feature tenga RNF
+identificables y relevantes. No inventar requisitos para completar la sección. -->
+
+- **RNF-01:** [PENDIENTE]
 
 ## Fuera de alcance
 
@@ -99,15 +126,18 @@ Ejemplo: Usar Room puede ser una restricción; el diseño de entidades va en PLA
 No conviertas una preferencia del agente en una restricción. -->
 
 - [PENDIENTE]
-
+- 
 ## Criterios de aceptación
 
 <!-- Resultados observables que permitan decidir si se cumple cada requisito.
-Incluye los casos alternativos acordados. No uses Funciona correctamente.
-Repite el formato según sea necesario. -->
+Cada criterio debe referenciar uno o más requisitos (RF y/o RNF).
+Un criterio puede verificar un solo requisito o varios relacionados cuando
+corresponda. Incluye los casos alternativos acordados.
+No uses expresiones ambiguas como Funciona correctamente. -->
 
 - **CA-01 · RF-01:** Dado [contexto], cuando [acción], entonces [resultado observable].
-- **CA-02 · RF-02:** Dado [contexto], cuando [acción], entonces [resultado observable].
+- **CA-02 · RNF-01:** Dado [contexto], cuando [condición], entonces [resultado observable].
+- **CA-03 · RF-02 + RNF-01:** Dado [contexto], cuando [acción], entonces [resultado observable].
 
 ## Cómo se comprueba el comportamiento
 

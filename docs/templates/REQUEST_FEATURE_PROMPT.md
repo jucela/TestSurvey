@@ -109,6 +109,28 @@ Identifica:
 
 Determina también qué funcionalidades quedan fuera del alcance.
 
+### Identificación de requisitos funcionales y no funcionales
+
+Además de analizar las funcionalidades, identifica las condiciones de calidad que debe cumplir el nuevo feature.
+
+Distingue:
+
+- **RF (Requisitos funcionales):** funcionalidades, acciones y comportamientos que debe ofrecer el sistema.
+- **RNF (Requisitos no funcionales):** condiciones de calidad aplicables, como rendimiento, seguridad, accesibilidad, usabilidad, adaptabilidad, robustez y mantenibilidad.
+
+Reglas:
+- Todo feature debe documentar los RF que correspondan a su alcance.
+- Identifica RNF únicamente cuando existan condiciones de calidad relevantes y sustentadas por la necesidad, las reglas del proyecto o las restricciones confirmadas.
+- Un feature puede tener únicamente RF o combinar RF y RNF.
+- No inventes RNF ni agregues requisitos para completar una sección.
+- No confundas RNF con decisiones técnicas. Por ejemplo, utilizar Room, Hilt o MVVM es una restricción o decisión técnica, no automáticamente un RNF.
+- Cuando un requisito contenga aspectos funcionales y no funcionales, evalúa si pueden separarse en requisitos independientes y verificables.
+- Si son separables, define un RF y un RNF relacionados, manteniendo su trazabilidad.
+- Si separarlos provoca pérdida de contexto, duplicidad o ambigüedad, conserva el requisito original y justifica la decisión.
+- Los requisitos deben ser concretos, verificables y coherentes con el alcance solicitado.
+
+No conviertas automáticamente todos los escenarios alternativos, errores, estados vacíos o comportamientos mobile en RNF. Determina su naturaleza según lo que se está exigiendo y cómo se verificará.
+
 ### Identificación de entidades
 
 Evalúa si el feature necesita:
@@ -146,9 +168,13 @@ Si faltan datos que puedan cambiar significativamente el comportamiento, solicit
 
 Puedes documentar supuestos menores, pero deben identificarse expresamente y no convertirse en reglas de negocio definitivas sin aprobación.
 
-## 5. FASE 2: DISEÑO DE REQUERIMIENTOS FUNCIONALES
+## 5. FASE 2: IDENTIFICACIÓN Y DEFINICIÓN DE REQUISITOS
 
-Define los RF necesarios para el nuevo feature.
+Define los requisitos necesarios para el nuevo feature.
+
+### Requisitos funcionales (RF)
+
+Define las funcionalidades y comportamientos que debe ofrecer el sistema.
 
 Cada RF debe ser:
 - Único.
@@ -158,19 +184,43 @@ Cada RF debe ser:
 - Trazable hacia sus criterios de aceptación.
 - Coherente con el alcance aprobado.
 
-Asigna identificadores respetando las convenciones establecidas por el proyecto.
+### Requisitos no funcionales (RNF)
 
-Define los criterios de aceptación (CA) correspondientes.
+Identifica las condiciones de calidad aplicables al feature.
 
-Considera escenarios:
-- Exitosos.
-- Alternativos.
-- Datos inválidos.
-- Datos inexistentes.
-- Errores de persistencia.
-- Errores de comunicación, cuando corresponda.
-- Estados vacíos.
-- Recuperación ante errores.
+Evalúa, cuando corresponda:
+- Rendimiento.
+- Seguridad.
+- Accesibilidad.
+- Usabilidad.
+- Adaptabilidad a móviles y tablets.
+- Robustez y tolerancia a errores.
+- Compatibilidad.
+- Mantenibilidad.
+
+No es obligatorio que todos los features tengan RNF. Inclúyelos únicamente cuando estén justificados y puedan expresarse de forma verificable.
+
+### Tratamiento de requisitos mixtos
+
+Cuando un requisito incluya aspectos funcionales y no funcionales:
+- Separa los aspectos en RF y RNF cuando sean independientes y verificables.
+- Relaciona los requisitos derivados para conservar su contexto y trazabilidad.
+- Si no conviene separarlos, conserva el requisito y justifica la decisión.
+- No dupliques condiciones ni generes requisitos artificiales.
+
+### Criterios de aceptación (CA)
+
+Define criterios de aceptación para comprobar los requisitos RF y RNF.
+
+Cada criterio debe:
+- Tener un identificador único.
+- Referenciar uno o más requisitos relacionados.
+- Describir un resultado observable.
+- Poder verificarse mediante una prueba o comprobación adecuada.
+
+Un criterio puede verificar un RF, un RNF o varios requisitos relacionados.
+
+Considera escenarios exitosos, alternativos, datos inválidos, datos inexistentes, errores de persistencia, errores de comunicación cuando correspondan, estados vacíos y recuperación ante errores.
 
 Evita requisitos ambiguos como "el sistema debe funcionar correctamente".
 
@@ -195,7 +245,10 @@ El CR debe registrar:
 - Objetivo.
 - Alcance.
 - Exclusiones.
-- Requerimientos funcionales propuestos.
+- Requisitos funcionales (RF) propuestos.
+- Requisitos no funcionales (RNF) propuestos, cuando correspondan.
+- Relaciones entre requisitos funcionales y no funcionales cuando existan requisitos derivados de un requisito mixto.
+- Criterios de aceptación propuestos y su relación con los requisitos.
 - Impacto técnico.
 - Entidades y persistencia involucradas.
 - Dependencias.
@@ -218,32 +271,33 @@ Genera los siguientes documentos siguiendo estrictamente `AGENTS.md` y las plant
 
 ### SPEC.md
 
-Debe documentar la definición funcional del feature.
+Debe documentar la definición del feature siguiendo la plantilla vigente.
 
-Incluye los RF, criterios de aceptación, reglas de negocio, restricciones, dependencias y alcance que correspondan según la plantilla del proyecto.
+Incluye:
+- Requisitos funcionales (RF).
+- Requisitos no funcionales (RNF), únicamente cuando correspondan.
+- Tratamiento justificado de requisitos mixtos.
+- Criterios de aceptación relacionados con RF y/o RNF.
+- Reglas de negocio.
+- Restricciones.
+- Dependencias.
+- Alcance y exclusiones.
+
+No inventes RNF ni crees secciones vacías cuando no sean necesarias.
 
 ### PLAN.md
 
-Debe definir cómo se implementará el feature.
+Debe definir cómo se implementará el feature siguiendo la plantilla vigente.
 
-Considera:
-- Arquitectura.
-- Organización de paquetes.
-- Capas involucradas.
-- Componentes Android.
-- ViewModels.
-- Casos de uso.
-- Repositories.
-- DAOs y entidades Room.
-- Navegación.
-- Interfaz XML y Material Design 3.
-- Inyección de dependencias.
-- Validaciones.
-- Manejo de errores.
-- Pruebas.
-- Dependencias técnicas.
+Considera cómo la solución atenderá los RF y RNF identificados en la SPEC.
 
-No introduzcas decisiones arquitectónicas que contradigan las reglas existentes.
+Debe explicar:
+- Decisiones y responsabilidades técnicas.
+- Componentes afectados y requisitos que atienden.
+- Estrategias para cumplir las condiciones de calidad aplicables.
+- Validación de todos los criterios de aceptación, tanto funcionales como no funcionales.
+
+No inventes requisitos ni modifiques unilateralmente los establecidos en la SPEC.
 
 ### TASKS.md
 
@@ -254,12 +308,10 @@ Cada tarea debe:
 - Describir un objetivo concreto.
 - Indicar su alcance.
 - Identificar dependencias.
-- Referenciar RF y CA relacionados.
+- Referenciar los RF, RNF y CA relacionados, cuando corresponda.
 - Definir cómo se verificará.
 
-Organiza las tareas de acuerdo con el orden de implementación y las dependencias técnicas.
-
-No marques tareas como completadas durante la planificación.
+Las tareas deben cubrir tanto la implementación funcional como las actividades necesarias para cumplir y comprobar las condiciones de calidad.
 
 ### Trazabilidad
 
@@ -270,15 +322,20 @@ Verifica que exista correspondencia entre:
 - PLAN.md.
 - TASKS.md.
 - RF.
+- RNF, cuando existan.
 - CA.
 
-No debe haber tareas sin justificación funcional ni requisitos sin una estrategia de implementación y validación.
+Todo requisito debe tener una estrategia de implementación y validación. No es necesario que cada requisito genere una tarea independiente si puede atenderse mediante una tarea compartida debidamente relacionada.
 
 ## 8. FASE 5: REVISIÓN Y APROBACIÓN
 
 Antes de terminar la fase de documentación, verifica:
 
 - Que todos los RF estén correctamente definidos.
+- Que los RF y RNF estén correctamente clasificados.
+- Que los requisitos mixtos hayan sido tratados justificadamente.
+- Que los criterios de aceptación permitan verificar los requisitos funcionales y no funcionales.
+- Que el PLAN y TASKS contemplen la implementación y validación de ambos tipos de requisitos cuando existan.
 - Que los criterios de aceptación sean verificables.
 - Que el alcance esté delimitado.
 - Que las entidades y relaciones estén justificadas.
@@ -293,13 +350,15 @@ Presenta un informe con:
 1. Descripción general del feature.
 2. Problema que resuelve.
 3. Alcance y exclusiones.
-4. RF y CA definidos.
-5. Entidades y tablas involucradas.
-6. Dependencias con otros features.
-7. Arquitectura propuesta.
-8. Archivos de documentación creados.
-9. CR generado y estado.
-10. Riesgos y dudas pendientes.
+4. Requisitos funcionales (RF) definidos.
+5. Requisitos no funcionales (RNF) definidos, si corresponden.
+6. Criterios de aceptación y trazabilidad con los requisitos.
+7. Entidades y tablas involucradas.
+8. Dependencias con otros features.
+9. Arquitectura propuesta.
+10. Archivos de documentación creados.
+11. CR generado y estado.
+12. Riesgos y dudas pendientes.
 
 Detente y espera mi aprobación explícita.
 
@@ -324,6 +383,10 @@ Al recibir autorización:
 4. Implementa cada componente siguiendo PLAN.md.
 5. Actualiza las tareas conforme se completen y verifiquen.
 6. Mantén la trazabilidad con los RF y CA.
+7. Implementa los RF y cumple los RNF establecidos en SPEC.md y desarrollados en PLAN.md.
+8. No consideres terminada una funcionalidad por el solo hecho de que su comportamiento funcional esté implementado; verifica también los RNF y criterios de aceptación aplicables.
+9. Si durante la implementación identificas que un RNF no puede cumplirse con la solución aprobada, detente y solicita la revisión correspondiente.
+10. Si se requiere modificar o incorporar RF o RNF, documenta el cambio mediante el proceso CR establecido. No alteres unilateralmente la SPEC aprobada.
 
 Respeta obligatoriamente:
 
@@ -350,6 +413,10 @@ Si durante la implementación descubres que necesitas incorporar nuevos RF o mod
 Verifica:
 
 - Todos los criterios de aceptación.
+- Cumplimiento de los requisitos funcionales (RF).
+- Cumplimiento de los requisitos no funcionales (RNF), cuando existan.
+- Verificación de todos los criterios de aceptación asociados a RF y RNF.
+- Comprobación de que las condiciones de calidad no se hayan omitido durante la implementación.
 - Todas las tareas requeridas.
 - Compilación del proyecto.
 - Pruebas unitarias.
@@ -423,5 +490,11 @@ No realices commits ni modifiques la configuración de Git automáticamente.
 
 **Consideraciones adicionales:**
 [RESTRICCIONES, VALIDACIONES, CASOS ESPECIALES U OTRAS INDICACIONES]
+
+**Consideraciones de calidad conocidas (opcional):**
+[INDICAR SI EXISTEN EXPECTATIVAS CONCRETAS DE RENDIMIENTO, SEGURIDAD,
+ACCESIBILIDAD, ADAPTABILIDAD, USABILIDAD, ROBUSTEZ U OTRAS CONDICIONES
+DE CALIDAD. SI NO SE CONOCEN, EL AGENTE DEBE IDENTIFICAR LAS APLICABLES
+DURANTE EL ANÁLISIS SIN INVENTAR REQUISITOS.]
 
 Si algún campo no aplica o todavía no se conoce, no inventes información. Identifica qué debe aclararse durante el análisis.
