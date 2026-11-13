@@ -29,11 +29,11 @@
 ## Impacto en código y datos
 
 - **Archivos, clases y componentes afectados:**
-  - `app/src/main/res/layout/dialog_marco_accion.xml`: cabecera, divisores Material 3, sección Acciones con cuatro botones (2×2/1×4), sección Atajos con dos desplegables y Mostrar, Cancelar y contenido desplazable.
+  - `app/src/main/res/layout/dialog_marco_accion.xml`: cabecera, divisores Material 3, sección Acciones con cuatro botones 2×2, sección Atajos con dos desplegables y Mostrar, Cancelar y contenido desplazable.
   - `app/src/main/java/gob/inei/appprueba/presentation/activities/MarcoActivity.kt`: configuración del diálogo de Acción, dependencia Cuestionario→Capítulo, validación de Mostrar y diálogos informativos de las cuatro acciones.
   - `app/src/main/res/values/strings.xml`: textos de secciones, acciones, atajos, avisos, error y botones.
   - `app/src/main/res/values/arrays.xml` (nuevo): opciones fijas de Cuestionario y Capítulo.
-  - `app/src/main/res/values/integers.xml` y `app/src/main/res/values-sw600dp/integers.xml`: `marco_accion_columnas` (2 en teléfono, 4 en tablet).
+  - `app/src/main/res/values/integers.xml` y `app/src/main/res/values-sw600dp/integers.xml`: `marco_accion_columnas` (2 en teléfono y tablet).
   - `app/src/androidTest/java/gob/inei/appprueba/presentation/activities/MarcoEspressoTest.kt`: casos de cabecera, acciones, dependencia de Capítulo, validación de Mostrar, adaptabilidad y no replicación.
 - **Cambios en base de datos:** N/A. No hay migración, cambio de esquema, consultas ni persistencia.
 - **Cambios en recursos/configuración:** strings, arrays, enteros de columnas y layout del diálogo. No se añaden dependencias ni se modifican temas.
@@ -41,9 +41,9 @@
 
 ## Validación
 
-- **Pruebas realizadas:** [PENDIENTE]. Se planifican pruebas Espresso para CA-30..CA-34, validación manual en teléfono/tablet, claro/oscuro, fuente 200 % y TalkBack, y la batería completa del proyecto.
-- **Resultados:** Pendientes.
-- **Evidencia:** [PENDIENTE].
+- **Pruebas realizadas:** Validación confirmada por el usuario (2026-11-13): CR-007 validado en teléfono y tablet, con distribución 2×2 y sin pendientes reportados.
+- **Resultados:** Validado.
+- **Evidencia:** Confirmación del usuario (2026-11-13).
 - **Observaciones y riesgos:**
   - El diálogo puede exceder la altura en teléfonos o con fuente grande; se usará contenido desplazable y distribución 2×2.
   - Al recrear la Activity el diálogo se cierra y no se persisten las selecciones de Atajos; no hay operaciones que puedan duplicarse.
@@ -53,12 +53,12 @@
 ## Seguimiento
 
 - **Commits relacionados:** N/A (no se solicitó commit).
-- **Notas de implementación:** [PENDIENTE].
+- **Notas de implementación:** Validado y cerrado el 2026-11-13; 2×2 en teléfono y tablet; sin pendientes reportados.
 - **Decisiones tomadas:**
   - El alcance de esta iteración es UI + validación; las operaciones y la navegación real se implementarán en CRs posteriores.
   - Los cuatro botones de Acciones abren un diálogo con el título de la acción, el mensaje "Esta acción estará disponible próximamente." y botones Aceptar/Cancelar; Aceptar solo cierra.
   - Mostrar válido muestra el aviso "Próximamente" y no navega.
-  - Distribución 2×2 en teléfono y 1×4 en tablet.
+  - Distribución 2×2 en teléfono y tablet.
   - La cabecera de identificación sustituye al título "Acción".
   - Capítulo solo se habilita con ENAHO-01, inicia vacío y no usa `--Seleccione--`; con otras opciones se deshabilita y se vacía.
   - Las listas de Cuestionario y Capítulo son fijas en este alcance.
@@ -71,5 +71,6 @@
 | 2026-11-10 | — | `Propuesto` | Creación del CR a partir de `RCF_ADD1_PROMPT.md`; pendiente aprobación documental y de alcance. |
 | 2026-11-10 | `Propuesto` | `Aprobado` | Aprobación explícita del usuario de la propuesta documental y del alcance. |
 | 2026-11-10 | `Aprobado` | `En desarrollo` | Autorización explícita del usuario para implementar CR-007 (MA-39..MA-41). |
+| 2026-11-13 | `En desarrollo` | `Implementado` | Validación confirmada por el usuario; distribución 2×2 en teléfono y tablet; sin pendientes reportados. |
 
 **Estado actual:** Implementado

@@ -1,10 +1,11 @@
 # TASKS: Marco de viviendas
 
-**SPEC:** docs/features/marco/SPEC.md (Aprobada 2026-10-22; actualizada y aprobada 2026-11-10 por CR-007)
-**PLAN:** docs/features/marco/PLAN.md (Aprobado 2026-10-22; actualizado y aprobado 2026-11-10 por CR-007)
-**Estado general:** Finalizada (CR-007) <!-- Pendiente | En curso | Completada -->
+**SPEC:** docs/features/marco/SPEC.md (Aprobada 2026-11-13 por CR-008; aprobada 2026-10-22 y actualizada por CR-007)
+**PLAN:** docs/features/marco/PLAN.md (Aprobado 2026-11-13 por CR-008; aprobado 2026-10-22 y actualizado por CR-007)
+**Estado general:** Completada <!-- Pendiente | En curso | Completada -->
 **CR-006:** `Implementado`; MA-36/MA-37 completadas y validadas.
 **CR-007:** `Implementado`; MA-38 completada; MA-39..MA-41 completadas.
+**CR-008:** `Implementado`; MA-42..MA-46 completadas y validadas.
 
 Tareas derivadas del PLAN aprobado. El orden respeta las dependencias
 técnicas; no se inicia una tarea hasta completar y validar sus dependencias.
@@ -306,26 +307,63 @@ Los identificadores usan el prefijo `MA-` (Marco) para no colisionar con
   - **Criterios:** RF-23, RF-24, RF-25; CA-30..CA-34.
   - **Validación:** revisión de coherencia entre RF, CA, PLAN y TASKS; no requiere build por ser cambio documental. **Ejecutada 2026-11-10:** documentación revisada y aprobada por el usuario; CR-007 en `Aprobado`. La implementación sigue pendiente de autorización explícita.
 
--s[x] **MA-39 · CR-007: recursos y layout del diálogo de Acción**
-  - **Objetivo:** añadir strings, arrays de Cuestionario/Capítulo y `marco_accion_columnas` (2/4); rediseñar `dialog_marco_accion.xml` con cabecera, divisores Material 3, sección Acciones con cuatro botones, sección Atajos con dos desplegables y Mostrar, divisor, Cancelar y contenido desplazable.
+- [x] **MA-39 · CR-007: recursos y layout del diálogo de Acción**
+  - **Objetivo:** añadir strings, arrays de Cuestionario/Capítulo y `marco_accion_columnas` (2); rediseñar `dialog_marco_accion.xml` con cabecera, divisores Material 3, sección Acciones con cuatro botones, sección Atajos con dos desplegables y Mostrar, divisor, Cancelar y contenido desplazable.
   - **Alcance:** `res/values/strings.xml`, `res/values/arrays.xml` (nuevo), `res/values/integers.xml`, `res/values-sw600dp/integers.xml`, `res/layout/dialog_marco_accion.xml`.
   - **Dependencias:** MA-38 y aprobación explícita de implementación.
   - **Criterios:** RF-24, RF-25; CA-30, CA-32, CA-34.
-  - **Validación:** `.\gradlew.bat :app:assembleDebug`; inspección de jerarquía, orden de secciones, 2×2/1×4, scroll y áreas táctiles; prueba manual en teléfono/tablet y fuente 200 %. **Pendiente.**
+  - **Validación:** `.\gradlew.bat :app:assembleDebug`; inspección de jerarquía, orden de secciones, 2×2, scroll y áreas táctiles; prueba manual en teléfono/tablet y fuente 200 %. **Ejecutada y confirmada por el usuario (2026-11-13):** CR-007 validado; 2×2 en teléfono y tablet; sin pendientes reportados.
 
--s[x] **MA-40 · CR-007: lógica de presentación del diálogo de Acción**
+- [x] **MA-40 · CR-007: lógica de presentación del diálogo de Acción**
   - **Objetivo:** ampliar `MarcoActivity.mostrarAccion` para `AccionMarco.ACCION`: cabecera con identificación, opciones de Cuestionario/Capítulo, dependencia ENAHO-01 (Capítulo inicia vacío y no usa `--Seleccione--`), validación de Mostrar con error, aviso "Próximamente", diálogos informativos de las cuatro acciones y Cancelar; conservar Aperturar/Exportar informativos.
   - **Alcance:** `presentation/activities/MarcoActivity.kt`; sin cambios en dominio, datos, Room, DataStore ni ViewModel.
   - **Dependencias:** MA-39.
   - **Criterios:** RF-23, RF-24, RF-25; CA-30..CA-34.
-  - **Validación:** `.\gradlew.bat :app:assembleDebug`; `MarcoEspressoTest` de cabecera, acciones, dependencia de Capítulo, validación de Mostrar y no replicación. **Pendiente.**
+  - **Validación:** `.\gradlew.bat :app:assembleDebug`; `MarcoEspressoTest` de cabecera, acciones, dependencia de Capítulo, validación de Mostrar y no replicación. **Ejecutada y confirmada por el usuario (2026-11-13):** CR-007 validado; sin pendientes reportados.
 
--s[x] **MA-41 · CR-007: pruebas y validación integral/cierre**
+- [x] **MA-41 · CR-007: pruebas y validación integral/cierre**
   - **Objetivo:** añadir los casos Espresso de CA-30..CA-34, ejecutar la batería completa, validar manualmente teléfono/tablet, claro/oscuro, fuente 200 % y TalkBack, y actualizar CR-007/CHANGELOG solo si todo pasa.
   - **Alcance:** `app/src/androidTest/java/gob/inei/appprueba/presentation/activities/MarcoEspressoTest.kt`, `docs/changes/CR-007-marco-dialogo-accion-atajos.md`, `docs/CHANGELOG.md`, este archivo.
   - **Dependencias:** MA-40.
   - **Criterios:** CA-30..CA-34 y regresión de CA-01..CA-29.
-  - **Validación:** `.\gradlew.bat :app:assembleDebug`, `.\gradlew.bat :app:testDebugUnitTest`, `.\gradlew.bat :app:lintDebug`, `.\gradlew.bat :app:assembleDebugAndroidTest` y `.\gradlew.bat :app:connectedDebugAndroidTest`; registrar evidencias y pendientes. **Pendiente.**
+  - **Validación:** `.\gradlew.bat :app:assembleDebug`, `.\gradlew.bat :app:testDebugUnitTest`, `.\gradlew.bat :app:lintDebug`, `.\gradlew.bat :app:assembleDebugAndroidTest` y `.\gradlew.bat :app:connectedDebugAndroidTest`; registrar evidencias y pendientes. **Ejecutada y confirmada por el usuario (2026-11-13):** CR-007 validado; sin pendientes reportados.
+
+## Fase 7 — CR-008: tabla con anchos adaptables
+
+- [x] **MA-42 · CR-008: documentación de RF-15/RNF-01/RNF-02 y CA-35..CA-46**
+  - **Objetivo:** crear CR-008 y actualizar SPEC/PLAN/TASKS con la tabla adaptable, sus RNF y criterios.
+  - **Alcance:** `docs/changes/CR-008-marco-tabla-ancho-adaptable.md`, `docs/features/marco/SPEC.md`, `docs/features/marco/PLAN.md`, `docs/features/marco/TASKS.md`.
+  - **Dependencias:** Ninguna para la documentación; aprobación del usuario antes de implementar.
+  - **Criterios:** RF-15, RNF-01, RNF-02; CA-35..CA-46.
+  - **Validación:** revisión de coherencia entre RF/RNF, CA, PLAN y TASKS; no requiere build por ser cambio documental. **Ejecutada 2026-11-12 y actualizada 2026-11-13:** CR-008 creado en `Propuesto`; SPEC/PLAN en `En revisión`; TASKS con MA-42..MA-46; CR-007 alineado a 2×2 en teléfono y tablet; trazabilidad y valores propuestos revisados. El usuario aprobó el alcance y autorizó la implementación; MA-43..MA-46 completadas y validadas el 2026-11-13.
+
+- [x] **MA-43 · CR-008: calculador central de anchos y pruebas unitarias**
+  - **Objetivo:** crear `MarcoColumnas` con mínimos, pesos, distribución del sobrante, acciones sin expansión y redondeo; cubrir ancho menor, igual y mayor que la suma de mínimos.
+  - **Alcance:** `presentation/adapters/MarcoColumnas.kt`; `app/src/test/java/gob/inei/appprueba/presentation/adapters/MarcoColumnasTest.kt`.
+  - **Dependencias:** MA-42 y autorización explícita de implementación.
+  - **Criterios:** RF-15, RNF-01, RNF-02; CA-35..CA-37, CA-41, CA-45.
+  - **Validación:** `.\gradlew.bat :app:testDebugUnitTest --tests "gob.inei.appprueba.presentation.adapters.MarcoColumnasTest"`; 0 fallos y suma exacta de anchos. **Ejecutada 2026-11-13:** `MarcoColumnasTest` **6/6**, 0 fallos; suite unitaria **167/167**, 0 fallos. Cubre ancho menor, igual y mayor que la suma de mínimos, sobrante solo en información, acciones sin expansión, redondeo exacto y ancho cero.
+
+- [x] **MA-44 · CR-008: recursos, layout y RecyclerView con altura máxima**
+  - **Objetivo:** añadir `marco_tabla_alto_maximo`, retirar `marco_tabla_ancho`, permitir dos líneas en la cabecera, asignar IDs a las celdas de cabecera y sustituir el RecyclerView por `MarcoRecyclerView`.
+  - **Alcance:** `res/values/dimens.xml`, `res/values/styles.xml`, `res/layout/activity_marco.xml`, `res/layout/item_marco_fila.xml`, `presentation/widget/MarcoRecyclerView.kt`.
+  - **Dependencias:** MA-42 y autorización explícita de implementación.
+  - **Criterios:** RF-15, RNF-01, RNF-02; CA-36, CA-38, CA-42, CA-45.
+  - **Validación:** `.\gradlew.bat :app:assembleDebug`; inspección de jerarquía, altura máxima, scroll horizontal/vertical, cabecera a dos líneas y áreas táctiles. **Ejecutada 2026-11-13:** `assembleDebug` OK; `marco_tabla_alto_maximo=480dp`; `marco_tabla_ancho` retirado; cabecera `maxLines=2` con IDs; `MarcoRecyclerView` y `NestedScrollView`; `MarcoEspressoTest` valida scroll vertical/horizontal, altura máxima y ausencia de recortes con fuente 200 %.
+
+- [x] **MA-45 · CR-008: integración de anchos en Activity/adaptador y pruebas Espresso**
+  - **Objetivo:** calcular los anchos al cambiar el ancho disponible, aplicar el mismo arreglo a cabecera y filas, evitar recálculo por bind y cubrir alineación, rotación, redimensionado y reciclaje.
+  - **Alcance:** `presentation/activities/MarcoActivity.kt`, `presentation/adapters/MarcoAdapter.kt`; `app/src/androidTest/java/gob/inei/appprueba/presentation/activities/MarcoEspressoTest.kt`.
+  - **Dependencias:** MA-43, MA-44.
+  - **Criterios:** RF-15, RNF-01, RNF-02; CA-35..CA-45.
+  - **Validación:** `.\gradlew.bat :app:assembleDebug`; `MarcoEspressoTest` con anchos iguales, rotación, redimensionado y filas recicladas; sin regresiones en acciones. **Ejecutada 2026-11-13:** `MarcoEspressoTest` **28 casos (27 ejecutados + 1 omitido)**, 0 fallos; valida alineación cabecera/fila, mínimos de acciones, recálculo al cambiar el ancho, recreación, scroll vertical/horizontal, fuente 200 %/oscuro y ausencia de recortes; el adaptador aplica anchos sin recalcular por bind.
+
+- [x] **MA-46 · CR-008: validación integral y cierre**
+  - **Objetivo:** ejecutar la batería completa, validar rotación, redimensionado, pantalla dividida, fuente 200 %, claro/oscuro y lista numerosa; actualizar CR-008/CHANGELOG solo si todo pasa.
+  - **Alcance:** proyecto completo, `docs/changes/CR-008-marco-tabla-ancho-adaptable.md`, `docs/CHANGELOG.md`, este archivo.
+  - **Dependencias:** MA-45.
+  - **Criterios:** CA-35..CA-46 y regresión de CA-18/CA-19 y acciones existentes.
+  - **Validación:** `.\gradlew.bat :app:assembleDebug`, `.\gradlew.bat :app:testDebugUnitTest`, `.\gradlew.bat :app:lintDebug`, `.\gradlew.bat :app:assembleDebugAndroidTest` y `.\gradlew.bat :app:connectedDebugAndroidTest`; registrar evidencias y pendientes. **Ejecutada 2026-11-13:** `assembleDebug` OK; unitarios **167/167**, 0 fallos; lint **0 errores / 56 warnings**; conectadas **79 casos (78 ejecutados + 1 omitido)**, 0 fallos en `TB311XU - 16`; `git diff --check` limpio. La suite completa se re-ejecutó tras reiniciar el dispositivo por fallos de inyección de toques; la corrida final quedó en verde. CA-40/CA-45 se validaron con cambio de ancho, altura máxima y scroll; no se ejecutó una sesión manual literal de pantalla dividida ni profiling de lista masiva.
 
 ---
 
@@ -385,6 +423,12 @@ para colapso y detalle. Re-ejecución final: build debug y `androidTest` OK;
 unitarios 151/151; conectadas 58 ejecutadas + 1 omitida (59 casos), 0 fallos;
 lint 0 errores / 53 warnings.
 
+Resumen 2026-11-12 (CR-008): se documentó la tabla con anchos adaptables, RNF-01/RNF-02, CA-35..CA-46 y las tareas MA-42..MA-46. La SPEC y el PLAN quedaron en revisión; no se modificó código ni se actualizó CHANGELOG. La implementación requiere aprobación explícita.
+
+Ajuste 2026-11-13: CR-007 alineado a 2×2 en teléfono y tablet; MA-39..MA-41 confirmadas por el usuario como validadas.
+
+Resumen 2026-11-13 (CR-008): se implementó `MarcoColumnas`, `MarcoRecyclerView`, anchos compartidos cabecera/filas, recálculo al cambiar el ancho, cabecera a dos líneas y pruebas de alineación/reciclaje/sin recortes. Batería final: `assembleDebug` OK; unitarios **167/167**, 0 fallos; lint **0 errores / 56 warnings**; conectadas **79 casos (78 ejecutados + 1 omitido)**, 0 fallos en `TB311XU - 16`; `MarcoEspressoTest` **28 casos (27 + 1 omitido)**, 0 fallos; `MarcoColumnasTest` **6/6**; `git diff --check` limpio. La suite conectada se re-ejecutó tras reiniciar el dispositivo por fallos de inyección de toques; la corrida final quedó en verde. CA-40/CA-45 se validaron con cambio de ancho, altura máxima y scroll; no se ejecutó una sesión manual literal de pantalla dividida ni profiling de lista masiva.
+
 | Tarea | Estado | Evidencia | Pendiente |
 | --- | --- | --- | --- |
 | MA-01 | Completada | `MarcoReglasTest` 0 fallos | Cotejo fino del texto del test con rutas del PLAN |
@@ -425,6 +469,11 @@ lint 0 errores / 53 warnings.
 | MA-36 | Completada | CR-006: `TIPOSELECCION = 3` + ESTRATO 7-8 → `RURAL->PANEL`; 9+ → `SIN CLASIFICAR`; `MarcoReglasTest` 5/5, 0 fallos (2026-11-09) | — |
 | MA-37 | Completada | CR-006: build, unitarios 161/161, lint 0 errores/53 warnings, androidTest y conectadas 69+1 (70), 0 fallos; CR y CHANGELOG actualizados (2026-11-09) | — |
 | MA-38 | Completada | CR-007: documentación revisada y aprobada por el usuario; SPEC/PLAN en estado aprobado (2026-11-10) | — |
-| MA-39 | Pendiente | — | Implementación autorizada |
-| MA-40 | Pendiente | — | MA-39 |
-| MA-41 | Pendiente | — | MA-40 |
+| MA-39 | Completada | Confirmado por el usuario: CR-007 validado; 2×2 en teléfono y tablet; sin pendientes reportados (2026-11-13) | — |
+| MA-40 | Completada | Confirmado por el usuario: CR-007 validado; sin pendientes reportados (2026-11-13) | — |
+| MA-41 | Completada | Confirmado por el usuario: CR-007 validado; sin pendientes reportados (2026-11-13) | — |
+| MA-42 | Completada | CR-008 documentado y aprobado: RF-15, RNF-01/RNF-02, CA-35..CA-46, valores y MA-42..MA-46; implementación autorizada (2026-11-13) | — |
+| MA-43 | Completada | `MarcoColumnasTest` 6/6; unitarios 167/167; mínimos/igual/mayor, acciones sin expansión y redondeo (2026-11-13) | — |
+| MA-44 | Completada | `assembleDebug`; `marco_tabla_alto_maximo=480dp`, `marco_tabla_ancho` retirado, cabecera 2 líneas, IDs, `MarcoRecyclerView`/`NestedScrollView`; scroll y sin recortes (2026-11-13) | — |
+| MA-45 | Completada | `MarcoEspressoTest` 28 (27+1 omitida), 0 fallos: alineación, recálculo, recreate, scroll, fuente 200 %/oscuro y sin recortes (2026-11-13) | — |
+| MA-46 | Completada | build OK; unitarios 167/167; lint 0 errores/56 warnings; conectadas 79 (78+1 omitida), 0 fallos; `git diff --check` limpio; CR/CHANGELOG actualizados (2026-11-13) | Observación: sin sesión manual literal de pantalla dividida ni profiling de lista masiva; cubiertos por pruebas de cambio de ancho/altura/scroll |

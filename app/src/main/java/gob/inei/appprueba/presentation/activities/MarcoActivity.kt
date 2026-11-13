@@ -6,6 +6,7 @@ import android.transition.TransitionManager
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.doOnLayout
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -26,6 +27,7 @@ import gob.inei.appprueba.domain.entities.OpcionConglomerado
 import gob.inei.appprueba.domain.entities.OpcionMuestra
 import gob.inei.appprueba.presentation.adapters.FilaMarcoUi
 import gob.inei.appprueba.presentation.adapters.MarcoAdapter
+import gob.inei.appprueba.presentation.adapters.MarcoColumnas
 import gob.inei.appprueba.presentation.viewmodel.AccionMarco
 import gob.inei.appprueba.presentation.viewmodel.MarcoEvento
 import gob.inei.appprueba.presentation.viewmodel.MarcoUiState
@@ -59,6 +61,20 @@ class MarcoActivity : AppCompatActivity() {
     )
 
     private var actualizandoUi = false
+    private var anchoTablaPx = -1
+    private val idsCabecera = intArrayOf(
+        R.id.tvCabeceraActivo,
+        R.id.tvCabeceraConglomerado,
+        R.id.tvCabeceraNumero,
+        R.id.tvCabeceraSeleccion,
+        R.id.tvCabeceraHogar,
+        R.id.tvCabeceraReemplazo,
+        R.id.tvCabeceraResultado,
+        R.id.tvCabeceraDetalle,
+        R.id.tvCabeceraAperturar,
+        R.id.tvCabeceraExportar,
+        R.id.tvCabeceraAccion
+    )
     private var listaOdei: List<OpcionMuestra> = emptyList()
     private var listaMes: List<OpcionMuestra> = emptyList()
     private var listaConglomerado: List<OpcionConglomerado> = emptyList()
@@ -72,6 +88,7 @@ class MarcoActivity : AppCompatActivity() {
         binding.toolbar.setNavigationOnClickListener { finish() }
         binding.rvMarco.layoutManager = LinearLayoutManager(this)
         binding.rvMarco.adapter = adapter
+        configurarAnchosTabla()
 
         configurarFiltros()
         configurarExpandir()
@@ -92,6 +109,54 @@ class MarcoActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun configurarAnchosTabla() {
+        binding.scrollTabla.doOnLayout { actualizarAnchosTabla(it.width) }
+        binding.scrollTabla.addOnLayoutChangeListener { _, left, _, right, _, oldLeft, _, oldRight, _ ->
+            val ancho = right - left
+            if (ancho != oldRight - oldLeft) actualizarAnchosTabla(ancho)
+        }
+    }
+
+    private fun actualizarAnchosTabla(anchoDisponiblePx: Int) {
+        if (anchoDisponiblePx <= 0 || anchoDisponiblePx == anchoTablaPx) return
+        anchoTablaPx = anchoDisponiblePx
+
+        val anchos = calcularAnchosTabla(anchoDisponiblePx)
+        val anchoTabla = anchos.sum()
+        idsCabecera.forEachIndexed { indice, id ->
+            val celda = findViewById<View>(id)
+            celda.layoutParams = celda.layoutParams.apply { width = anchos[indice] }
+        }
+        binding.tablaMarco.layoutParams = binding.tablaMarco.layoutParams.apply {
+            width = anchoTabla
+        }
+        binding.cabeceraMarco.layoutParams = binding.cabeceraMarco.layoutParams.apply {
+            width = anchoTabla
+        }
+        binding.rvMarco.layoutParams = binding.rvMarco.layoutParams.apply {
+            width = anchoTabla
+        }
+        adapter.aplicarAnchos(anchos)
+    }
+
+    private fun calcularAnchosTabla(anchoDisponiblePx: Int): IntArray {
+        val accion = resources.getDimensionPixelSize(R.dimen.marco_col_accion_ancho)
+        val minimos = intArrayOf(
+            resources.getDimensionPixelSize(R.dimen.marco_col_activo_ancho),
+            resources.getDimensionPixelSize(R.dimen.marco_col_conglomerado_ancho),
+            resources.getDimensionPixelSize(R.dimen.marco_col_numero_ancho),
+            resources.getDimensionPixelSize(R.dimen.marco_col_seleccion_ancho),
+            resources.getDimensionPixelSize(R.dimen.marco_col_hogar_ancho),
+            resources.getDimensionPixelSize(R.dimen.marco_col_reemplazo_ancho),
+            resources.getDimensionPixelSize(R.dimen.marco_col_resultado_ancho),
+            accion,
+            accion,
+            accion,
+            accion
+        )
+        return MarcoColumnas.calcular(anchoDisponiblePx, minimos, MarcoColumnas.PESOS)
     }
 
     private fun configurarFiltros() {

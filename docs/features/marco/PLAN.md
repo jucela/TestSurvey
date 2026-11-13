@@ -1,7 +1,7 @@
 # PLAN: Marco de viviendas
 
 **SPEC de referencia:** docs/features/marco/SPEC.md
-**Versión de la spec revisada:** SPEC aprobada el 2026-10-22; actualizada y aprobada el 2026-11-10 por CR-007
+**Versión de la spec revisada:** SPEC aprobada al 2026-11-13 por CR-008
 **Estado:** Aprobado <!-- Borrador | En revisión | Aprobado -->
 
 <!-- PARA LA PERSONA
@@ -44,7 +44,8 @@ derivar TASKS.md con tareas, dependencias y comprobaciones.
 | Patrón de catálogo | `domain/entities/OpcionMuestra.kt`, `data/repositories/CatalogoMuestraRepositoryImpl.kt`, `usecases/ObtenerCatalogoMuestraUseCase.kt` | `OpcionMuestra(codigo, nombre)` reutilizable para ODEI/MES/PERIODO. |
 | Persistencia de sesión | `data/sources/SessionDataStore.kt`, `data/repositories/AuthRepositoryImpl.kt` | `ultimoUsuario` identifica al usuario autenticado; `logout()` no borra ese valor. Se usa como clave de los filtros por usuario. |
 | Patrón de lista | `presentation/adapters/CargaArchivoAdapter.kt`, `res/layout/item_carga_archivo.xml` | RecyclerView con ViewBinding y actualización por lista; para Marco se usará `ListAdapter`/`DiffUtil`. |
-| Diseño y tokens | `docs/design/DESIGN_SYSTEM.md`, `res/values/{colors,styles,dimens,strings,themes}.xml`, `values-night/colors.xml`, `values-sw600dp/{dimens,integers}.xml` | Material 3 XML, tarjetas `CardAppPrueba`, tipografía `TextAppearance.AppPrueba.*`, colores por tokens y adaptación a tablet. |
+| Diseño y tokens | `docs/DESIGN_SYSTEM.md`, `res/values/{colors,styles,dimens,strings,themes}.xml`, `values-night/colors.xml`, `values-sw600dp/{dimens,integers}.xml` | Material 3 XML, tarjetas `CardAppPrueba`, tipografía `TextAppearance.AppPrueba.*`, colores por tokens y adaptación a tablet. |
+| Tabla Marco actual | `presentation/activities/MarcoActivity.kt`, `presentation/adapters/MarcoAdapter.kt`, `res/layout/activity_marco.xml`, `res/layout/item_marco_fila.xml`, `res/values/dimens.xml`, `res/values/styles.xml` | Cabecera y filas usan anchos fijos de `dimen`; el `RecyclerView` está dentro de `ScrollView` + `HorizontalScrollView` con `wrap_content`; la cabecera usa `singleLine`. Se centralizan los anchos y se acota la altura del RecyclerView. |
 | Pruebas existentes | `app/src/test/java/...`, `app/src/androidTest/java/...` | Unitarios JVM con coroutines-test; instrumentados con `MigrationTestHelper`, Room in-memory, Hilt y Espresso. |
 
 **Convenciones y patrón de referencia:** Clean Architecture (`domain` ← `data`, `presentation` → `domain`), MVVM con `StateFlow`, Hilt, coroutines/Flow, ViewBinding, RecyclerView y XML Material 3. No se introduce Compose ni un módulo nuevo. Se reutilizan `OpcionMuestra`, `CardAppPrueba`, `TextAppearance.AppPrueba.*`, `ic_info`, `ic_login_arrow` y el patrón de toolbar de `CargarMuestraActivity`.
@@ -111,6 +112,43 @@ Flujo de datos:
    conservando la etiqueta visible y la selección. No se modifican catálogos,
    consultas, DataStore ni ViewModel.
 
+**CR-008 — anchos adaptables y reciclaje:** la tabla mantiene los anchos mínimos
+como base, pero deja de depender de `dimen` repetidos para el ancho efectivo. Un
+calculador puro `MarcoColumnas` recibe el ancho disponible, los mínimos y los
+pesos, y devuelve once anchos en píxeles. Si el ancho disponible es menor que la
+suma de mínimos, devuelve los mínimos y la tabla usa scroll horizontal. Si es
+mayor, distribuye el sobrante solo entre las siete columnas de información según
+los pesos; las cuatro acciones tienen peso 0 y conservan su mínimo. El redondeo
+se ajusta en la columna de mayor peso para que la suma coincida con el ancho de
+tabla calculado (`max(anchoDisponible, sumaMinima)`). La Activity calcula una vez por ancho disponible y entrega el mismo
+arreglo a la cabecera y al `MarcoAdapter`; el adaptador solo aplica los valores,
+sin recalcularlos.
+
+Mínimos y pesos aprobados (dp):
+
+| Columna | Mínimo | Peso |
+| --- | ---: | ---: |
+| Activo | 64 | 0.5 |
+| Conglomerado | 112 | 1.5 |
+| Número | 56 | 0.5 |
+| Selección | 80 | 0.7 |
+| Hogar | 56 | 0.5 |
+| Reemplazo | 88 | 0.8 |
+| Resultado | 104 | 2.0 |
+| Detalle / Aperturar / Exportar / Acción | 88 cada una | 0 |
+| **Total mínimo** | **912** | — |
+
+La Activity obtiene el ancho disponible del contenedor de la tabla (`scrollTabla`)
+en `doOnLayout` y `addOnLayoutChangeListener`; solo reaplica si el ancho cambió,
+para evitar bucles de medición. El contenedor interno de cabecera + RecyclerView
+se ajusta a `max(anchoDisponible, sumaMinima)` y conserva el
+`HorizontalScrollView` para el desbordamiento. Para evitar que `wrap_content`
+mida todas las filas, se reemplaza `RecyclerView` por `MarcoRecyclerView`, que
+limita la altura a `marco_tabla_alto_maximo` (aprobado 480dp) y mantiene el
+scroll interno y el reciclaje. La cabecera cambia `singleLine=true` por
+`maxLines=2` para fuente grande. `marco_tabla_ancho` se retira al no tener
+referencias. No se persisten anchos ni estado de layout.
+
 Se usa `LEFT JOIN` desde `CAMPO_VIVIENDA_MARCO` para conservar viviendas sin
 `CAMPO_VIVIENDA` o sin `CAMPO_HOGAR` (RF-19). No se usa `DISTINCT` en las filas:
 la repetición por hogar es intencional. El único `COUNT(DISTINCT ...)` es el de
@@ -153,17 +191,20 @@ Señala impacto sobre modelos, contratos o componentes compartidos. -->
 | `di/RepositoryModule.kt` | Modificar | Binding `MarcoRepositoryImpl` → `MarcoRepository`. | RF-22 |
 | `presentation/viewmodel/MarcoViewModel.kt` | Crear | Carga, validación, filtros, búsqueda, debounce, estado, eventos y reintento. | RF-05..RF-21 |
 | `presentation/viewmodel/MarcoUiState.kt` | Modificar | Estado inmutable, estados derivados y eventos de detalle y acciones por fila. | RF-05..RF-23 |
-| `presentation/adapters/MarcoAdapter.kt` | Modificar | Textos, colores, detalle y callbacks de Aperturar, Exportar y Acción por fila. | RF-15..RF-18, RF-23 |
-| `presentation/activities/MarcoActivity.kt` | Modificar | Render, dropdowns, Switch, colapso, lista, diálogo de detalle, diálogos de acciones por fila, diálogo de Acción enriquecido (cabecera, Acciones, Atajos, validación de Mostrar y avisos informativos) y restauración del filtro de los desplegables al recrear la pantalla. | RF-03..RF-18, RF-21, RF-23, RF-24, RF-25 |
+| `presentation/adapters/MarcoAdapter.kt` | Modificar | Textos, colores, detalle y callbacks de Aperturar, Exportar y Acción por fila; aplicar el arreglo de anchos compartido a la raíz y a las celdas sin recalcular por bind. | RF-15..RF-18, RF-23, RNF-01, RNF-02 |
+| `presentation/adapters/MarcoColumnas.kt` | Crear | Calculador puro de anchos mínimos, sobrante por pesos y redondeo; sin dependencias Android. | RF-15, RNF-01 |
+| `presentation/widget/MarcoRecyclerView.kt` | Crear | `RecyclerView` con altura máxima tokenizada para conservar el reciclaje. | RNF-02 |
+| `presentation/activities/MarcoActivity.kt` | Modificar | Render, dropdowns, Switch, colapso, lista, diálogo de detalle, diálogos de acciones por fila, diálogo de Acción enriquecido (cabecera, Acciones, Atajos, validación de Mostrar y avisos informativos), restauración del filtro de los desplegables al recrear la pantalla y cálculo/reaplicación de anchos de tabla al cambiar el ancho disponible. | RF-03..RF-18, RF-21, RF-23, RF-24, RF-25, RNF-01 |
 | `presentation/activities/MainActivity.kt` | Modificar | Abrir `MarcoActivity` para `action_marco`; mantener el placeholder para el resto. | RF-01 |
 | `app/src/main/AndroidManifest.xml` | Modificar | Registrar `MarcoActivity` no exportada y con padre `MainActivity`. | RF-01 |
-| `res/layout/activity_marco.xml` | Modificar | Toolbar, título exacto centrado con `TextAppearance.AppPrueba.TopBar`, tarjeta de filtros, indicadores y tabla adaptable con once columnas. | RF-03..RF-15 |
-| `res/layout/item_marco_fila.xml` | Modificar | Fila con once columnas, incluidos los tres iconos de acción con área táctil y descripción accesible. | RF-15, RF-18, RF-23 |
+| `res/layout/activity_marco.xml` | Modificar | Toolbar, título exacto centrado con `TextAppearance.AppPrueba.TopBar`, tarjeta de filtros, indicadores y tabla adaptable con once columnas; IDs en celdas de cabecera, `MarcoRecyclerView` con altura máxima y scroll horizontal conservado. | RF-03..RF-15, RNF-01, RNF-02 |
+| `res/layout/item_marco_fila.xml` | Modificar | Fila con once columnas, incluidos los tres iconos de acción con área táctil y descripción accesible; conservar IDs y mínimos, con anchos efectivos aplicados en runtime. | RF-15, RF-18, RF-23, RNF-01 |
 | `res/layout/dialog_detalle_vivienda.xml` | Modificar | Identificación de fila (Conglomerado, `NROVIVIENDA`, `VIVIENDA`), seis campos de dirección y botón Cerrar. | RF-17, RF-23 |
-| `res/layout/dialog_marco_accion.xml` | Modificar | Diálogo de Acción con cabecera, divisores Material 3, cuatro botones (2×2/1×4), Cuestionario/Capítulo, Mostrar, Cancelar y contenido desplazable; Aperturar/Exportar conservan el diálogo informativo. | RF-23, RF-24, RF-25 |
-| `res/values/{strings,arrays,colors,dimens,styles,integers}.xml`, `values-night/colors.xml`, `values/bools.xml`, `values-sw600dp/{bools,integers}.xml`, `res/drawable/{ic_search,ic_expand_more,ic_aperturar,ic_exportar,ic_accion}.xml` | Crear/Modificar | Textos, arrays de Cuestionario/Capítulo, `marco_accion_columnas` 2/4, tokens de fila, dimensiones de tabla, bandera de colapso e iconos de acciones. | RF-03..RF-18, RF-23, RF-24, RF-25 |
-| `app/src/androidTest/java/gob/inei/appprueba/presentation/activities/MarcoEspressoTest.kt` | Modificar | Casos de cabecera, acciones, dependencia Cuestionario→Capítulo, validación de Mostrar, adaptabilidad y no replicación del diálogo de Acción. | RF-23, RF-24, RF-25 |
-| `docs/design/DESIGN_SYSTEM.md` | Modificar | Documentar los dos tokens nuevos de fila (claro/oscuro) y su uso. | RF-18 |
+| `res/layout/dialog_marco_accion.xml` | Modificar | Diálogo de Acción con cabecera, divisores Material 3, cuatro botones 2×2, Cuestionario/Capítulo, Mostrar, Cancelar y contenido desplazable; Aperturar/Exportar conservan el diálogo informativo. | RF-23, RF-24, RF-25 |
+| `res/values/{strings,arrays,colors,dimens,styles,integers}.xml`, `values-night/colors.xml`, `values/bools.xml`, `values-sw600dp/{bools,integers}.xml`, `res/drawable/{ic_search,ic_expand_more,ic_aperturar,ic_exportar,ic_accion}.xml` | Crear/Modificar | Textos, arrays de Cuestionario/Capítulo, `marco_accion_columnas` 2, tokens de fila, dimensiones de tabla, bandera de colapso e iconos de acciones; añadir `marco_tabla_alto_maximo`, retirar `marco_tabla_ancho` y permitir dos líneas en la cabecera. | RF-03..RF-18, RF-23, RF-24, RF-25, RNF-01, RNF-02 |
+| `app/src/androidTest/java/gob/inei/appprueba/presentation/activities/MarcoEspressoTest.kt` | Modificar | Casos de cabecera, acciones, dependencia Cuestionario→Capítulo, validación de Mostrar, adaptabilidad, alineación de anchos, rotación, redimensionado, reciclaje y no replicación del diálogo de Acción. | RF-15, RF-23, RF-24, RF-25, RNF-01, RNF-02 |
+| `app/src/test/java/gob/inei/appprueba/presentation/adapters/MarcoColumnasTest.kt` | Crear | Casos de ancho menor, igual y mayor que la suma de mínimos, pesos, acciones sin expansión y redondeo. | RF-15, RNF-01, RNF-02 |
+| `docs/DESIGN_SYSTEM.md` | Modificar | Documentar los dos tokens nuevos de fila (claro/oscuro), la tabla de anchos y su uso; eliminar el total fijo de 896dp. | RF-18, RF-15, RNF-01 |
 
 ## Datos y contratos
 
@@ -192,6 +233,7 @@ Señala impacto sobre modelos, contratos o componentes compartidos. -->
   - Etiquetas sin normalizar: ODEI `CODODEI-NOMODEI`, MES `CODIGO-NOMBRE`, PERIODO `NOMPER`; si un nombre es nulo, se usa el código como fallback seguro.
 - **Persistencia, consultas y actualizaciones:** DataStore guarda por usuario `solo_activos`, `odei`, `mes`, `periodo` y `conglomerado`, con claves prefijadas `marco_<usuario>_...`; los valores nulos se eliminan. La búsqueda no se persiste. Las consultas son `@Query` con bind params y `Flow`; Room las ejecuta fuera del hilo principal. La búsqueda escapa `\`, `%` y `_` antes de `LIKE ... ESCAPE '\'` y usa `LOWER` para no distinguir mayúsculas. No se concatena texto del usuario en SQL.
 - **Diálogo de Acción (CR-007):** no hay cambios de modelos, contratos, Room ni DataStore. La cabecera reutiliza `FilaMarco` (`conglome`, `nroVivienda`, `vivienda`). Las opciones de Cuestionario y Capítulo son listas fijas de recursos; el estado de los desplegables y la validación viven en la Activity y son transitorios (no se persisten). No se añaden operaciones de dominio.
+- **Anchos de tabla (CR-008):** `MarcoColumnas` recibe `anchoDisponiblePx`, `minimosPx: IntArray` y `pesos: FloatArray`, y devuelve `IntArray` con once anchos. No hay cambios de datos, Room, DataStore ni ViewModel. Los anchos no se persisten. `MarcoRecyclerView` solo limita la altura de presentación.
 - **Convivencia entre datos locales y remotos:** No aplica. Toda la pantalla es offline; no hay red, FTP ni sincronización en este alcance.
 - **Compatibilidad y migraciones de datos existentes:** `MIGRATION_7_8` crea únicamente las dos tablas y sus índices, con `IF NOT EXISTS`, sin seeds y sin `DROP`/`ALTER` de otras tablas. Los tipos Room son `TEXT` para `CHAR`/`VARCHAR`/`DATETIME` e `INTEGER` para `SMALLINT`; las columnas opcionales quedan anulables. Se exporta el esquema `8.json` y se valida con `MigrationTestHelper`.
 
@@ -263,8 +305,9 @@ Referencia RF/CA y aplica las consideraciones relevantes de MOBILE_GUIDELINES.md
   - **Sin muestra/sin resultados:** `sinMuestra` se deriva de `totalConglomerados == 0`; `sinResultados` de filas vacías con muestra existente. Son mensajes informativos, no errores. Indicadores en `0`/`--` cuando no hay datos.
   - **Formularios:** búsqueda de texto libre con `trim`; no hay validación de formato. Caracteres especiales se tratan literalmente mediante escape de `LIKE`.
   - **Pantalla y orientación:** `CoordinatorLayout` con `AppBarLayout` desplazable para título/filtros/indicadores y tabla con `HorizontalScrollView` + `RecyclerView` que ocupa el resto; la cabecera de tabla queda fija sobre la lista. En `sw600dp` se muestran las tres filas; en móvil el contenido de filtros se colapsa con `TransitionManager`/`AutoTransition`. Se usan dimensiones tokenizadas para columnas y áreas táctiles de 48dp. La fila de indicadores usa `GridLayout` con `@integer/marco_indicadores_columnas` (2 en móvil, 4 en `sw600dp`).
+  - **Anchos adaptables y reciclaje (CR-008):** `MarcoActivity` calcula los anchos una vez por ancho disponible con `MarcoColumnas` y los aplica a la cabecera y al adaptador; no se recalcula por bind. `MarcoRecyclerView` limita la altura a `marco_tabla_alto_maximo` para conservar el reciclaje. El cálculo se repite solo si cambia el ancho, cubriendo rotación, redimensionado y pantalla dividida; no se persiste.
   - **Accesibilidad:** `TextInputLayout` con hints; Switch con etiqueta; iconos de detalle, Aperturar, Exportar y Acción con `contentDescription` que incluye la acción, vivienda y conglomerado; cabecera con textos; el resultado y la columna Reemplazo comunican la información además del color; contraste verificado en claro/oscuro; el botón de colapso actualiza su descripción. En el diálogo de Acción, los botones y desplegables tienen texto/etiqueta, área táctil de 48dp y el error de Mostrar se comunica con texto.
-  - **Diálogo de Acción:** se muestra desde la Activity al recibir `MostrarAccion` con `AccionMarco.ACCION`; el contenido usa `NestedScrollView`/`ScrollView` para pantallas pequeñas y fuente grande. Los cuatro botones usan `GridLayout` con `@integer/marco_accion_columnas` (2 en móvil, 4 en `sw600dp`) y abren un `MaterialAlertDialogBuilder` informativo; Aceptar/Cancelar solo cierran. Cuestionario y Capítulo son `TextInputLayout` Outlined con `MaterialAutoCompleteTextView`, `threshold = Int.MAX_VALUE`; Capítulo inicia vacío con ENAHO-01, no usa `--Seleccione--` y se deshabilita y vacía fuera de ENAHO-01. Mostrar valida y muestra el aviso "Próximamente". El diálogo no se persiste: si la Activity se recrea, se cierra sin ejecutar operaciones.
+  - **Diálogo de Acción:** se muestra desde la Activity al recibir `MostrarAccion` con `AccionMarco.ACCION`; el contenido usa `NestedScrollView`/`ScrollView` para pantallas pequeñas y fuente grande. Los cuatro botones usan `GridLayout` con `@integer/marco_accion_columnas` (2 en móvil y tablet) y abren un `MaterialAlertDialogBuilder` informativo; Aceptar/Cancelar solo cierran. Cuestionario y Capítulo son `TextInputLayout` Outlined con `MaterialAutoCompleteTextView`, `threshold = Int.MAX_VALUE`; Capítulo inicia vacío con ENAHO-01, no usa `--Seleccione--` y se deshabilita y vacía fuera de ENAHO-01. Mostrar valida y muestra el aviso "Próximamente". El diálogo no se persiste: si la Activity se recrea, se cierra sin ejecutar operaciones.
   - **Ciclo de vida:** no se guardan referencias a vistas en el ViewModel; el diálogo se muestra desde la Activity al recibir un evento. El canal de eventos es `BUFFERED`.
   - **Privacidad/red/permisos:** no aplica; no hay red, permisos, cámara ni GPS.
 
@@ -276,6 +319,7 @@ con el proyecto y justifica las incorporaciones. No agregues dependencias por de
 - No se añaden librerías. Se reutilizan Material 3 `1.12.0` (`MaterialSwitch`, `TextInputLayout`, `MaterialAutoCompleteTextView`), Room `2.7.2`, DataStore, RecyclerView, coroutines/Flow y Hilt ya presentes.
 - Se añaden recursos propios: dos tokens de color claro/oscuro, dimensiones de columnas/tabla, `values/bools.xml` + `values-sw600dp/bools.xml` para el colapso, strings y dos vectores (`ic_search`, `ic_expand_more`). Se añade `marco_indicadores_columnas` en `values/integers.xml` (2) y `values-sw600dp/integers.xml` (4) para el `GridLayout` de indicadores. Tokens: `marcoFilaReemplazo` `#F9DEDC` (claro) / `#5C2B28` (oscuro) y `marcoFilaSinReemplazo` `#D7E9F7` (claro) / `#24394A` (oscuro). `marcoFilaSinReemplazo` se aplica con `TIPOVIVIENDA` en `{1, 4}`; `marcoFilaReemplazo` con `{2, 3}`, nulo, vacío u otro valor. El texto de fila usa `?attr/colorOnSurface` y la cabecera `?attr/colorSurfaceContainerHigh`.
 - No se añaden permisos ni servicios. La pantalla no usa FTP, red, cámara, GPS ni trabajo en segundo plano.
+- CR-008 no añade librerías. Añade `marco_tabla_alto_maximo` (aprobado 480dp) y retira `marco_tabla_ancho`; la cabecera usa `maxLines=2`. Los mínimos y pesos se centralizan en `MarcoColumnas` y recursos `dimen`/constantes.
 - Configuración de Room: `version = 8`, `exportSchema = true`, registrar `MIGRATION_7_8` en `DatabaseModule`; no se habilita `fallbackToDestructiveMigration`.
 - DataStore: se reutiliza el `DataStore<Preferences>` existente; las claves de Marco llevan prefijo de usuario para no colisionar con `sesion_activa`, `ultimo_usuario` ni `tipo_acceso`.
 
@@ -321,9 +365,21 @@ Una captura aislada no demuestra persistencia ni ausencia de peticiones de red. 
 | CA-31 | UI: `MarcoEspressoTest` (nuevo) | Activity Marco; pulsar cada botón de Acciones | Diálogo con título/mensaje/Aceptar/Cancelar; sin cambios |
 | CA-32 | UI: `MarcoEspressoTest` (nuevo) | Activity Marco; abrir Cuestionario y Capítulo | Opciones exactas; Capítulo solo con ENAHO-01, inicia vacío; vacío/disabled en otros casos |
 | CA-33 | UI: `MarcoEspressoTest` (nuevo) | Activity Marco; Mostrar en combinaciones válidas e inválidas | Error sin Cuestionario; "Próximamente" en válidos; sin navegación |
-| CA-34 | UI: `MarcoEspressoTest` (nuevo) + manual | Teléfono/tablet, fuente 200 %, TalkBack; Detalle/Aperturar/Exportar | 2×2/1×4, scroll, accesibilidad; diálogos sin cambios |
+| CA-34 | UI: `MarcoEspressoTest` (nuevo) + manual | Teléfono/tablet, fuente 200 %, TalkBack; Detalle/Aperturar/Exportar | 2×2, scroll, accesibilidad; diálogos sin cambios |
+| CA-35 | Unitario `MarcoColumnasTest` + UI `MarcoEspressoTest` | Ancho igual/mayor que la suma de mínimos; cabecera y fila de prueba | Mismos anchos efectivos; información expandida; acciones fijas; sin desalineación |
+| CA-36 | Unitario `MarcoColumnasTest` + UI `MarcoEspressoTest` + manual | Ancho menor que la suma de mínimos; móvil o ventana estrecha | Mínimos conservados; scroll horizontal; cabecera y filas desplazadas juntas |
+| CA-37 | Unitario `MarcoColumnasTest` + UI + manual | Tablet/ventana ancha; sobrante disponible | Sobrante solo en columnas de información; acciones sin expansión |
+| CA-38 | UI + manual | Iconos de Detalle/Aperturar/Exportar/Acción; TalkBack y medición táctil | Dimensiones táctiles adecuadas, descripciones accesibles y sin recortes |
+| CA-39 | UI: `MarcoEspressoTest` con `scenario.recreate()` + manual | Rotación con filtros, búsqueda y Switch activos | Tabla reajustada, alineación y estado conservados |
+| CA-40 | UI + manual | Redimensionado de ventana y pantalla dividida | Reajuste sin recrear la pantalla ni perder estado |
+| CA-41 | UI: `MarcoEspressoTest` + manual | Lista con suficientes filas para forzar reciclaje | Filas recicladas con los mismos anchos que la cabecera |
+| CA-42 | UI + manual | Fuente al 200 %; cabecera y celdas | Cabecera de hasta dos líneas; sin solapamientos ni recortes |
+| CA-43 | UI: `MarcoEspressoTest` + regresión de acciones | Datos y filtros activos; cambio de ancho | Columnas, orden, filas, colores y acciones conservados |
+| CA-44 | Inspección de recursos + UI en claro/oscuro | Tokens, tipografía y densidades | Sin anchos hardcodeados en cabecera/filas; DS conservado |
+| CA-45 | Unitario + UI + manual | Muestra numerosa; desplazamiento vertical/horizontal | Reciclaje y fluidez; sin recálculo de anchos por bind |
+| CA-46 | Batería completa | `assembleDebug`, `testDebugUnitTest`, `lintDebug`, `assembleDebugAndroidTest`, `connectedDebugAndroidTest` | Sin errores ni regresiones |
 
-**Comprobaciones de regresión:** ejecutar la suite unitaria completa (161 tests actuales + nuevos), la suite instrumentada completa (70 actuales + nuevas), `assembleDebug` y `lintDebug`. Verificar que login, drawer, `CargarMuestraActivity`, restricción SIS y encuesta no cambian. No debe aparecer `fallbackToDestructiveMigration` ni una versión distinta de 8.
+**Comprobaciones de regresión:** ejecutar la suite unitaria completa (161 tests actuales + nuevos), la suite instrumentada completa (70 actuales + nuevas), `assembleDebug` y `lintDebug`. Verificar que login, drawer, `CargarMuestraActivity`, restricción SIS y encuesta no cambian. No debe aparecer `fallbackToDestructiveMigration` ni una versión distinta de 8. Para CR-008, verificar además que las once columnas, el orden, los colores, las acciones y los diálogos de Detalle/Aperturar/Exportar/Acción no cambian.
 
 **Comandos verificados para compilar y ejecutar tests:**
 
@@ -340,9 +396,9 @@ Una captura aislada no demuestra persistencia ni ausencia de peticiones de red. 
 .\gradlew.bat :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=gob.inei.appprueba.data.databases.MarcoDaoTest
 ```
 
-**Pruebas en dispositivo, emulador o simulador:** tablet `TB311XU` disponible (validar `sw600dp`, rotación, tema claro/oscuro, TalkBack y tabla ancha). Para móvil `<600dp` usar emulador o dispositivo; si no hay, declarar CA-05/CA-06 pendientes. El diálogo, el colapso y la búsqueda se prueban manualmente además de Espresso. La migración y los DAO se prueban en base aislada/in-memory, nunca insertando fixtures en la base de la app.
+**Pruebas en dispositivo, emulador o simulador:** tablet `TB311XU` disponible (validar `sw600dp`, rotación, tema claro/oscuro, TalkBack y tabla ancha). Para móvil `<600dp` usar emulador o dispositivo; si no hay, declarar CA-05/CA-06 pendientes. El diálogo, el colapso y la búsqueda se prueban manualmente además de Espresso. Para CR-008 se prueba manualmente rotación, redimensionado de ventana, pantalla dividida, fuente 200 %, claro/oscuro y una lista numerosa; las dimensiones exactas de cabecera/filas se comparan en Espresso. La migración y los DAO se prueban en base aislada/in-memory, nunca insertando fixtures en la base de la app.
 
-**Limitaciones del entorno:** no se dispone de un medidor automático de contraste ni de TalkBack en todos los dispositivos; se revisará manualmente en claro/oscuro. La prueba de rendimiento con una muestra masiva no forma parte del alcance; se verificará que no haya consultas en el hilo principal y que la búsqueda cancele consultas. Si no hay emulador `<600dp`, la validación específica de móvil quedará registrada como pendiente.
+**Limitaciones del entorno:** no se dispone de un medidor automático de contraste ni de TalkBack en todos los dispositivos; se revisará manualmente en claro/oscuro. La prueba de rendimiento con una muestra masiva no forma parte del alcance; se verificará que no haya consultas en el hilo principal y que la búsqueda cancele consultas. Para CR-008 no se dispone de un profiler de layout automatizado; el reciclaje se comprobará con una lista numerosa y revisión manual, y el redimensionado/pantalla dividida puede requerir un dispositivo o emulador con freeform. Si no hay emulador `<600dp`, la validación específica de móvil quedará registrada como pendiente.
 
 <!-- Esta sección planifica la validación. Durante la implementación, registra
 en TASKS.md o en el informe de validación acordado los resultados y evidencias
@@ -365,7 +421,8 @@ Incluye puntos de comprobación para avanzar con cambios pequeños. -->
 9. **CR-004 (RF-14):** agregar `conglomerados` a `IndicadoresMarco`; consulta de conteo en `MarcoDao`; validar combinación/búsqueda/ODEI en `MarcoRepositoryImpl`; `GridLayout` 2/4 y string del cuarto indicador; actualizar pruebas. Comprobación: `MarcoDaoTest`, `MarcoRepositoryTest`, `MarcoMappersTest`, `MarcoViewModelTest`, `MarcoEspressoTest` y batería completa.
 10. **CR-005 (RF-05/RF-13):** corregir la pérdida de opciones de los cuatro desplegables al recrear la pantalla; impedir que el texto seleccionado filtre las opciones, cargar los adaptadores antes de aplicar las etiquetas y cubrir rotación con y sin selección. Comprobación: `MarcoEspressoTest` y batería completa.
 11. **CR-006 (RF-11):** ajustar la regla de área para `TIPOSELECCION = 3` con ESTRATO 7 u 8 → `RURAL->PANEL`; ESTRATO 9+ → `SIN CLASIFICAR`; actualizar `MarcoReglasTest` y la documentación. Comprobación: `MarcoReglasTest` y batería completa.
-12. **CR-007 (RF-23/RF-24/RF-25):** rediseñar `dialog_marco_accion.xml` con cabecera, divisores, cuatro botones 2×2/1×4, Cuestionario/Capítulo, Mostrar y Cancelar; añadir strings/arrays/`marco_accion_columnas`; ampliar `MarcoActivity.mostrarAccion` para `AccionMarco.ACCION` con la dependencia ENAHO-01, validación de Mostrar y diálogos informativos; conservar Aperturar/Exportar informativos; actualizar `MarcoEspressoTest`. Comprobación: `assembleDebug`, `MarcoEspressoTest` y batería completa.
+12. **CR-007 (RF-23/RF-24/RF-25):** rediseñar `dialog_marco_accion.xml` con cabecera, divisores, cuatro botones 2×2, Cuestionario/Capítulo, Mostrar y Cancelar; añadir strings/arrays/`marco_accion_columnas`; ampliar `MarcoActivity.mostrarAccion` para `AccionMarco.ACCION` con la dependencia ENAHO-01, validación de Mostrar y diálogos informativos; conservar Aperturar/Exportar informativos; actualizar `MarcoEspressoTest`. Comprobación: `assembleDebug`, `MarcoEspressoTest` y batería completa.
+13. **CR-008 (RF-15/RNF-01/RNF-02):** crear `MarcoColumnas` y sus unitarios; sustituir `RecyclerView` por `MarcoRecyclerView` con altura máxima; centralizar mínimos/pesos y retirar `marco_tabla_ancho`; aplicar anchos compartidos a cabecera y `MarcoAdapter`; recalcular solo al cambiar el ancho; ajustar cabecera a dos líneas; actualizar `DESIGN_SYSTEM.md` y pruebas. Comprobación: `MarcoColumnasTest`, `MarcoEspressoTest`, batería completa y validación manual de rotación/redimensionado/pantalla dividida/fuente 200 %.
 
 ## Riesgos y decisiones pendientes
 
@@ -382,7 +439,12 @@ Escribe Ninguna en las decisiones pendientes cuando estén resueltas. -->
   - **Contraste de los tokens nuevos:** rojo/celeste pastel claro y oscuro con texto `?attr/colorOnSurface`; revisión visual en ambos temas y uso de texto/columnas como indicador adicional.
   - **Complejidad de pruebas Hilt aisladas:** módulo de test que sustituye `DatabaseModule` por Room in-memory y DataStore temporal; no se escriben fixtures en la base de la app.
   - **Orden con `NROVIVIENDA` nulo o duplicado:** se ordena con `COALESCE`/`NULLIF` y se conservan `VIVIENDA` y `HOGAR` como desempate para mantener el orden determinista y la fila por hogar; tests con nulos, vacíos y empates.
-  - **Ancho y alineación de once columnas:** pesos/dimensiones tokenizadas, scroll horizontal y prueba en móvil/tablet; los iconos de acción mantienen área táctil de 48dp y descripción accesible.
+  - **Ancho y alineación de once columnas:** `MarcoColumnas` centraliza mínimos, pesos y redondeo; la Activity aplica el mismo arreglo a cabecera y adaptador. Se prueba con ancho menor, igual y mayor que la suma de mínimos, en móvil/tablet y con filas recicladas; los iconos de acción mantienen área táctil de 48dp y descripción accesible.
+  - **Suma mínima de 912dp en CR-008:** en teléfonos el scroll horizontal será más frecuente que con los anchos actuales; se acepta como consecuencia de conservar legibilidad y áreas táctiles. Se valida en móvil/tablet y se ajusta solo si la aprobación lo permite.
+  - **Bucle de medición por anchos:** aplicar anchos dentro de `onLayout` puede disparar otro layout; se compara el ancho disponible con el último aplicado y solo se actualiza si cambió. Se prueba con rotación, redimensionado y pantalla dividida.
+  - **Altura máxima del RecyclerView:** `wrap_content` sin tope mediría todas las filas. `MarcoRecyclerView` acota la altura con `marco_tabla_alto_maximo` y conserva scroll interno/reciclaje; se prueba con lista numerosa y se revisa que el scroll vertical de la página no quede bloqueado.
+  - **Cabecera a dos líneas:** al aumentar la fuente, la cabecera puede crecer; se usa `maxLines=2` y se verifica que filas y cabecera mantengan alineación y que no haya recortes.
+  - **Design System desactualizado:** la tabla de `docs/DESIGN_SYSTEM.md` no coincidía con los `dimen` actuales; se corrigió durante la implementación de CR-008 y se eliminó el total fijo de 896dp.
   - **Conteo de N° Conglomerados:** se calcula desde `CAMPO_CONGLOMERADO` con `TRIM(ANHO) = '2026'` y `COUNT(DISTINCT CONGLOME)`; no se une `CAMPO_VIVIENDA_MARCO`, por lo que el Switch no lo altera. La combinación inválida y la búsqueda se resuelven en el repositorio con `null` → `--`; tests con 2027 y combinaciones parciales.
   - **Pérdida de opciones tras rotación:** el texto de la etiqueta seleccionada filtra el `AutoCompleteTextView`; se configura el campo para que el texto no reduzca las opciones, se cargan los adaptadores antes de aplicar las etiquetas y se prueba con `--Seleccione--` y con selección. No se cambia la persistencia ni el ViewModel.
   - **Límite de estrato 7-8:** la regla anterior documentaba ≥7 y el código solo reconocía 7; el cambio fija 7-8 como rural y 9+ como `SIN CLASIFICAR`. Se cubre con unitarios de 7, 8 y 9+ para evitar otra discrepancia entre SPEC y código.
@@ -390,7 +452,7 @@ Escribe Ninguna en las decisiones pendientes cuando estén resueltas. -->
   - **Dependencia Cuestionario→Capítulo:** el cambio de cuestionario debe vaciar y deshabilitar Capítulo fuera de ENAHO-01; con ENAHO-01 inicia vacío y sin `--Seleccione--`. Se cubre con Espresso y revisión manual.
   - **Estado transitorio del diálogo:** al recrear la Activity el diálogo se cierra y no se persisten selecciones; no hay operaciones que puedan duplicarse.
   - **No replicación:** el diálogo enriquecido se limita a `AccionMarco.ACCION`; Detalle, Aperturar y Exportar se verifican como regresión.
-- **Decisiones pendientes:** Ninguna. Las decisiones de producto y de alcance están resueltas en la SPEC aprobada; las elecciones técnicas de este plan no cambian el comportamiento. Para CR-004 quedaron confirmados el año base 2026, las cuatro combinaciones válidas, ODEI obligatorio, `--` con búsqueda activa, Switch sin efecto sobre N° Conglomerados y layout 2×2/1×4. Para CR-005 se corrige un defecto de presentación: tras rotar se conservan las selecciones y las listas completas de opciones; no hay RF nuevo ni cambio de datos. Para CR-006 se confirma el límite 7-8 para `RURAL->PANEL` y `SIN CLASIFICAR` desde 9; no hay RF nuevo ni cambio de datos. Para CR-007 se confirma: alcance UI + validación; los cuatro botones de Acciones muestran un diálogo informativo con título, mensaje "Esta acción estará disponible próximamente." y Aceptar/Cancelar; Mostrar válido muestra "Próximamente" y no navega; 2×2 en teléfono y 1×4 en tablet; la cabecera sustituye al título "Acción"; Capítulo solo con ENAHO-01, inicia vacío y no usa `--Seleccione--`; listas fijas; solo aplica al diálogo de Acción.
+- **Decisiones pendientes:** Ninguna funcional adicional. La SPEC y este PLAN quedaron aprobados para CR-008; los valores y las elecciones técnicas están implementados y validados, sin cambios de comportamiento pendientes. Para CR-004 quedaron confirmados el año base 2026, las cuatro combinaciones válidas, ODEI obligatorio, `--` con búsqueda activa, Switch sin efecto sobre N° Conglomerados y layout 2×2/1×4. Para CR-005 se corrige un defecto de presentación: tras rotar se conservan las selecciones y las listas completas de opciones; no hay RF nuevo ni cambio de datos. Para CR-006 se confirma el límite 7-8 para `RURAL->PANEL` y `SIN CLASIFICAR` desde 9; no hay RF nuevo ni cambio de datos. Para CR-007 se confirma: alcance UI + validación; los cuatro botones de Acciones muestran un diálogo informativo con título, mensaje "Esta acción estará disponible próximamente." y Aceptar/Cancelar; Mostrar válido muestra "Próximamente" y no navega; 2×2 en teléfono y tablet; la cabecera sustituye al título "Acción"; Capítulo solo con ENAHO-01, inicia vacío y no usa `--Seleccione--`; listas fijas; solo aplica al diálogo de Acción. Para CR-008 se aprobaron los mínimos y pesos de la tabla anterior y una altura máxima de 480dp; implementado y validado el 2026-11-13.
 
 <!-- ANTES DE SOLICITAR APROBACIÓN
 Comprueba que el plan cubre los requisitos, respeta las exclusiones, reutiliza

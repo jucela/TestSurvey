@@ -29,10 +29,17 @@ class MarcoAdapter(
 ) : RecyclerView.Adapter<MarcoAdapter.Holder>() {
 
     private var items: List<FilaMarco> = emptyList()
+    private var anchos: IntArray = IntArray(0)
 
     fun submit(nuevos: List<FilaMarco>) {
         if (nuevos == items) return
         items = nuevos
+        notifyDataSetChanged()
+    }
+
+    fun aplicarAnchos(nuevos: IntArray) {
+        if (nuevos.contentEquals(anchos)) return
+        anchos = nuevos.copyOf()
         notifyDataSetChanged()
     }
 
@@ -61,8 +68,30 @@ class MarcoAdapter(
         private val aperturar: ImageButton = itemView.findViewById(R.id.btnAperturar)
         private val exportar: ImageButton = itemView.findViewById(R.id.btnExportar)
         private val accion: ImageButton = itemView.findViewById(R.id.btnAccion)
+        private val celdas = arrayOf<View>(
+            activo,
+            conglomerado,
+            numero,
+            seleccion,
+            hogar,
+            reemplazo,
+            resultado,
+            detalle,
+            aperturar,
+            exportar,
+            accion
+        )
+
+        private fun aplicarAnchos() {
+            if (anchos.size != MarcoColumnas.CANTIDAD_COLUMNAS) return
+            raiz.layoutParams = raiz.layoutParams.apply { width = anchos.sum() }
+            celdas.forEachIndexed { indice, celda ->
+                celda.layoutParams = celda.layoutParams.apply { width = anchos[indice] }
+            }
+        }
 
         fun bind(fila: FilaMarco) {
+            aplicarAnchos()
             val texto = formato(fila)
             activo.text = texto.activo
             conglomerado.text = texto.conglomerado

@@ -82,15 +82,18 @@ textual `Reemplazo` comunica la misma información (accesibilidad).
 
 ### Anchos de la tabla de Marco
 
-La tabla de once columnas usa tokens propios en `values/dimens.xml`, múltiplos
-de 8dp para mantener la escala y permitir scroll horizontal sin recortes. Las
-cuatro columnas de acción (Detalle, Aperturar, Exportar y Acción) reservan
-`marco_col_accion_ancho` (88dp) para garantizar área táctil suficiente; el
-ancho total `marco_tabla_ancho` (896dp) es la suma de las once columnas.
+La tabla de once columnas usa tokens propios en `values/dimens.xml` como
+anchos mínimos, múltiplos de 8dp. Las cuatro columnas de acción (Detalle,
+Aperturar, Exportar y Acción) reservan `marco_col_accion_ancho` (88dp) para
+garantizar área táctil suficiente y no se expanden. Cuando el ancho disponible
+supera la suma de mínimos (912dp), `MarcoColumnas` distribuye el sobrante solo
+entre las siete columnas de información según sus pesos; si no cabe, conserva
+los mínimos y aparece scroll horizontal. La altura máxima visible de la tabla
+es `marco_tabla_alto_maximo` (480dp) para conservar el reciclaje.
 
 | Token | Valor | Uso |
 | --- | --- | --- |
-| `marco_col_activo_ancho` | 48dp | Columna Activo |
+| `marco_col_activo_ancho` | 64dp | Columna Activo |
 | `marco_col_conglomerado_ancho` | 112dp | Columna Conglomerado |
 | `marco_col_numero_ancho` | 56dp | Columna N° |
 | `marco_col_seleccion_ancho` | 80dp | Columna Selección |
@@ -98,7 +101,7 @@ ancho total `marco_tabla_ancho` (896dp) es la suma de las once columnas.
 | `marco_col_reemplazo_ancho` | 88dp | Columna Reemplazo |
 | `marco_col_resultado_ancho` | 104dp | Columna Resultado |
 | `marco_col_accion_ancho` | 88dp | Detalle, Aperturar, Exportar y Acción |
-| `marco_tabla_ancho` | 896dp | Ancho total de cabecera y filas |
+| `marco_tabla_alto_maximo` | 480dp | Altura máxima visible de la tabla |
 
 Los iconos de acción usan `ic_info`, `ic_aperturar`, `ic_exportar` e
 `ic_accion`, con `contentDescription` por fila y tinte `colorPrimary`.

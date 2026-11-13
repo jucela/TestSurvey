@@ -5,6 +5,7 @@ import android.graphics.drawable.ColorDrawable
 import android.view.View
 import android.view.ViewGroup
 import android.widget.GridLayout
+import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
@@ -19,6 +20,7 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.clearText
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.replaceText
+import androidx.test.espresso.action.ViewActions.scrollTo
 import androidx.test.espresso.action.ViewActions.swipeUp
 import androidx.test.espresso.action.ViewActions.typeText
 import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
@@ -52,6 +54,7 @@ import kotlinx.coroutines.runBlocking
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.not
+import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -263,6 +266,135 @@ class MarcoEspressoTest {
                     ),
                     accion?.contentDescription
                 )
+            }
+        }
+    }
+
+    @Test
+    fun la_cabecera_y_las_filas_comparten_los_anchos_efectivos() {
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            esperarHastaFilas(scenario, 4)
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+
+            scenario.onActivity { activity ->
+                val cabecera = activity.findViewById<LinearLayout>(R.id.cabeceraMarco)
+                val tabla = activity.findViewById<View>(R.id.tablaMarco)
+                val recycler = activity.findViewById<RecyclerView>(R.id.rvMarco)
+                val fila = recycler.findViewHolderForAdapterPosition(0)?.itemView as? ViewGroup
+                assertNotNull(fila)
+
+                val anchosCabecera = IntArray(cabecera.childCount) {
+                    cabecera.getChildAt(it).width
+                }
+                val anchosFila = IntArray(fila!!.childCount) { fila.getChildAt(it).width }
+
+                assertEquals(11, anchosCabecera.size)
+                assertArrayEquals(anchosCabecera, anchosFila)
+                assertEquals(anchosCabecera.sum(), tabla.width)
+                assertEquals(tabla.width, cabecera.width)
+                assertEquals(tabla.width, recycler.width)
+                assertTrue(anchosCabecera.all { it > 0 })
+                for (indice in 0..10) {
+                    val celda = cabecera.getChildAt(indice) as TextView
+                    assertEquals(2, celda.maxLines)
+                    assertTrue("Cabecera recortada: ${celda.text}", sinRecortes(celda))
+                }
+                for (indice in 0 until fila.childCount) {
+                    val celda = fila.getChildAt(indice) as? TextView ?: continue
+                    assertTrue("Celda recortada: ${celda.text}", sinRecortes(celda))
+                }
+            }
+        }
+    }
+
+    @Test
+    fun las_columnas_de_accion_conservan_su_ancho_minimo() {
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            esperarHastaFilas(scenario, 4)
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+
+            scenario.onActivity { activity ->
+                val cabecera = activity.findViewById<LinearLayout>(R.id.cabeceraMarco)
+                val anchoAccion = activity.resources.getDimensionPixelSize(
+                    R.dimen.marco_col_accion_ancho
+                )
+                for (indice in 7..10) {
+                    assertEquals(anchoAccion, cabecera.getChildAt(indice).width)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun los_anchos_se_recalculan_al_cambiar_el_ancho_disponible() {
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            esperarHastaFilas(scenario, 4)
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+
+            val minimos = IntArray(11)
+            var anchoEstrecho = 0
+            var anchoAncho = 0
+            scenario.onActivity { activity ->
+                val minimosTabla = anchosMinimosPx(activity)
+                minimosTabla.copyInto(minimos)
+                val sumaMinima = minimosTabla.sum()
+                anchoEstrecho = sumaMinima - 120
+                anchoAncho = sumaMinima + 240
+            }
+
+            scenario.onActivity { activity -> cambiarAnchoTabla(activity, anchoEstrecho) }
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+            scenario.onActivity { activity ->
+                val cabecera = activity.findViewById<LinearLayout>(R.id.cabeceraMarco)
+                val tabla = activity.findViewById<View>(R.id.tablaMarco)
+                assertEquals(minimos.sum(), tabla.width)
+                assertEquals(minimos.sum(), IntArray(11) { cabecera.getChildAt(it).width }.sum())
+                assertArrayEquals(
+                    minimos.copyOfRange(7, 11),
+                    IntArray(4) { cabecera.getChildAt(it + 7).width }
+                )
+            }
+
+            scenario.onActivity { activity -> cambiarAnchoTabla(activity, anchoAncho) }
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+            scenario.onActivity { activity ->
+                val cabecera = activity.findViewById<LinearLayout>(R.id.cabeceraMarco)
+                val tabla = activity.findViewById<View>(R.id.tablaMarco)
+                val fila = activity.findViewById<RecyclerView>(R.id.rvMarco)
+                    .findViewHolderForAdapterPosition(0)?.itemView as? ViewGroup
+                assertNotNull(fila)
+                val anchosCabecera = IntArray(11) { cabecera.getChildAt(it).width }
+                assertEquals(anchoAncho, tabla.width)
+                assertEquals(anchoAncho, anchosCabecera.sum())
+                assertArrayEquals(
+                    anchosCabecera,
+                    IntArray(fila!!.childCount) { fila.getChildAt(it).width }
+                )
+                assertArrayEquals(
+                    minimos.copyOfRange(7, 11),
+                    anchosCabecera.copyOfRange(7, 11)
+                )
+            }
+        }
+    }
+
+    @Test
+    fun la_tabla_conserva_la_alineacion_al_recrear_la_pantalla() {
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            esperarHastaFilas(scenario, 4)
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+
+            var anchosAntes: IntArray = IntArray(0)
+            scenario.onActivity { activity -> anchosAntes = anchosCabecera(activity) }
+
+            scenario.recreate()
+            esperarHastaFilas(scenario, 4)
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+
+            scenario.onActivity { activity ->
+                val anchosDespues = anchosCabecera(activity)
+                assertArrayEquals(anchosAntes, anchosDespues)
+                assertArrayEquals(anchosDespues, anchosFila(activity, 0))
             }
         }
     }
@@ -484,7 +616,7 @@ class MarcoEspressoTest {
                 esperarDebounce()
                 esperarHastaFilas(scenario, 30)
 
-                onView(withId(R.id.rvMarco)).perform(swipeUp())
+                onView(withId(R.id.rvMarco)).perform(scrollTo(), swipeUp())
                 InstrumentationRegistry.getInstrumentation().waitForIdleSync()
 
                 var primeraVisible = 0
@@ -507,6 +639,22 @@ class MarcoEspressoTest {
                         isDescendantOfA(withId(R.id.filaMarco))
                     )
                 ).check(matches(isDisplayed()))
+
+                InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+                scenario.onActivity { activity ->
+                    val recycler = activity.findViewById<RecyclerView>(R.id.rvMarco)
+                    val alturaMaxima = activity.resources.getDimensionPixelSize(
+                        R.dimen.marco_tabla_alto_maximo
+                    )
+                    assertTrue(
+                        "La tabla superó la altura máxima y perdió el reciclaje",
+                        recycler.height <= alturaMaxima
+                    )
+                    assertArrayEquals(
+                        anchosCabecera(activity),
+                        anchosFila(activity, 29)
+                    )
+                }
             }
         } finally {
             db.delete("CAMPO_VIVIENDA_MARCO", "CONGLOME = ?", arrayOf(conglome))
@@ -848,6 +996,46 @@ class MarcoEspressoTest {
     }
 
     
+
+    private fun sinRecortes(celda: TextView): Boolean {
+        val layout = celda.layout ?: return false
+        return (0 until layout.lineCount).all { layout.getEllipsisCount(it) == 0 }
+    }
+
+    private fun anchosCabecera(activity: MarcoActivity): IntArray {
+        val cabecera = activity.findViewById<LinearLayout>(R.id.cabeceraMarco)
+        return IntArray(cabecera.childCount) { cabecera.getChildAt(it).width }
+    }
+
+    private fun anchosFila(activity: MarcoActivity, posicion: Int): IntArray {
+        val recycler = activity.findViewById<RecyclerView>(R.id.rvMarco)
+        val fila = recycler.findViewHolderForAdapterPosition(posicion)?.itemView as? ViewGroup
+            ?: throw AssertionError("No se encontró la fila $posicion")
+        return IntArray(fila.childCount) { fila.getChildAt(it).width }
+    }
+
+    private fun anchosMinimosPx(activity: MarcoActivity): IntArray {
+        val accion = activity.resources.getDimensionPixelSize(R.dimen.marco_col_accion_ancho)
+        return intArrayOf(
+            activity.resources.getDimensionPixelSize(R.dimen.marco_col_activo_ancho),
+            activity.resources.getDimensionPixelSize(R.dimen.marco_col_conglomerado_ancho),
+            activity.resources.getDimensionPixelSize(R.dimen.marco_col_numero_ancho),
+            activity.resources.getDimensionPixelSize(R.dimen.marco_col_seleccion_ancho),
+            activity.resources.getDimensionPixelSize(R.dimen.marco_col_hogar_ancho),
+            activity.resources.getDimensionPixelSize(R.dimen.marco_col_reemplazo_ancho),
+            activity.resources.getDimensionPixelSize(R.dimen.marco_col_resultado_ancho),
+            accion,
+            accion,
+            accion,
+            accion
+        )
+    }
+
+    private fun cambiarAnchoTabla(activity: MarcoActivity, anchoPx: Int) {
+        val scroll = activity.findViewById<HorizontalScrollView>(R.id.scrollTabla)
+        scroll.layoutParams = scroll.layoutParams.apply { width = anchoPx }
+        scroll.requestLayout()
+    }
 
     private fun esTablet(): Boolean =
         ApplicationProvider.getApplicationContext<Context>()

@@ -10,6 +10,7 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/
 - 
 
 ### Changed
+- Tabla de Marco (RF-15/RNF-01/RNF-02): anchos adaptables con mínimos aprobados, sobrante distribuido solo en columnas de información, acciones sin expansión, cabecera y filas con los mismos anchos, recálculo al cambiar el ancho y `MarcoRecyclerView` con altura máxima de 480dp para conservar el reciclaje; cabecera a dos líneas y sin recortes con fuente 200 %. [CR-008](changes/CR-008-marco-tabla-ancho-adaptable.md)
 - Área geográfica de Marco (RF-11): con `TIPOSELECCION = 3`, ESTRATO 7 u 8 ahora clasifica `RURAL->PANEL`; ESTRATO 9 o mayor, nulo, 0 y valores no contemplados quedan en `SIN CLASIFICAR`. [CR-006](changes/CR-006-marco-area-geografica-estrato-7-8.md)
 - Indicadores de Marco (RF-14): se agregó el cuarto indicador `N° Conglomerados` con `COUNT(DISTINCT CONGLOME)` de 2026, cuatro combinaciones válidas, `--` sin ODEI o con búsqueda, y layout 2×2/1×4. [CR-004](changes/CR-004-marco-rf14-indicador-conglomerados.md)
 - Tabla de Marco (RF-15/RF-17) y acciones por fila (RF-23): 11 columnas con Detalle, Aperturar, Exportar y Acción; orden determinista por `CONGLOME`, `NROVIVIENDA`, `VIVIENDA` y `HOGAR`; diálogos informativos con identificación de la fila. [CR-003](changes/CR-003-marco-rf15-tabla-acciones-orden.md)
