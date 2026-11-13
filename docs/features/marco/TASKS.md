@@ -1,11 +1,12 @@
 # TASKS: Marco de viviendas
 
-**SPEC:** docs/features/marco/SPEC.md (Aprobada 2026-11-13 por CR-008; aprobada 2026-10-22 y actualizada por CR-007)
-**PLAN:** docs/features/marco/PLAN.md (Aprobado 2026-11-13 por CR-008; aprobado 2026-10-22 y actualizado por CR-007)
+**SPEC:** docs/features/marco/SPEC.md (Aprobada 2026-11-13 por CR-009; aprobada 2026-11-13 por CR-008)
+**PLAN:** docs/features/marco/PLAN.md (Aprobado 2026-11-13 por CR-009; aprobado 2026-11-13 por CR-008)
 **Estado general:** Completada <!-- Pendiente | En curso | Completada -->
 **CR-006:** `Implementado`; MA-36/MA-37 completadas y validadas.
 **CR-007:** `Implementado`; MA-38 completada; MA-39..MA-41 completadas.
 **CR-008:** `Implementado`; MA-42..MA-46 completadas y validadas.
+**CR-009:** `Implementado`; MA-47..MA-49 completadas y validadas el 2026-11-13.
 
 Tareas derivadas del PLAN aprobado. El orden respeta las dependencias
 técnicas; no se inicia una tarea hasta completar y validar sus dependencias.
@@ -365,6 +366,29 @@ Los identificadores usan el prefijo `MA-` (Marco) para no colisionar con
   - **Criterios:** CA-35..CA-46 y regresión de CA-18/CA-19 y acciones existentes.
   - **Validación:** `.\gradlew.bat :app:assembleDebug`, `.\gradlew.bat :app:testDebugUnitTest`, `.\gradlew.bat :app:lintDebug`, `.\gradlew.bat :app:assembleDebugAndroidTest` y `.\gradlew.bat :app:connectedDebugAndroidTest`; registrar evidencias y pendientes. **Ejecutada 2026-11-13:** `assembleDebug` OK; unitarios **167/167**, 0 fallos; lint **0 errores / 56 warnings**; conectadas **79 casos (78 ejecutados + 1 omitido)**, 0 fallos en `TB311XU - 16`; `git diff --check` limpio. La suite completa se re-ejecutó tras reiniciar el dispositivo por fallos de inyección de toques; la corrida final quedó en verde. CA-40/CA-45 se validaron con cambio de ancho, altura máxima y scroll; no se ejecutó una sesión manual literal de pantalla dividida ni profiling de lista masiva.
 
+## Fase 8 — CR-009: pulsación prolongada en la fila
+
+- [x] **MA-47 · CR-009: documentación de RF-26 y CA-47..CA-49**
+  - **Objetivo:** crear CR-009 y actualizar SPEC/PLAN/TASKS con el acceso al diálogo de Acción por pulsación prolongada en la fila.
+  - **Alcance:** `docs/changes/CR-009-marco-fila-long-click.md`, `docs/features/marco/SPEC.md`, `docs/features/marco/PLAN.md`, `docs/features/marco/TASKS.md`.
+  - **Dependencias:** Ninguna para la documentación; aprobación del usuario antes de implementar.
+  - **Criterios:** RF-26; CA-47..CA-49.
+  - **Validación:** revisión de coherencia entre RF, CA, PLAN y TASKS; no requiere build por ser cambio documental. **Ejecutada 2026-11-13:** CR-009 creado en `Propuesto` y aprobado por el usuario; SPEC/PLAN en `Aprobada`/`Aprobado`; TASKS con MA-47..MA-49; implementación autorizada.
+
+- [x] **MA-48 · CR-009: long click en la fila que reutiliza el diálogo de Acción**
+  - **Objetivo:** en `MarcoAdapter.Holder.bind`, asignar `raiz.setOnLongClickListener` para invocar el mismo `onAccion(AccionMarco.ACCION, fila)` que `btnAccion` y consumir el evento; sin diálogo ni lógica nueva y sin cambios de layout.
+  - **Alcance:** `presentation/adapters/MarcoAdapter.kt`; sin cambios en dominio, datos, Room, DataStore, ViewModel, layouts ni recursos.
+  - **Dependencias:** MA-47 y autorización explícita de implementación.
+  - **Criterios:** RF-26; CA-47..CA-49.
+  - **Validación:** `.\gradlew.bat :app:assembleDebug`; `MarcoEspressoTest` de long click en fila, long click en cada icono y pulsación normal; regresión de los cuatro botones. **Ejecutada 2026-11-13:** `raiz.setOnLongClickListener` añadido en `MarcoAdapter.Holder.bind`; `assembleDebug` OK; los cuatro botones conservan su comportamiento.
+
+- [x] **MA-49 · CR-009: pruebas y validación integral/cierre**
+  - **Objetivo:** añadir los casos Espresso de CA-47..CA-49, ejecutar la batería completa y actualizar CR-009/CHANGELOG solo si todo pasa.
+  - **Alcance:** `app/src/androidTest/java/gob/inei/appprueba/presentation/activities/MarcoEspressoTest.kt`, `docs/changes/CR-009-marco-fila-long-click.md`, `docs/CHANGELOG.md`, este archivo.
+  - **Dependencias:** MA-48.
+  - **Criterios:** CA-47..CA-49 y regresión de CA-27/CA-28 y CA-30..CA-34.
+  - **Validación:** `.\gradlew.bat :app:assembleDebug`, `.\gradlew.bat :app:testDebugUnitTest`, `.\gradlew.bat :app:lintDebug`, `.\gradlew.bat :app:assembleDebugAndroidTest` y `.\gradlew.bat :app:connectedDebugAndroidTest`; registrar evidencias y pendientes. **Ejecutada 2026-11-13:** tres pruebas Espresso añadidas; unitarios 167/167; lint 0 errores/65 warnings; `MarcoEspressoTest` 31 casos (30 ejecutados + 1 omitido), 0 fallos en `TB311XU - 15`; CR-009 y CHANGELOG actualizados.
+
 ---
 
 ## Registro de evidencia
@@ -429,6 +453,8 @@ Ajuste 2026-11-13: CR-007 alineado a 2×2 en teléfono y tablet; MA-39..MA-41 co
 
 Resumen 2026-11-13 (CR-008): se implementó `MarcoColumnas`, `MarcoRecyclerView`, anchos compartidos cabecera/filas, recálculo al cambiar el ancho, cabecera a dos líneas y pruebas de alineación/reciclaje/sin recortes. Batería final: `assembleDebug` OK; unitarios **167/167**, 0 fallos; lint **0 errores / 56 warnings**; conectadas **79 casos (78 ejecutados + 1 omitido)**, 0 fallos en `TB311XU - 16`; `MarcoEspressoTest` **28 casos (27 + 1 omitido)**, 0 fallos; `MarcoColumnasTest` **6/6**; `git diff --check` limpio. La suite conectada se re-ejecutó tras reiniciar el dispositivo por fallos de inyección de toques; la corrida final quedó en verde. CA-40/CA-45 se validaron con cambio de ancho, altura máxima y scroll; no se ejecutó una sesión manual literal de pantalla dividida ni profiling de lista masiva.
 
+Resumen 2026-11-13 (CR-009): se implementó la pulsación prolongada en la fila de Marco reutilizando `onAccion(AccionMarco.ACCION, fila)` del icono Acción, sin lógica ni layout nuevos. Se añadieron tres pruebas Espresso (CA-47 long click en fila, CA-48 long click en los cuatro iconos y pulsación normal). Batería final: `assembleDebug` y `assembleDebugAndroidTest` OK; unitarios **167/167**, 0 fallos; lint **0 errores / 65 warnings**; `MarcoEspressoTest` **31 casos (30 ejecutados + 1 omitido)**, 0 fallos en `TB311XU - 15`. CR-009 en `Implementado` y CHANGELOG actualizado.
+
 | Tarea | Estado | Evidencia | Pendiente |
 | --- | --- | --- | --- |
 | MA-01 | Completada | `MarcoReglasTest` 0 fallos | Cotejo fino del texto del test con rutas del PLAN |
@@ -477,3 +503,6 @@ Resumen 2026-11-13 (CR-008): se implementó `MarcoColumnas`, `MarcoRecyclerView`
 | MA-44 | Completada | `assembleDebug`; `marco_tabla_alto_maximo=480dp`, `marco_tabla_ancho` retirado, cabecera 2 líneas, IDs, `MarcoRecyclerView`/`NestedScrollView`; scroll y sin recortes (2026-11-13) | — |
 | MA-45 | Completada | `MarcoEspressoTest` 28 (27+1 omitida), 0 fallos: alineación, recálculo, recreate, scroll, fuente 200 %/oscuro y sin recortes (2026-11-13) | — |
 | MA-46 | Completada | build OK; unitarios 167/167; lint 0 errores/56 warnings; conectadas 79 (78+1 omitida), 0 fallos; `git diff --check` limpio; CR/CHANGELOG actualizados (2026-11-13) | Observación: sin sesión manual literal de pantalla dividida ni profiling de lista masiva; cubiertos por pruebas de cambio de ancho/altura/scroll |
+| MA-47 | Completada | CR-009 creado y aprobado; RF-26 y CA-47..CA-49 en SPEC/PLAN/TASKS; implementación autorizada (2026-11-13) | — |
+| MA-48 | Completada | `raiz.setOnLongClickListener` en `MarcoAdapter.Holder.bind` reutiliza `onAccion(AccionMarco.ACCION, fila)`; `assembleDebug` OK; botones sin cambios (2026-11-13) | — |
+| MA-49 | Completada | `MarcoEspressoTest` 31 (30+1 omitida), 0 fallos: long click en fila, long click en los cuatro iconos y pulsación normal; unitarios 167/167; lint 0 errores/65 warnings; CR/CHANGELOG actualizados (2026-11-13) | — |

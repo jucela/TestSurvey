@@ -17,6 +17,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onData
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.NoMatchingRootException
 import androidx.test.espresso.action.ViewActions.clearText
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.replaceText
@@ -575,6 +576,59 @@ class MarcoEspressoTest {
     }
 
     @Test
+    fun la_pulsacion_prolongada_en_la_fila_abre_el_dialogo_de_accion() {
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            esperarHastaFilas(scenario, 4)
+
+            mantenerPresionadaFila(scenario, 0)
+
+            onView(withId(R.id.tvAccionConglomerado))
+                .inRoot(isDialog())
+                .check(matches(withText("016335")))
+            onView(withId(R.id.tvAccionNumero))
+                .inRoot(isDialog())
+                .check(matches(withText("01")))
+            onView(withId(R.id.tvAccionVivienda))
+                .inRoot(isDialog())
+                .check(matches(withText("001")))
+            onView(withText(R.string.marco_accion_seccion_acciones))
+                .inRoot(isDialog())
+                .check(matches(isDisplayed()))
+            onView(withText(R.string.marco_accion_seccion_atajos))
+                .inRoot(isDialog())
+                .check(matches(isDisplayed()))
+        }
+    }
+
+    @Test
+    fun la_pulsacion_prolongada_en_los_iconos_no_abre_el_dialogo_de_accion() {
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            esperarHastaFilas(scenario, 4)
+
+            listOf(
+                R.id.btnDetalle,
+                R.id.btnAperturar,
+                R.id.btnExportar,
+                R.id.btnAccion
+            ).forEach { boton ->
+                mantenerPresionadaAccionDeFila(scenario, 0, boton)
+                comprobarSinDialogoDeAccion()
+            }
+        }
+    }
+
+    @Test
+    fun la_pulsacion_normal_en_la_fila_no_abre_el_dialogo_de_accion() {
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            esperarHastaFilas(scenario, 4)
+
+            pulsarFila(scenario, 0)
+
+            comprobarSinDialogoDeAccion()
+        }
+    }
+
+    @Test
     fun el_switch_de_activos_reduce_la_tabla_y_los_conteos() {
         ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
             esperarHastaFilas(scenario, 4)
@@ -926,6 +980,57 @@ class MarcoEspressoTest {
             vista.performClick()
         }
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+    }
+
+    private fun mantenerPresionadaFila(
+        scenario: ActivityScenario<MarcoActivity>,
+        posicion: Int
+    ) {
+        scenario.onActivity { activity ->
+            val recycler = activity.findViewById<RecyclerView>(R.id.rvMarco)
+            val fila = recycler.findViewHolderForAdapterPosition(posicion)?.itemView
+                ?: throw AssertionError("No se encontró la fila $posicion")
+            fila.performLongClick()
+        }
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+    }
+
+    private fun mantenerPresionadaAccionDeFila(
+        scenario: ActivityScenario<MarcoActivity>,
+        posicion: Int,
+        boton: Int
+    ) {
+        scenario.onActivity { activity ->
+            val recycler = activity.findViewById<RecyclerView>(R.id.rvMarco)
+            val fila = recycler.findViewHolderForAdapterPosition(posicion)?.itemView
+                ?: throw AssertionError("No se encontró la fila $posicion")
+            val vista = fila.findViewById<View>(boton)
+                ?: throw AssertionError("No se encontró la acción en la fila $posicion")
+            vista.performLongClick()
+        }
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+    }
+
+    private fun pulsarFila(
+        scenario: ActivityScenario<MarcoActivity>,
+        posicion: Int
+    ) {
+        scenario.onActivity { activity ->
+            val recycler = activity.findViewById<RecyclerView>(R.id.rvMarco)
+            val fila = recycler.findViewHolderForAdapterPosition(posicion)?.itemView
+                ?: throw AssertionError("No se encontró la fila $posicion")
+            fila.performClick()
+        }
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+    }
+
+    private fun comprobarSinDialogoDeAccion() {
+        try {
+            onView(withId(R.id.btnCancelarAccion)).inRoot(isDialog()).check(doesNotExist())
+        } catch (_: NoMatchingRootException) {
+            return
+        }
+        throw AssertionError("Se abrió el diálogo de Acción")
     }
 
     private fun esperarHastaTexto(texto: String, timeoutMs: Long = 5000) {

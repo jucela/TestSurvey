@@ -14,50 +14,57 @@
         android:id="@+id/tvActivo"
         style="@style/TextAppearance.AppPrueba.MarcoCelda"
         android:layout_width="@dimen/marco_col_activo_ancho"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/dp_48"
+        android:textAlignment="center"
         tools:text="1" />
 
     <TextView
         android:id="@+id/tvConglomerado"
         style="@style/TextAppearance.AppPrueba.MarcoCelda"
         android:layout_width="@dimen/marco_col_conglomerado_ancho"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/dp_48"
+        android:textAlignment="center"
         tools:text="016335" />
 
     <TextView
         android:id="@+id/tvNumero"
         style="@style/TextAppearance.AppPrueba.MarcoCelda"
         android:layout_width="@dimen/marco_col_numero_ancho"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/dp_48"
+        android:textAlignment="center"
         tools:text="001" />
 
     <TextView
         android:id="@+id/tvSeleccion"
         style="@style/TextAppearance.AppPrueba.MarcoCelda"
         android:layout_width="@dimen/marco_col_seleccion_ancho"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/dp_48"
+        android:textAlignment="center"
         tools:text="1" />
 
     <TextView
         android:id="@+id/tvHogar"
         style="@style/TextAppearance.AppPrueba.MarcoCelda"
         android:layout_width="@dimen/marco_col_hogar_ancho"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/dp_48"
+        android:textAlignment="center"
         tools:text="1" />
 
     <TextView
         android:id="@+id/tvReemplazo"
         style="@style/TextAppearance.AppPrueba.MarcoCelda"
         android:layout_width="@dimen/marco_col_reemplazo_ancho"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/dp_48"
+        android:textAlignment="center"
         tools:text="002" />
 
     <TextView
         android:id="@+id/tvResultado"
         style="@style/TextAppearance.AppPrueba.MarcoCelda"
         android:layout_width="@dimen/marco_col_resultado_ancho"
-        android:layout_height="wrap_content"
-        tools:text="COMPLETA" />
+        android:layout_height="@dimen/dp_48"
+        android:textAlignment="center"
+        tools:text="COMPLETA"/>
 
     <ImageButton
         android:id="@+id/btnDetalle"

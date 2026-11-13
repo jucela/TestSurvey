@@ -7,7 +7,7 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/
 ## [Sin publicar]
 
 ### Added
-- 
+- Marco (RF-26): la pulsación prolongada sobre una fila de vivienda abre el mismo diálogo de Acción que el icono Acción, con los datos de esa fila; la pulsación normal y la pulsación prolongada sobre los iconos no lo abren, y los botones de la fila conservan su comportamiento. [CR-009](changes/CR-009-marco-fila-long-click.md)
 
 ### Changed
 - Tabla de Marco (RF-15/RNF-01/RNF-02): anchos adaptables con mínimos aprobados, sobrante distribuido solo en columnas de información, acciones sin expansión, cabecera y filas con los mismos anchos, recálculo al cambiar el ancho y `MarcoRecyclerView` con altura máxima de 480dp para conservar el reciclaje; cabecera a dos líneas y sin recortes con fuente 200 %. [CR-008](changes/CR-008-marco-tabla-ancho-adaptable.md)

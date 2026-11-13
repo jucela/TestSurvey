@@ -54,6 +54,10 @@
     <color name="login_validacion">#FF4CAF6A</color>
 
     <!-- Marco de viviendas (oscuro) -->
+    <color name="marcoBackgroundColor">#FF000000</color>
+    <color name="marcoCardViewFilters">#FF36343B</color>
     <color name="marcoFilaReemplazo">#5C2B28</color>
     <color name="marcoFilaSinReemplazo">#24394A</color>
+
+
 </resources>

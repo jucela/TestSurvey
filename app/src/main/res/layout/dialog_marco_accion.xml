@@ -29,7 +29,8 @@
                     android:layout_height="wrap_content"
                     android:text="@string/marco_identificacion_conglomerado"
                     android:textAppearance="?attr/textAppearanceLabelLarge"
-                    android:textColor="?attr/colorOnSurfaceVariant" />
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:textSize="@dimen/sp_12"/>
 
                 <TextView
                     android:id="@+id/tvAccionConglomerado"
@@ -39,6 +40,8 @@
                     android:maxLines="1"
                     android:textAppearance="?attr/textAppearanceBodyLarge"
                     android:textColor="?attr/colorOnSurface"
+                    android:textSize="@dimen/sp_24"
+                    android:textStyle="bold"
                     tools:text="016335" />
             </LinearLayout>
 
@@ -54,7 +57,8 @@
                     android:layout_height="wrap_content"
                     android:text="@string/marco_identificacion_numero"
                     android:textAppearance="?attr/textAppearanceLabelLarge"
-                    android:textColor="?attr/colorOnSurfaceVariant" />
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:textSize="@dimen/sp_12"/>
 
                 <TextView
                     android:id="@+id/tvAccionNumero"
@@ -64,6 +68,8 @@
                     android:maxLines="1"
                     android:textAppearance="?attr/textAppearanceBodyLarge"
                     android:textColor="?attr/colorOnSurface"
+                    android:textSize="@dimen/sp_24"
+                    android:textStyle="bold"
                     tools:text="01" />
             </LinearLayout>
 
@@ -79,7 +85,8 @@
                     android:layout_height="wrap_content"
                     android:text="@string/marco_identificacion_vivienda"
                     android:textAppearance="?attr/textAppearanceLabelLarge"
-                    android:textColor="?attr/colorOnSurfaceVariant" />
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:textSize="@dimen/sp_12"/>
 
                 <TextView
                     android:id="@+id/tvAccionVivienda"
@@ -89,6 +96,8 @@
                     android:maxLines="1"
                     android:textAppearance="?attr/textAppearanceBodyLarge"
                     android:textColor="?attr/colorOnSurface"
+                    android:textSize="@dimen/sp_24"
+                    android:textStyle="bold"
                     tools:text="001" />
             </LinearLayout>
         </LinearLayout>

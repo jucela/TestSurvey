@@ -56,8 +56,15 @@
     <!-- Tarjeta de pregunta (superficie elevada M3) -->
     <style name="CardAppPrueba" parent="Widget.Material3.CardView.Elevated">
         <item name="cardCornerRadius">@dimen/dp_12</item>
-        <item name="cardElevation">@dimen/dp_1</item>
-        <item name="cardBackgroundColor">?attr/colorSurfaceContainerLow</item>
+        <item name="cardElevation">@dimen/dp_2</item>
+        <item name="cardBackgroundColor">@color/marcoCardViewFilters</item>
+    </style>
+
+    <!-- Tarjeta de cabezera (superficie elevada M3) -->
+    <style name="CardHeaders" parent="Widget.Material3.CardView.Elevated">
+        <item name="cardCornerRadius">@dimen/dp_8</item>
+        <item name="cardElevation">@dimen/dp_2</item>
+        <item name="cardBackgroundColor">@color/primary</item>
     </style>
 
     <!-- ============================================================
