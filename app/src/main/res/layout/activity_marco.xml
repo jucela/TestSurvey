@@ -22,13 +22,14 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:fillViewport="true">
+        android:fillViewport="true"
+        android:background="@color/marcoBackgroundColor">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="@dimen/dp_16">
+            android:padding="@dimen/dp_10">
             <!-- Title -->
             <TextView
                 android:layout_width="match_parent"
@@ -36,13 +37,14 @@
                 android:gravity="center"
                 android:text="@string/marco_titulo"
                 android:textAppearance="@style/TextAppearance.AppPrueba.Titulo"
+                android:visibility="gone"
                 android:textColor="?attr/colorOnSurface" />
 
             <com.google.android.material.card.MaterialCardView
                 style="@style/CardAppPrueba"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/dp_12">
+                android:layout_margin="@dimen/dp_4">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -60,9 +62,12 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="@string/marco_filtros_titulo"
+                            android:text="@string/marco_titulo"
                             android:textAppearance="?attr/textAppearanceTitleMedium"
-                            android:textColor="?attr/colorOnSurface" />
+                            android:textAlignment="center"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textStyle="bold"
+                            android:textSize="@dimen/sp_20"/>
 
                         <ImageButton
                             android:id="@+id/btnExpandir"
@@ -312,13 +317,16 @@
 
             <TextView
                 android:id="@+id/tvEstado"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/dp_24"
-                android:gravity="center"
+                android:layout_gravity="center_horizontal"
                 android:textAppearance="?attr/textAppearanceBodyLarge"
                 android:textColor="?attr/colorOnSurfaceVariant"
                 android:visibility="gone"
+                app:drawableStartCompat="@drawable/outline_info_black_24dp"
+                app:drawableTint="?attr/colorOnSurfaceVariant"
+                android:drawablePadding="@dimen/dp_4"
                 tools:text="@string/marco_vacio_muestra"
                 tools:visibility="visible" />
 
@@ -340,38 +348,52 @@
 
                 <LinearLayout
                     android:id="@+id/tablaMarco"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
-                <LinearLayout
-                    android:id="@+id/cabeceraMarco"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="?attr/colorSurfaceContainerHigh"
-                    android:orientation="horizontal"
-                    android:paddingTop="@dimen/dp_8"
-                    android:paddingBottom="@dimen/dp_8">
+                    <com.google.android.material.card.MaterialCardView
+                        style="@style/CardHeaders"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="@dimen/dp_2">
+
+                        <LinearLayout
+                        android:id="@+id/cabeceraMarco"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@color/primary"
+                        android:orientation="horizontal"
+                        android:paddingTop="@dimen/dp_8"
+                        android:paddingBottom="@dimen/dp_8">
 
                         <TextView
                             android:id="@+id/tvCabeceraActivo"
                             style="@style/TextAppearance.AppPrueba.MarcoCabecera"
                             android:layout_width="@dimen/marco_col_activo_ancho"
                             android:layout_height="wrap_content"
-                            android:text="@string/marco_col_activo" />
+                            android:textAlignment="center"
+                            android:text="@string/marco_col_activo"
+                            android:textColor="@color/surface"
+                            android:textSize="@dimen/sp_11"/>
 
                         <TextView
                             android:id="@+id/tvCabeceraConglomerado"
                             style="@style/TextAppearance.AppPrueba.MarcoCabecera"
                             android:layout_width="@dimen/marco_col_conglomerado_ancho"
                             android:layout_height="wrap_content"
-                            android:text="@string/marco_col_conglomerado" />
+                            android:textAlignment="center"
+                            android:text="@string/marco_col_conglomerado"
+                            android:textColor="@color/surface"
+                            android:textSize="@dimen/sp_11"/>
 
                         <TextView
                             android:id="@+id/tvCabeceraNumero"
                             style="@style/TextAppearance.AppPrueba.MarcoCabecera"
                             android:layout_width="@dimen/marco_col_numero_ancho"
                             android:layout_height="wrap_content"
+                            android:textAlignment="center"
+                            android:textColor="@color/surface"
                             android:text="@string/marco_col_numero" />
 
                         <TextView
@@ -379,27 +401,38 @@
                             style="@style/TextAppearance.AppPrueba.MarcoCabecera"
                             android:layout_width="@dimen/marco_col_seleccion_ancho"
                             android:layout_height="wrap_content"
-                            android:text="@string/marco_col_seleccion" />
+                            android:textAlignment="center"
+                            android:text="@string/marco_col_seleccion"
+                            android:textColor="@color/surface"
+                            android:textSize="@dimen/sp_11"/>
 
                         <TextView
                             android:id="@+id/tvCabeceraHogar"
                             style="@style/TextAppearance.AppPrueba.MarcoCabecera"
                             android:layout_width="@dimen/marco_col_hogar_ancho"
                             android:layout_height="wrap_content"
-                            android:text="@string/marco_col_hogar" />
+                            android:textAlignment="center"
+                            android:text="@string/marco_col_hogar"
+                            android:textColor="@color/surface"
+                            android:textSize="@dimen/sp_11"/>
 
                         <TextView
                             android:id="@+id/tvCabeceraReemplazo"
                             style="@style/TextAppearance.AppPrueba.MarcoCabecera"
                             android:layout_width="@dimen/marco_col_reemplazo_ancho"
                             android:layout_height="wrap_content"
-                            android:text="@string/marco_col_reemplazo" />
+                            android:textAlignment="center"
+                            android:text="@string/marco_col_reemplazo"
+                            android:textColor="@color/surface"
+                            android:textSize="@dimen/sp_11"/>
 
                         <TextView
                             android:id="@+id/tvCabeceraResultado"
                             style="@style/TextAppearance.AppPrueba.MarcoCabecera"
                             android:layout_width="@dimen/marco_col_resultado_ancho"
                             android:layout_height="wrap_content"
+                            android:textAlignment="center"
+                            android:textColor="@color/surface"
                             android:text="@string/marco_col_resultado" />
 
                         <TextView
@@ -407,7 +440,9 @@
                             style="@style/TextAppearance.AppPrueba.MarcoCabecera"
                             android:layout_width="@dimen/marco_col_accion_ancho"
                             android:layout_height="wrap_content"
+                            android:textAlignment="center"
                             android:gravity="center"
+                            android:textColor="@color/surface"
                             android:text="@string/marco_col_detalle" />
 
                         <TextView
@@ -415,15 +450,20 @@
                             style="@style/TextAppearance.AppPrueba.MarcoCabecera"
                             android:layout_width="@dimen/marco_col_accion_ancho"
                             android:layout_height="wrap_content"
+                            android:textAlignment="center"
                             android:gravity="center"
-                            android:text="@string/marco_col_aperturar" />
+                            android:text="@string/marco_col_aperturar"
+                            android:textColor="@color/surface"
+                            android:textSize="@dimen/sp_11"/>
 
                         <TextView
                             android:id="@+id/tvCabeceraExportar"
                             style="@style/TextAppearance.AppPrueba.MarcoCabecera"
                             android:layout_width="@dimen/marco_col_accion_ancho"
                             android:layout_height="wrap_content"
+                            android:textAlignment="center"
                             android:gravity="center"
+                            android:textColor="@color/surface"
                             android:text="@string/marco_col_exportar" />
 
                         <TextView
@@ -431,9 +471,12 @@
                             style="@style/TextAppearance.AppPrueba.MarcoCabecera"
                             android:layout_width="@dimen/marco_col_accion_ancho"
                             android:layout_height="wrap_content"
+                            android:textAlignment="center"
                             android:gravity="center"
+                            android:textColor="@color/surface"
                             android:text="@string/marco_col_accion" />
                     </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
 
                     <gob.inei.appprueba.presentation.widget.MarcoRecyclerView
                         android:id="@+id/rvMarco"
@@ -442,7 +485,7 @@
                         android:minHeight="@dimen/marco_tabla_alto_minimo"
                         android:nestedScrollingEnabled="true"
                         android:scrollbars="vertical"
-                        tools:itemCount="6"
+                        tools:itemCount="10"
                         tools:listitem="@layout/item_marco_fila" />
                 </LinearLayout>
             </HorizontalScrollView>

@@ -1,0 +1,150 @@
+ La encuesta presenta las siguiente informacion:
+ * Una vivienda puede contener N hogares.
+ * Hogar se define como el grupo de personas que viven en la vivienda o parte de ella.
+ * La encuesta tiene 7 cuestionarios (CARATULA,ENAHO-01,ENAHO-01A, ENAHO-200,ENAHO-01B,ENAHO-02,ENAHO-04)
+ * Cada cuestionario tiene una seccion la cual contiene N preguntas abiertas, cerradas, matriciales u especiales.
+ * Existes flujos o saltos de preguntas dentro del cuestionario.
+ * Tambien puede haber saltos de secciones dentro del cuestionario.
+ * CARATULA:Cuestionario de ubicacion de la vivienda y numero de hogares.
+    - Ubicacion de la vivienda.
+    - Listado de hogares.
+ * Cuando se seleccione la opcion "ENAHO-01" de un hogar del listado de hogares debera mostrar las secciones del cuestionario ENAHO-01.
+ * Recuerda que cada vivienda puede tener N viviendas por ello cada hogar es independiente de otro hogar.cada hogar tiene su propia informacion por ello ENAHO-01 se aplica para cada hogar.
+ * ENAHO-01 : caracteristicas de la viviendan,listado de integrantes del hogar,gastos y programas sociales.
+   Las secciones y el orden que contiene son:
+   - Visitas.
+   - Datos de la vivienda.
+   - Datos del hogar.
+   - Servicios 1.
+   - Servicios 2.
+   - Muestra de Agua.
+   - Crianza de Mascotas.
+   - Listado de miembros del Hogar.
+   - Gastos del Hogar.
+   - Listado de productos.
+   - Recuperar Gasto.
+   - Gastos 602.
+   - Gastos 603.
+   - Gastos 604.
+   - Gastos 605.
+   - Gastos 606.
+   - Gastos 606D.
+   - Gastos 607.
+   - Gastos 609.
+   - Gastos 610.
+   - Gastos 611.
+   - Gastos 612.
+   - 700 programas sociales.
+   - 700A programas sociales no alimentarios.
+   - 800 participacion ciudadana.
+   - Inseguridad alimentaria.
+ * Las secciones del ENAHO-01 debe mostrarse secuencialmente desde visitas hasta Inseguridad alimentaria.
+ * En la seccion listado de miembros del hogar, debe haber un boton flotante en la parte inferior derecha que permita agregar una nueva persona mostrando un dialogo de registro de datos con la secciones del cuestionario ENAHO-200.
+ * Cuando se agrege la persona en el dialogo debera listarse en la tabla de listado de miembros del hogar.
+ * En la seccion listado de miembros del hogar, cada registro de persona debera tener las opciones:
+   - ENAHO-200: Cuando se seleccione debera mostrar las secciones del cuestionario ENAHO-200, esta permitira actualizar los datos de la persona.
+   - ENAHO-300: Cuando se seleccione debera mostrar las secciones del cuestionario ENAHO-01A a partir de la seccion Educacion Actual hasta otros gastos.
+   - ENAHO-400: Cuando se seleccione debera mostrar las secciones del cuestionario ENAHO-01A a partir de la seccion Informacion de Nacimiento hasta otros gastos.
+   - ENAHO-500: Cuando se seleccione debera mostrar las secciones del cuestionario ENAHO-01A a partir de la seccion Condicion de actividad hasta otros gastos.
+ * ENAHO-200: Cuestionario con las caracteristicas del mienbro del hogar; contiene las secciones:
+   - Caracteristicas 200A.
+   - Caracteristicas 200B.
+ * El cuestionario ENAHO-200 se visualiza esta dirigida para cada miembro del hogar.
+ * ENAHO-01A: Cuestionario de educacion,salud y empleo; Las secciones que contiene son:
+  - Educacion Actual.
+  - Educacion Previa.
+  - Servicios Educativos.
+  - Gastos Educativos.
+  - Servicio de internet.
+  - Telefonia Celular.
+  - Información de Nacimiento.
+  - Discapacidad.
+  - Salud.
+  - Consulta Medica.
+  - Seguro de Salud.
+  - Condicion de actividad
+  - Ocupados actividad principal.
+  - Ocupados actividad secundaria.
+  - Total Horas Trabajadas.
+  - Busqueda de otro empleo.
+  - Ingresos en la ocupacion principal por trabajo dependiente.
+  - Pago en especie.
+  - Ingresos en la ocupacion principal por trabajo independiente.
+  - Ingresos en la ocupacion secundaria.
+  - Ingresos en la ocupacion secundaria por trabajo dependiente.
+  - Ingresos en la ocupacion secundaria por trabajo independiente.
+  - Ingresos extraordinarios por trabajo dependiente.
+  - Desocupados.
+  - Trabajo anterior.
+  - Transferencias corrientes.
+  - Rentas de la propiedad.
+  - Otros ingresos extraordinarios.
+  - Sistema de pensiones.
+  - Etnicidad.
+  - Inclusion financiera
+  - Alimentos consumidos fuera del hogar.
+  - Otros gastos
+ * Algunas secciones se visualizan dependiendo de la edad de la persona que se selecciona.
+ * ENAHO-01B: cuestionario de gobernabilidad y percepcion del hogar.
+  - Listado de personas.
+  - informacion de persona seleccionada.
+  - Gobernabilidad.
+  - Democracia.
+  - Discriminación.
+  - Su salud.
+  - Corrupción.
+  - Acceso a la Justicia.
+  - Percepcion del hogar.
+  - Nivel de vida.
+  - Vulnerabilidad/ situaciones adversas.
+  - Educación de los padres del jefe(a) del hogar.
+ * el cuestionario ENAHO-01B solo se respondera una sola vez por algun mienbro del hogar.
+ * el cuestionario ENAHO-01B tiene pendiente su visualizacion por ahora.
+ * ENAHO-02 : Cuestionario de productor agropecuario.
+  - 2000 Actividad Agropecuaria (por trabajo dependiente)
+  - 2100 Produccion Agricola.
+  - 2200 Subproductos agricolas.
+  - 2300 Produccion forestal.
+  - 2400 Gastos en actividades agrícolas y/o forestales.
+  - 2500 Producción Pecuaria.
+  - 2600 Subproductos pecuarios.
+  - 2700 Gastos en actividades pecuarias.
+ * el cuestionario ENAHO-02 solo se respondera los mienbros del hogar que cumplan con condiciones en las preguntas de las secciones del ENAHO-01A.
+ * el cuestionario ENAHO-02 tiene pendiente su visualizacion por ahora.
+ * ENAHO-04 : Cuestionario del trabajador independiente.
+  - 10 Caracteristicas básicas del negocio o establecimiento.
+  - 20 Producción / Extracción.
+  - 30 Comercio.
+  - 40 Servicios.
+  - 50 otros gastos.
+ * el cuestionario ENAHO-04 solo se respondera los mienbros del hogar que cumplan con condiciones en las preguntas de las secciones del ENAHO-01A.
+ * el cuestionario ENAHO-04 tiene pendiente su visualizacion por ahora.
+ * para pasar de seccion a seccion debera deslizar de izquierda a derecha para retroceder y deslizar de derecha a izquierda para avanzar.
+ * para pasar de seccion a seccion debera validar los datos si se completaron las preguntas.
+
+ * Decisiones funcionales de ENAHO: modalidades 300/400/500: multiple; ENAHO-01B: independent; validación de secciones: section; definición de preguntas y reglas: unknown. Utiliza estas decisiones para concretar la arquitectura.
+ * te tengo más información que no comente:
+  - para pasar de sección a sección deberá deslizar de izquierda a derecha para retroceder y deslizar de derecha a izquierda para avanzar.
+  - la encuesta que te comento y todos sus cuestionarios están en un aplicativo con java 6 y con una arquitectura que la hace muy lenta al deslizar cada pantalla. lo que estoy haciendo es crear una nueva arquitectura usando kotlin, MVVM y todo lo que te comenté. en este caso estoy desarrollando una nueva lógica o siguiendo tus recomendaciones que haces, pero te comento la información de tablas que contienen las respuestas del cuestionario se exporta al servidor generando un xml y enviándolo al servidor luego el backend resuleve y llena las tablas de la BASE DE DATOS SQL. mi pregunta es: debo usar la estructura o modelo de datos que ya se tiene YA QUE ESTA ESTRUCTURA SE USA EN PRODUCCION Y EN LA BASE DE DATOS SQL GENERAL DEL PROYECTO QUE ALIMENTA A OTROS SISTEMAS o genero mi propio modelo de datos para guardar las respuestas y luego adapta esto al xml que nesesita el backend para llenar la stablas sql.
+ * si el script es una copia de todas las tablas que tiene la base de datos del sqlite que usa el aplicativo en java 6, te comento que hay columnas o campos que ya nose usan ya que durante los años se elimina preguntas en la interface pero los campos en las tablas se quedaron sin usar.
+
+* Selección única:
+
+  CERRADA_UNICA RadioGroup
+
+  Selección múltiple:
+
+  CERRADA_MULTIPLE CheckBox
+
+  Respuesta abierta:
+
+  ABIERTA EditText
+
+  Matriz:
+
+  MATRIZ Matriz
+
+  Spinner:
+
+
+

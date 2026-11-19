@@ -131,6 +131,10 @@ class MarcoAdapter(
             aperturar.setOnClickListener { onAccion(AccionMarco.APERTURAR, fila) }
             exportar.setOnClickListener { onAccion(AccionMarco.EXPORTAR, fila) }
             accion.setOnClickListener { onAccion(AccionMarco.ACCION, fila) }
+            raiz.setOnLongClickListener {
+                onAccion(AccionMarco.ACCION, fila)
+                true
+            }
         }
     }
 }

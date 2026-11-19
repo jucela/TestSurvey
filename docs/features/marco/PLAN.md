@@ -1,7 +1,7 @@
 # PLAN: Marco de viviendas
 
 **SPEC de referencia:** docs/features/marco/SPEC.md
-**Versión de la spec revisada:** SPEC aprobada al 2026-11-13 por CR-008
+**Versión de la spec revisada:** SPEC aprobada al 2026-11-13 por CR-009
 **Estado:** Aprobado <!-- Borrador | En revisión | Aprobado -->
 
 <!-- PARA LA PERSONA
@@ -124,6 +124,16 @@ tabla calculado (`max(anchoDisponible, sumaMinima)`). La Activity calcula una ve
 arreglo a la cabecera y al `MarcoAdapter`; el adaptador solo aplica los valores,
 sin recalcularlos.
 
+**CR-009 — pulsación prolongada en la fila:** el `ViewHolder` de `MarcoAdapter`
+ya conoce la fila enlazada y el callback `onAccion(AccionMarco, FilaMarco)`. En
+`bind` se asigna `raiz.setOnLongClickListener` para invocar el mismo
+`onAccion(AccionMarco.ACCION, fila)` que usa `btnAccion` y consumir el evento.
+No se crea un diálogo ni una ruta alternativa: el evento llega al ViewModel y la
+Activity muestra el mismo diálogo de RF-24/RF-25. Como los `ImageButton` son
+vistas clicables, consumen el toque y no propagan el long click a la raíz; no se
+requieren cambios de layout ni `onInterceptTouchEvent`. La pulsación normal no
+asigna `OnClickListener` a la raíz, por lo que no abre el diálogo.
+
 Mínimos y pesos aprobados (dp):
 
 | Columna | Mínimo | Peso |
@@ -191,7 +201,7 @@ Señala impacto sobre modelos, contratos o componentes compartidos. -->
 | `di/RepositoryModule.kt` | Modificar | Binding `MarcoRepositoryImpl` → `MarcoRepository`. | RF-22 |
 | `presentation/viewmodel/MarcoViewModel.kt` | Crear | Carga, validación, filtros, búsqueda, debounce, estado, eventos y reintento. | RF-05..RF-21 |
 | `presentation/viewmodel/MarcoUiState.kt` | Modificar | Estado inmutable, estados derivados y eventos de detalle y acciones por fila. | RF-05..RF-23 |
-| `presentation/adapters/MarcoAdapter.kt` | Modificar | Textos, colores, detalle y callbacks de Aperturar, Exportar y Acción por fila; aplicar el arreglo de anchos compartido a la raíz y a las celdas sin recalcular por bind. | RF-15..RF-18, RF-23, RNF-01, RNF-02 |
+| `presentation/adapters/MarcoAdapter.kt` | Modificar | Textos, colores, detalle y callbacks de Aperturar, Exportar y Acción por fila; aplicar el arreglo de anchos compartido a la raíz y a las celdas sin recalcular por bind; añadir `raiz.setOnLongClickListener` que reutiliza `onAccion(AccionMarco.ACCION, fila)`. | RF-15..RF-18, RF-23, RF-26, RNF-01, RNF-02 |
 | `presentation/adapters/MarcoColumnas.kt` | Crear | Calculador puro de anchos mínimos, sobrante por pesos y redondeo; sin dependencias Android. | RF-15, RNF-01 |
 | `presentation/widget/MarcoRecyclerView.kt` | Crear | `RecyclerView` con altura máxima tokenizada para conservar el reciclaje. | RNF-02 |
 | `presentation/activities/MarcoActivity.kt` | Modificar | Render, dropdowns, Switch, colapso, lista, diálogo de detalle, diálogos de acciones por fila, diálogo de Acción enriquecido (cabecera, Acciones, Atajos, validación de Mostrar y avisos informativos), restauración del filtro de los desplegables al recrear la pantalla y cálculo/reaplicación de anchos de tabla al cambiar el ancho disponible. | RF-03..RF-18, RF-21, RF-23, RF-24, RF-25, RNF-01 |
@@ -202,7 +212,7 @@ Señala impacto sobre modelos, contratos o componentes compartidos. -->
 | `res/layout/dialog_detalle_vivienda.xml` | Modificar | Identificación de fila (Conglomerado, `NROVIVIENDA`, `VIVIENDA`), seis campos de dirección y botón Cerrar. | RF-17, RF-23 |
 | `res/layout/dialog_marco_accion.xml` | Modificar | Diálogo de Acción con cabecera, divisores Material 3, cuatro botones 2×2, Cuestionario/Capítulo, Mostrar, Cancelar y contenido desplazable; Aperturar/Exportar conservan el diálogo informativo. | RF-23, RF-24, RF-25 |
 | `res/values/{strings,arrays,colors,dimens,styles,integers}.xml`, `values-night/colors.xml`, `values/bools.xml`, `values-sw600dp/{bools,integers}.xml`, `res/drawable/{ic_search,ic_expand_more,ic_aperturar,ic_exportar,ic_accion}.xml` | Crear/Modificar | Textos, arrays de Cuestionario/Capítulo, `marco_accion_columnas` 2, tokens de fila, dimensiones de tabla, bandera de colapso e iconos de acciones; añadir `marco_tabla_alto_maximo`, retirar `marco_tabla_ancho` y permitir dos líneas en la cabecera. | RF-03..RF-18, RF-23, RF-24, RF-25, RNF-01, RNF-02 |
-| `app/src/androidTest/java/gob/inei/appprueba/presentation/activities/MarcoEspressoTest.kt` | Modificar | Casos de cabecera, acciones, dependencia Cuestionario→Capítulo, validación de Mostrar, adaptabilidad, alineación de anchos, rotación, redimensionado, reciclaje y no replicación del diálogo de Acción. | RF-15, RF-23, RF-24, RF-25, RNF-01, RNF-02 |
+| `app/src/androidTest/java/gob/inei/appprueba/presentation/activities/MarcoEspressoTest.kt` | Modificar | Casos de cabecera, acciones, dependencia Cuestionario→Capítulo, validación de Mostrar, adaptabilidad, alineación de anchos, rotación, redimensionado, reciclaje, no replicación del diálogo de Acción y apertura del diálogo por pulsación prolongada en la fila. | RF-15, RF-23, RF-24, RF-25, RF-26, RNF-01, RNF-02 |
 | `app/src/test/java/gob/inei/appprueba/presentation/adapters/MarcoColumnasTest.kt` | Crear | Casos de ancho menor, igual y mayor que la suma de mínimos, pesos, acciones sin expansión y redondeo. | RF-15, RNF-01, RNF-02 |
 | `docs/DESIGN_SYSTEM.md` | Modificar | Documentar los dos tokens nuevos de fila (claro/oscuro), la tabla de anchos y su uso; eliminar el total fijo de 896dp. | RF-18, RF-15, RNF-01 |
 
@@ -423,6 +433,7 @@ Incluye puntos de comprobación para avanzar con cambios pequeños. -->
 11. **CR-006 (RF-11):** ajustar la regla de área para `TIPOSELECCION = 3` con ESTRATO 7 u 8 → `RURAL->PANEL`; ESTRATO 9+ → `SIN CLASIFICAR`; actualizar `MarcoReglasTest` y la documentación. Comprobación: `MarcoReglasTest` y batería completa.
 12. **CR-007 (RF-23/RF-24/RF-25):** rediseñar `dialog_marco_accion.xml` con cabecera, divisores, cuatro botones 2×2, Cuestionario/Capítulo, Mostrar y Cancelar; añadir strings/arrays/`marco_accion_columnas`; ampliar `MarcoActivity.mostrarAccion` para `AccionMarco.ACCION` con la dependencia ENAHO-01, validación de Mostrar y diálogos informativos; conservar Aperturar/Exportar informativos; actualizar `MarcoEspressoTest`. Comprobación: `assembleDebug`, `MarcoEspressoTest` y batería completa.
 13. **CR-008 (RF-15/RNF-01/RNF-02):** crear `MarcoColumnas` y sus unitarios; sustituir `RecyclerView` por `MarcoRecyclerView` con altura máxima; centralizar mínimos/pesos y retirar `marco_tabla_ancho`; aplicar anchos compartidos a cabecera y `MarcoAdapter`; recalcular solo al cambiar el ancho; ajustar cabecera a dos líneas; actualizar `DESIGN_SYSTEM.md` y pruebas. Comprobación: `MarcoColumnasTest`, `MarcoEspressoTest`, batería completa y validación manual de rotación/redimensionado/pantalla dividida/fuente 200 %.
+14. **CR-009 (RF-26):** en `MarcoAdapter.Holder.bind`, asignar `raiz.setOnLongClickListener` para reutilizar `onAccion(AccionMarco.ACCION, fila)` y consumir el evento; no crear diálogo ni lógica nueva ni cambiar el layout; añadir pruebas Espresso de long click en fila, long click en iconos y pulsación normal. Comprobación: `assembleDebug`, `MarcoEspressoTest` y batería completa.
 
 ## Riesgos y decisiones pendientes
 
@@ -452,7 +463,9 @@ Escribe Ninguna en las decisiones pendientes cuando estén resueltas. -->
   - **Dependencia Cuestionario→Capítulo:** el cambio de cuestionario debe vaciar y deshabilitar Capítulo fuera de ENAHO-01; con ENAHO-01 inicia vacío y sin `--Seleccione--`. Se cubre con Espresso y revisión manual.
   - **Estado transitorio del diálogo:** al recrear la Activity el diálogo se cierra y no se persisten selecciones; no hay operaciones que puedan duplicarse.
   - **No replicación:** el diálogo enriquecido se limita a `AccionMarco.ACCION`; Detalle, Aperturar y Exportar se verifican como regresión.
-- **Decisiones pendientes:** Ninguna funcional adicional. La SPEC y este PLAN quedaron aprobados para CR-008; los valores y las elecciones técnicas están implementados y validados, sin cambios de comportamiento pendientes. Para CR-004 quedaron confirmados el año base 2026, las cuatro combinaciones válidas, ODEI obligatorio, `--` con búsqueda activa, Switch sin efecto sobre N° Conglomerados y layout 2×2/1×4. Para CR-005 se corrige un defecto de presentación: tras rotar se conservan las selecciones y las listas completas de opciones; no hay RF nuevo ni cambio de datos. Para CR-006 se confirma el límite 7-8 para `RURAL->PANEL` y `SIN CLASIFICAR` desde 9; no hay RF nuevo ni cambio de datos. Para CR-007 se confirma: alcance UI + validación; los cuatro botones de Acciones muestran un diálogo informativo con título, mensaje "Esta acción estará disponible próximamente." y Aceptar/Cancelar; Mostrar válido muestra "Próximamente" y no navega; 2×2 en teléfono y tablet; la cabecera sustituye al título "Acción"; Capítulo solo con ENAHO-01, inicia vacío y no usa `--Seleccione--`; listas fijas; solo aplica al diálogo de Acción. Para CR-008 se aprobaron los mínimos y pesos de la tabla anterior y una altura máxima de 480dp; implementado y validado el 2026-11-13.
+  - **Long click y botones de la fila:** la raíz recibe el long click y los `ImageButton` clicables consumen el toque, por lo que no se propaga; no se usa `onInterceptTouchEvent` ni lógica táctil personalizada. Se prueba con long click en la fila, en cada icono y con pulsación normal, además de la regresión de los cuatro botones.
+  - **Reutilización del diálogo:** el long click invoca el mismo `onAccion(AccionMarco.ACCION, fila)`; no se crea un diálogo ni un evento nuevo. Se verifica que la identificación corresponda a la fila presionada y que no se modifiquen datos.
+- **Decisiones pendientes:** Ninguna funcional adicional. La SPEC y este PLAN quedaron aprobados para CR-008; los valores y las elecciones técnicas están implementados y validados, sin cambios de comportamiento pendientes. Para CR-004 quedaron confirmados el año base 2026, las cuatro combinaciones válidas, ODEI obligatorio, `--` con búsqueda activa, Switch sin efecto sobre N° Conglomerados y layout 2×2/1×4. Para CR-005 se corrige un defecto de presentación: tras rotar se conservan las selecciones y las listas completas de opciones; no hay RF nuevo ni cambio de datos. Para CR-006 se confirma el límite 7-8 para `RURAL->PANEL` y `SIN CLASIFICAR` desde 9; no hay RF nuevo ni cambio de datos. Para CR-007 se confirma: alcance UI + validación; los cuatro botones de Acciones muestran un diálogo informativo con título, mensaje "Esta acción estará disponible próximamente." y Aceptar/Cancelar; Mostrar válido muestra "Próximamente" y no navega; 2×2 en teléfono y tablet; la cabecera sustituye al título "Acción"; Capítulo solo con ENAHO-01, inicia vacío y no usa `--Seleccione--`; listas fijas; solo aplica al diálogo de Acción. Para CR-008 se aprobaron los mínimos y pesos de la tabla anterior y una altura máxima de 480dp; implementado y validado el 2026-11-13. Para CR-009 se aprobó agregar RF-26 (long click en la fila que reutiliza el diálogo de Acción), sin RNF nuevo y sin cambios de layout, dominio, datos ni ViewModel; implementado y validado el 2026-11-13.
 
 <!-- ANTES DE SOLICITAR APROBACIÓN
 Comprueba que el plan cubre los requisitos, respeta las exclusiones, reutiliza
