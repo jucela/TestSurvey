@@ -1,0 +1,485 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 4,
+    "identityHash": "43e1090f83ce9b6cdd6ec3be014e812b",
+    "entities": [
+      {
+        "tableName": "questions",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `anio` INTEGER NOT NULL, `capitulo` INTEGER NOT NULL, `campoTabla` TEXT NOT NULL, `padre` TEXT, `orden` INTEGER, `sortOrder` INTEGER NOT NULL, `tipo` TEXT NOT NULL, `componenteUi` TEXT NOT NULL, `numeracion` TEXT NOT NULL, `titulo` TEXT NOT NULL, `subtitulo` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "anio",
+            "columnName": "anio",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "capitulo",
+            "columnName": "capitulo",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "campoTabla",
+            "columnName": "campoTabla",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "padre",
+            "columnName": "padre",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "orden",
+            "columnName": "orden",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "sortOrder",
+            "columnName": "sortOrder",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tipo",
+            "columnName": "tipo",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "componenteUi",
+            "columnName": "componenteUi",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "numeracion",
+            "columnName": "numeracion",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "titulo",
+            "columnName": "titulo",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "subtitulo",
+            "columnName": "subtitulo",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "alternatives",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`anio` INTEGER NOT NULL, `pregunta` TEXT NOT NULL, `campoTabla` TEXT NOT NULL, `orden` INTEGER NOT NULL, `numeracion` TEXT NOT NULL, `texto` TEXT NOT NULL, `tipoOpcion` TEXT NOT NULL, `campoDependiente` TEXT, PRIMARY KEY(`pregunta`, `orden`))",
+        "fields": [
+          {
+            "fieldPath": "anio",
+            "columnName": "anio",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pregunta",
+            "columnName": "pregunta",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "campoTabla",
+            "columnName": "campoTabla",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "orden",
+            "columnName": "orden",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "numeracion",
+            "columnName": "numeracion",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "texto",
+            "columnName": "texto",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tipoOpcion",
+            "columnName": "tipoOpcion",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "campoDependiente",
+            "columnName": "campoDependiente",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "pregunta",
+            "orden"
+          ]
+        }
+      },
+      {
+        "tableName": "flow_rules",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `anio` INTEGER NOT NULL, `origen` TEXT NOT NULL, `condicion` TEXT NOT NULL, `accion` TEXT NOT NULL, `destino` TEXT NOT NULL, `instruccion` TEXT, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "anio",
+            "columnName": "anio",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "origen",
+            "columnName": "origen",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "condicion",
+            "columnName": "condicion",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "accion",
+            "columnName": "accion",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "destino",
+            "columnName": "destino",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "instruccion",
+            "columnName": "instruccion",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "answers",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`preguntaId` TEXT NOT NULL, `valor` TEXT NOT NULL, `textoLibre` TEXT, `actualizado` INTEGER NOT NULL, PRIMARY KEY(`preguntaId`))",
+        "fields": [
+          {
+            "fieldPath": "preguntaId",
+            "columnName": "preguntaId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "valor",
+            "columnName": "valor",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "textoLibre",
+            "columnName": "textoLibre",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "actualizado",
+            "columnName": "actualizado",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "preguntaId"
+          ]
+        }
+      },
+      {
+        "tableName": "PERSONAL",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`DNI` TEXT NOT NULL, `PERFIL` TEXT NOT NULL, `NOMBRE` TEXT NOT NULL, `APEPATERNO` TEXT NOT NULL, `APEMATERNO` TEXT NOT NULL, `ODEI` TEXT NOT NULL, `DPTO` TEXT, `PROV` TEXT, `DIST` TEXT, `CLAVE` TEXT, `USUARIO` TEXT, `ACTIVO` INTEGER NOT NULL, `FECHAALTA` TEXT, `FECHABAJA` TEXT, `MOVIL` INTEGER, `reentrevista` INTEGER, `PBASICO` INTEGER, `PFINAL` INTEGER, `CARGO` TEXT NOT NULL, `FECHANAC` TEXT, `TELEFONO` TEXT, `ESTADOCIVIL` TEXT, `SEXO` TEXT, PRIMARY KEY(`DNI`), FOREIGN KEY(`PERFIL`) REFERENCES `PERFIL`(`CODPERFIL`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`CARGO`) REFERENCES `CARGO`(`CARGO`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "dni",
+            "columnName": "DNI",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "perfil",
+            "columnName": "PERFIL",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombre",
+            "columnName": "NOMBRE",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "apePaterno",
+            "columnName": "APEPATERNO",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "apeMaterno",
+            "columnName": "APEMATERNO",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "odei",
+            "columnName": "ODEI",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dpto",
+            "columnName": "DPTO",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "prov",
+            "columnName": "PROV",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "dist",
+            "columnName": "DIST",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "clave",
+            "columnName": "CLAVE",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "usuario",
+            "columnName": "USUARIO",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "activo",
+            "columnName": "ACTIVO",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fechaAlta",
+            "columnName": "FECHAALTA",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "fechaBaja",
+            "columnName": "FECHABAJA",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "movil",
+            "columnName": "MOVIL",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "reentrevista",
+            "columnName": "reentrevista",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "pbasico",
+            "columnName": "PBASICO",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "pfinal",
+            "columnName": "PFINAL",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "cargo",
+            "columnName": "CARGO",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fechaNac",
+            "columnName": "FECHANAC",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "telefono",
+            "columnName": "TELEFONO",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "estadoCivil",
+            "columnName": "ESTADOCIVIL",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "sexo",
+            "columnName": "SEXO",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "DNI"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_PERSONAL_PERFIL",
+            "unique": false,
+            "columnNames": [
+              "PERFIL"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_PERSONAL_PERFIL` ON `${TABLE_NAME}` (`PERFIL`)"
+          },
+          {
+            "name": "index_PERSONAL_CARGO",
+            "unique": false,
+            "columnNames": [
+              "CARGO"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_PERSONAL_CARGO` ON `${TABLE_NAME}` (`CARGO`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "PERFIL",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "PERFIL"
+            ],
+            "referencedColumns": [
+              "CODPERFIL"
+            ]
+          },
+          {
+            "table": "CARGO",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "CARGO"
+            ],
+            "referencedColumns": [
+              "CARGO"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "CARGO",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`CARGO` TEXT NOT NULL, `NOMCARGO` TEXT, `ABRCARGO` TEXT, PRIMARY KEY(`CARGO`))",
+        "fields": [
+          {
+            "fieldPath": "cargo",
+            "columnName": "CARGO",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nomCargo",
+            "columnName": "NOMCARGO",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "abrCargo",
+            "columnName": "ABRCARGO",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "CARGO"
+          ]
+        }
+      },
+      {
+        "tableName": "PERFIL",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`CODPERFIL` TEXT NOT NULL, `NOMPERFIL` TEXT NOT NULL, PRIMARY KEY(`CODPERFIL`))",
+        "fields": [
+          {
+            "fieldPath": "codPerfil",
+            "columnName": "CODPERFIL",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nomPerfil",
+            "columnName": "NOMPERFIL",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "CODPERFIL"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_PERFIL_NOMPERFIL",
+            "unique": true,
+            "columnNames": [
+              "NOMPERFIL"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_PERFIL_NOMPERFIL` ON `${TABLE_NAME}` (`NOMPERFIL`)"
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '43e1090f83ce9b6cdd6ec3be014e812b')"
+    ]
+  }
+}

@@ -1,0 +1,1148 @@
+package gob.inei.appprueba.presentation.activities
+
+import android.content.Context
+import android.graphics.drawable.ColorDrawable
+import android.view.View
+import android.view.ViewGroup
+import android.widget.GridLayout
+import android.widget.HorizontalScrollView
+import android.widget.LinearLayout
+import android.widget.TextView
+import androidx.core.content.ContextCompat
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.test.core.app.ActivityScenario
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.espresso.Espresso.onData
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.NoMatchingRootException
+import androidx.test.espresso.action.ViewActions.clearText
+import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.replaceText
+import androidx.test.espresso.action.ViewActions.scrollTo
+import androidx.test.espresso.action.ViewActions.swipeUp
+import androidx.test.espresso.action.ViewActions.typeText
+import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.contrib.NavigationViewActions
+import androidx.test.espresso.contrib.RecyclerViewActions
+import androidx.test.espresso.intent.Intents
+import androidx.test.espresso.intent.Intents.intended
+import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
+import androidx.test.espresso.matcher.RootMatchers.isDialog
+import androidx.test.espresso.matcher.RootMatchers.isPlatformPopup
+import androidx.test.espresso.matcher.ViewMatchers.Visibility
+import androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA
+import androidx.test.espresso.matcher.ViewMatchers.isChecked
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.isEnabled
+import androidx.test.espresso.matcher.ViewMatchers.withContentDescription
+import androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility
+import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import com.google.android.material.textfield.MaterialAutoCompleteTextView
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
+import gob.inei.appprueba.R
+import gob.inei.appprueba.data.databases.EncuestaDatabase
+import gob.inei.appprueba.data.sources.SessionDataStore
+import javax.inject.Inject
+import kotlinx.coroutines.runBlocking
+import org.hamcrest.Matchers.allOf
+import org.hamcrest.Matchers.equalTo
+import org.hamcrest.Matchers.not
+import org.junit.Assert.assertArrayEquals
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
+import org.junit.Assume.assumeFalse
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+
+/** Pruebas de interfaz de Marco (CA-03, CA-04, CA-08, CA-13, CA-18, CA-29). */
+@HiltAndroidTest
+@RunWith(AndroidJUnit4::class)
+class MarcoEspressoTest {
+
+    @get:Rule
+    val hiltRule = HiltAndroidRule(this)
+
+    @Inject
+    lateinit var session: SessionDataStore
+
+    @Inject
+    lateinit var database: EncuestaDatabase
+
+    @Before
+    fun setUp() {
+        hiltRule.inject()
+        runBlocking { session.setUltimoUsuario("marco_test") }
+    }
+
+    @Test
+    fun muestra_titulo_tarjeta_e_indicadores() {
+        ActivityScenario.launch(MarcoActivity::class.java).use {
+            onView(withText(R.string.marco_titulo)).check(matches(isDisplayed()))
+            onView(withId(R.id.tilBusqueda)).check(matches(isDisplayed()))
+            onView(withId(R.id.spOdei)).check(matches(isDisplayed()))
+            onView(withId(R.id.tvEstrato)).check(matches(isDisplayed()))
+            onView(withId(R.id.tvTipo)).check(matches(isDisplayed()))
+            onView(withId(R.id.tvViviendas)).check(matches(isDisplayed()))
+            onView(withId(R.id.tvConglomerados)).check(matches(isDisplayed()))
+        }
+    }
+
+    @Test
+    fun el_indicador_de_conglomerados_respeta_las_combinaciones_y_el_switch() {
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            esperarHastaFilas(scenario, 4)
+            onView(withId(R.id.tvConglomerados))
+                .check(matches(withText(R.string.marco_valor_vacio)))
+
+            seleccionarOpcion(scenario, R.id.spOdei, "01-AMAZONAS")
+            esperarIndicadorConglomerados(scenario, "1")
+            esperarHastaFilas(scenario, 4)
+
+            seleccionarOpcion(scenario, R.id.spMes, "08-Agosto")
+            esperarIndicadorConglomerados(scenario, "1")
+
+            seleccionarOpcion(scenario, R.id.spPeriodo, "PERIODO 1")
+            esperarIndicadorConglomerados(scenario, "1")
+
+            seleccionarOpcion(scenario, R.id.spConglomerado, "016335->URBANO->PANEL")
+            esperarIndicadorConglomerados(scenario, "1")
+            esperarHastaFilas(scenario, 4)
+
+            onView(withId(R.id.switchActivos)).perform(click())
+            esperarHastaFilas(scenario, 3)
+            onView(withId(R.id.tvConglomerados)).check(matches(withText("1")))
+        }
+    }
+
+    @Test
+    fun el_grid_de_indicadores_usa_columnas_adaptables() {
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+            scenario.onActivity { activity ->
+                val grid = activity.findViewById<GridLayout>(R.id.gridIndicadores)
+                val columnas = activity.resources.getInteger(R.integer.marco_indicadores_columnas)
+                assertEquals(4, grid.childCount)
+                assertEquals(columnas, grid.columnCount)
+                assertEquals(if (columnas == 4) 1 else 2, grid.rowCount)
+            }
+        }
+    }
+
+    @Test
+    fun la_busqueda_deshabilita_y_habilita_los_filtros_guardados() {
+        ActivityScenario.launch(MarcoActivity::class.java).use {
+            onView(withId(R.id.spOdei)).check(matches(isEnabled()))
+
+            onView(withId(R.id.etBusqueda)).perform(typeText("016"))
+            esperarDebounce()
+            onView(withId(R.id.spOdei)).check(matches(not(isEnabled())))
+            onView(withId(R.id.spMes)).check(matches(not(isEnabled())))
+            onView(withId(R.id.spPeriodo)).check(matches(not(isEnabled())))
+            onView(withId(R.id.spConglomerado)).check(matches(not(isEnabled())))
+
+            onView(withId(R.id.etBusqueda)).perform(replaceText(""))
+            esperarDebounce()
+            onView(withId(R.id.spOdei)).check(matches(isEnabled()))
+            onView(withId(R.id.spMes)).check(matches(isEnabled()))
+            onView(withId(R.id.spPeriodo)).check(matches(isEnabled()))
+            onView(withId(R.id.spConglomerado)).check(matches(isEnabled()))
+        }
+    }
+
+    @Test
+    fun en_telefono_el_boton_expandir_alterna_la_tarjeta_de_filtros() {
+        assumeFalse("La tablet mantiene los filtros siempre visibles", esTablet())
+        ActivityScenario.launch(MarcoActivity::class.java).use {
+            onView(withId(R.id.btnExpandir)).check(matches(isDisplayed()))
+            onView(withId(R.id.btnExpandir)).check(
+                matches(withContentDescription(R.string.marco_filtros_contraer))
+            )
+            onView(withId(R.id.contenidoFiltros))
+                .check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
+
+            onView(withId(R.id.btnExpandir)).perform(click())
+            esperarDebounce()
+            onView(withId(R.id.btnExpandir)).check(
+                matches(withContentDescription(R.string.marco_filtros_expandir))
+            )
+            onView(withId(R.id.contenidoFiltros))
+                .check(matches(withEffectiveVisibility(Visibility.GONE)))
+
+            onView(withId(R.id.btnExpandir)).perform(click())
+            esperarDebounce()
+            onView(withId(R.id.contenidoFiltros))
+                .check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
+        }
+    }
+
+    @Test
+    fun la_tabla_muestra_una_fila_por_hogar_con_los_datos_sembrados() {
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            esperarHastaFilas(scenario, 4)
+            scenario.onActivity { activity ->
+                val recycler = activity.findViewById<RecyclerView>(R.id.rvMarco)
+                assertEquals(4, recycler.adapter?.itemCount)
+                val primera = recycler.findViewHolderForAdapterPosition(0)?.itemView
+                assertEquals(
+                    "COMPLETA",
+                    primera?.findViewById<TextView>(R.id.tvResultado)?.text?.toString()
+                )
+            }
+            onView(withId(R.id.tvViviendas))
+                .check(matches(withText("Seleccionadas: 2 Reemplazos: 1")))
+        }
+    }
+
+    @Test
+    fun el_detalle_prioriza_vivienda_y_usa_marco_como_respaldo() {
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            esperarHastaFilas(scenario, 4)
+            pulsarAccionDeFila(scenario, 2, R.id.btnDetalle)
+            esperarHastaTexto("REAL DOS")
+            onView(withText("20")).check(matches(isDisplayed()))
+            onView(withId(R.id.tvDetalleConglomerado))
+                .inRoot(isDialog())
+                .check(matches(withText("016335")))
+            onView(withId(R.id.tvDetalleNumero)).inRoot(isDialog()).check(matches(withText("02")))
+            onView(withId(R.id.tvDetalleVivienda)).inRoot(isDialog()).check(matches(withText("002")))
+            onView(withText(R.string.marco_detalle_cerrar)).perform(click())
+
+            pulsarAccionDeFila(scenario, 3, R.id.btnDetalle)
+            esperarHastaTexto("MARCO TRES")
+            onView(withText(R.string.marco_detalle_cerrar)).perform(click())
+        }
+    }
+
+    @Test
+    fun la_tabla_muestra_once_columnas_y_las_acciones_son_accesibles() {
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            esperarHastaFilas(scenario, 4)
+
+            scenario.onActivity { activity ->
+                val cabecera = activity.findViewById<LinearLayout>(R.id.cabeceraMarco)
+                assertEquals(11, cabecera.childCount)
+
+                val recycler = activity.findViewById<RecyclerView>(R.id.rvMarco)
+                val fila = recycler.findViewHolderForAdapterPosition(0)?.itemView as? ViewGroup
+                assertEquals(11, fila?.childCount)
+
+                val aperturar = fila?.findViewById<View>(R.id.btnAperturar)
+                val exportar = fila?.findViewById<View>(R.id.btnExportar)
+                val accion = fila?.findViewById<View>(R.id.btnAccion)
+                assertNotNull(aperturar)
+                assertNotNull(exportar)
+                assertNotNull(accion)
+                assertEquals(
+                    activity.getString(
+                        R.string.marco_accion_descripcion_aperturar_fila,
+                        "01",
+                        "016335"
+                    ),
+                    aperturar?.contentDescription
+                )
+                assertEquals(
+                    activity.getString(
+                        R.string.marco_accion_descripcion_exportar_fila,
+                        "01",
+                        "016335"
+                    ),
+                    exportar?.contentDescription
+                )
+                assertEquals(
+                    activity.getString(
+                        R.string.marco_accion_descripcion_accion_fila,
+                        "01",
+                        "016335"
+                    ),
+                    accion?.contentDescription
+                )
+            }
+        }
+    }
+
+    @Test
+    fun la_cabecera_y_las_filas_comparten_los_anchos_efectivos() {
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            esperarHastaFilas(scenario, 4)
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+
+            scenario.onActivity { activity ->
+                val cabecera = activity.findViewById<LinearLayout>(R.id.cabeceraMarco)
+                val tabla = activity.findViewById<View>(R.id.tablaMarco)
+                val recycler = activity.findViewById<RecyclerView>(R.id.rvMarco)
+                val fila = recycler.findViewHolderForAdapterPosition(0)?.itemView as? ViewGroup
+                assertNotNull(fila)
+
+                val anchosCabecera = IntArray(cabecera.childCount) {
+                    cabecera.getChildAt(it).width
+                }
+                val anchosFila = IntArray(fila!!.childCount) { fila.getChildAt(it).width }
+
+                assertEquals(11, anchosCabecera.size)
+                assertArrayEquals(anchosCabecera, anchosFila)
+                assertEquals(anchosCabecera.sum(), tabla.width)
+                assertEquals(tabla.width, cabecera.width)
+                assertEquals(tabla.width, recycler.width)
+                assertTrue(anchosCabecera.all { it > 0 })
+                for (indice in 0..10) {
+                    val celda = cabecera.getChildAt(indice) as TextView
+                    assertEquals(2, celda.maxLines)
+                    assertTrue("Cabecera recortada: ${celda.text}", sinRecortes(celda))
+                }
+                for (indice in 0 until fila.childCount) {
+                    val celda = fila.getChildAt(indice) as? TextView ?: continue
+                    assertTrue("Celda recortada: ${celda.text}", sinRecortes(celda))
+                }
+            }
+        }
+    }
+
+    @Test
+    fun las_columnas_de_accion_conservan_su_ancho_minimo() {
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            esperarHastaFilas(scenario, 4)
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+
+            scenario.onActivity { activity ->
+                val cabecera = activity.findViewById<LinearLayout>(R.id.cabeceraMarco)
+                val anchoAccion = activity.resources.getDimensionPixelSize(
+                    R.dimen.marco_col_accion_ancho
+                )
+                for (indice in 7..10) {
+                    assertEquals(anchoAccion, cabecera.getChildAt(indice).width)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun los_anchos_se_recalculan_al_cambiar_el_ancho_disponible() {
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            esperarHastaFilas(scenario, 4)
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+
+            val minimos = IntArray(11)
+            var anchoEstrecho = 0
+            var anchoAncho = 0
+            scenario.onActivity { activity ->
+                val minimosTabla = anchosMinimosPx(activity)
+                minimosTabla.copyInto(minimos)
+                val sumaMinima = minimosTabla.sum()
+                anchoEstrecho = sumaMinima - 120
+                anchoAncho = sumaMinima + 240
+            }
+
+            scenario.onActivity { activity -> cambiarAnchoTabla(activity, anchoEstrecho) }
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+            scenario.onActivity { activity ->
+                val cabecera = activity.findViewById<LinearLayout>(R.id.cabeceraMarco)
+                val tabla = activity.findViewById<View>(R.id.tablaMarco)
+                assertEquals(minimos.sum(), tabla.width)
+                assertEquals(minimos.sum(), IntArray(11) { cabecera.getChildAt(it).width }.sum())
+                assertArrayEquals(
+                    minimos.copyOfRange(7, 11),
+                    IntArray(4) { cabecera.getChildAt(it + 7).width }
+                )
+            }
+
+            scenario.onActivity { activity -> cambiarAnchoTabla(activity, anchoAncho) }
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+            scenario.onActivity { activity ->
+                val cabecera = activity.findViewById<LinearLayout>(R.id.cabeceraMarco)
+                val tabla = activity.findViewById<View>(R.id.tablaMarco)
+                val fila = activity.findViewById<RecyclerView>(R.id.rvMarco)
+                    .findViewHolderForAdapterPosition(0)?.itemView as? ViewGroup
+                assertNotNull(fila)
+                val anchosCabecera = IntArray(11) { cabecera.getChildAt(it).width }
+                assertEquals(anchoAncho, tabla.width)
+                assertEquals(anchoAncho, anchosCabecera.sum())
+                assertArrayEquals(
+                    anchosCabecera,
+                    IntArray(fila!!.childCount) { fila.getChildAt(it).width }
+                )
+                assertArrayEquals(
+                    minimos.copyOfRange(7, 11),
+                    anchosCabecera.copyOfRange(7, 11)
+                )
+            }
+        }
+    }
+
+    @Test
+    fun la_tabla_conserva_la_alineacion_al_recrear_la_pantalla() {
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            esperarHastaFilas(scenario, 4)
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+
+            var anchosAntes: IntArray = IntArray(0)
+            scenario.onActivity { activity -> anchosAntes = anchosCabecera(activity) }
+
+            scenario.recreate()
+            esperarHastaFilas(scenario, 4)
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+
+            scenario.onActivity { activity ->
+                val anchosDespues = anchosCabecera(activity)
+                assertArrayEquals(anchosAntes, anchosDespues)
+                assertArrayEquals(anchosDespues, anchosFila(activity, 0))
+            }
+        }
+    }
+
+    @Test
+    fun las_acciones_aperturar_y_exportar_abren_dialogos_con_la_identificacion_de_la_fila() {
+        val acciones = listOf(
+            R.id.btnAperturar to R.string.marco_accion_aperturar,
+            R.id.btnExportar to R.string.marco_accion_exportar
+        )
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            esperarHastaFilas(scenario, 4)
+
+            acciones.forEach { (boton, titulo) ->
+                pulsarAccionDeFila(scenario, 0, boton)
+                onView(withText(titulo)).inRoot(isDialog()).check(matches(isDisplayed()))
+                onView(withId(R.id.tvAccionConglomerado))
+                    .inRoot(isDialog())
+                    .check(matches(withText("016335")))
+                onView(withId(R.id.tvAccionNumero))
+                    .inRoot(isDialog())
+                    .check(matches(withText("01")))
+                onView(withId(R.id.tvAccionVivienda))
+                    .inRoot(isDialog())
+                    .check(matches(withText("001")))
+                onView(withText(R.string.marco_detalle_cerrar)).perform(click())
+            }
+        }
+    }
+
+    @Test
+    fun el_dialogo_de_accion_muestra_cabecera_acciones_y_atajos() {
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            esperarHastaFilas(scenario, 4)
+
+            pulsarAccionDeFila(scenario, 0, R.id.btnAccion)
+
+            onView(withText(R.string.marco_accion_accion))
+                .inRoot(isDialog())
+                .check(doesNotExist())
+            onView(withId(R.id.tvAccionConglomerado))
+                .inRoot(isDialog())
+                .check(matches(withText("016335")))
+            onView(withId(R.id.tvAccionNumero))
+                .inRoot(isDialog())
+                .check(matches(withText("01")))
+            onView(withId(R.id.tvAccionVivienda))
+                .inRoot(isDialog())
+                .check(matches(withText("001")))
+            onView(withText(R.string.marco_accion_seccion_acciones))
+                .inRoot(isDialog())
+                .check(matches(isDisplayed()))
+            onView(withText(R.string.marco_accion_seccion_atajos))
+                .inRoot(isDialog())
+                .check(matches(isDisplayed()))
+            listOf(
+                R.id.btnAccionAperturar,
+                R.id.btnAccionExportar,
+                R.id.btnAccionImportar,
+                R.id.btnAccionIntercambiar,
+                R.id.btnMostrar,
+                R.id.btnCancelarAccion,
+                R.id.divisorAccionSuperior,
+                R.id.divisorAccionInferior
+            ).forEach { id ->
+                onView(withId(id)).inRoot(isDialog()).check(matches(isDisplayed()))
+            }
+        }
+    }
+
+    @Test
+    fun las_acciones_del_dialogo_muestran_aviso_de_proximamente() {
+        val acciones = listOf(
+            R.id.btnAccionAperturar to R.string.marco_accion_aperturar,
+            R.id.btnAccionExportar to R.string.marco_accion_exportar,
+            R.id.btnAccionImportar to R.string.marco_accion_importar,
+            R.id.btnAccionIntercambiar to R.string.marco_accion_intercambiar
+        )
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            esperarHastaFilas(scenario, 4)
+
+            acciones.forEach { (boton, titulo) ->
+                pulsarAccionDeFila(scenario, 0, R.id.btnAccion)
+                onView(withId(boton)).inRoot(isDialog()).perform(click())
+                onView(withText(titulo)).inRoot(isDialog()).check(matches(isDisplayed()))
+                onView(withText(R.string.marco_accion_mensaje_proximamente))
+                    .inRoot(isDialog())
+                    .check(matches(isDisplayed()))
+                onView(withText(R.string.marco_accion_aceptar))
+                    .inRoot(isDialog())
+                    .perform(click())
+                onView(withId(R.id.btnCancelarAccion)).inRoot(isDialog()).perform(click())
+            }
+        }
+    }
+
+    @Test
+    fun el_capitulo_se_habilita_solo_con_enaho01() {
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            esperarHastaFilas(scenario, 4)
+
+            pulsarAccionDeFila(scenario, 0, R.id.btnAccion)
+            onView(withId(R.id.spCapitulo)).inRoot(isDialog()).check(matches(not(isEnabled())))
+
+            seleccionarEnDialogo(R.id.spCuestionario, "ENAHO-01A")
+            onView(withId(R.id.spCapitulo)).inRoot(isDialog()).check(matches(not(isEnabled())))
+
+            seleccionarEnDialogo(R.id.spCuestionario, "ENAHO-01")
+            onView(withId(R.id.spCapitulo)).inRoot(isDialog()).check(matches(isEnabled()))
+            onView(withId(R.id.spCapitulo)).inRoot(isDialog()).check(matches(withText("")))
+            onView(withId(R.id.spCapitulo)).inRoot(isDialog()).perform(click())
+            onData(equalTo("Cap100")).inRoot(isPlatformPopup()).check(matches(isDisplayed()))
+            onData(equalTo("Ins. Alimentaria")).inRoot(isPlatformPopup())
+                .check(matches(isDisplayed()))
+            onData(equalTo("Cap700A")).inRoot(isPlatformPopup()).perform(click())
+            onView(withId(R.id.spCapitulo)).inRoot(isDialog())
+                .check(matches(withText("Cap700A")))
+
+            seleccionarEnDialogo(R.id.spCuestionario, "ENAHO-02")
+            onView(withId(R.id.spCapitulo)).inRoot(isDialog()).check(matches(not(isEnabled())))
+            onView(withId(R.id.spCapitulo)).inRoot(isDialog()).check(matches(withText("")))
+        }
+    }
+
+    @Test
+    fun mostrar_valida_cuestionario_y_muestra_proximamente() {
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            esperarHastaFilas(scenario, 4)
+
+            pulsarAccionDeFila(scenario, 0, R.id.btnAccion)
+            onView(withId(R.id.btnMostrar)).inRoot(isDialog()).perform(click())
+            onView(withText(R.string.marco_accion_error_cuestionario))
+                .inRoot(isDialog())
+                .check(matches(isDisplayed()))
+
+            seleccionarEnDialogo(R.id.spCuestionario, "ENAHO-01")
+            onView(withText(R.string.marco_accion_error_cuestionario))
+                .inRoot(isDialog())
+                .check(doesNotExist())
+            onView(withId(R.id.btnMostrar)).inRoot(isDialog()).perform(click())
+            onView(withText(R.string.marco_accion_proximamente))
+                .inRoot(isDialog())
+                .check(matches(isDisplayed()))
+            onView(withText(R.string.marco_accion_aceptar))
+                .inRoot(isDialog())
+                .perform(click())
+
+            seleccionarEnDialogo(R.id.spCapitulo, "Cap100")
+            onView(withId(R.id.btnMostrar)).inRoot(isDialog()).perform(click())
+            onView(withText(R.string.marco_accion_proximamente))
+                .inRoot(isDialog())
+                .check(matches(isDisplayed()))
+            onView(withText(R.string.marco_accion_aceptar))
+                .inRoot(isDialog())
+                .perform(click())
+
+            seleccionarEnDialogo(R.id.spCuestionario, "ENAHO-02")
+            onView(withId(R.id.btnMostrar)).inRoot(isDialog()).perform(click())
+            onView(withText(R.string.marco_accion_proximamente))
+                .inRoot(isDialog())
+                .check(matches(isDisplayed()))
+        }
+    }
+
+    @Test
+    fun el_dialogo_de_accion_distribuye_los_botones_segun_la_pantalla() {
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            esperarHastaFilas(scenario, 4)
+
+            pulsarAccionDeFila(scenario, 0, R.id.btnAccion)
+            onView(withId(R.id.gridAcciones)).inRoot(isDialog()).check { vista, error ->
+                if (error != null) throw error
+                val grid = vista as GridLayout
+                val esperado = vista.resources.getInteger(R.integer.marco_accion_columnas)
+                assertEquals(esperado, grid.columnCount)
+            }
+        }
+    }
+
+    @Test
+    fun la_pulsacion_prolongada_en_la_fila_abre_el_dialogo_de_accion() {
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            esperarHastaFilas(scenario, 4)
+
+            mantenerPresionadaFila(scenario, 0)
+
+            onView(withId(R.id.tvAccionConglomerado))
+                .inRoot(isDialog())
+                .check(matches(withText("016335")))
+            onView(withId(R.id.tvAccionNumero))
+                .inRoot(isDialog())
+                .check(matches(withText("01")))
+            onView(withId(R.id.tvAccionVivienda))
+                .inRoot(isDialog())
+                .check(matches(withText("001")))
+            onView(withText(R.string.marco_accion_seccion_acciones))
+                .inRoot(isDialog())
+                .check(matches(isDisplayed()))
+            onView(withText(R.string.marco_accion_seccion_atajos))
+                .inRoot(isDialog())
+                .check(matches(isDisplayed()))
+        }
+    }
+
+    @Test
+    fun la_pulsacion_prolongada_en_los_iconos_no_abre_el_dialogo_de_accion() {
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            esperarHastaFilas(scenario, 4)
+
+            listOf(
+                R.id.btnDetalle,
+                R.id.btnAperturar,
+                R.id.btnExportar,
+                R.id.btnAccion
+            ).forEach { boton ->
+                mantenerPresionadaAccionDeFila(scenario, 0, boton)
+                comprobarSinDialogoDeAccion()
+            }
+        }
+    }
+
+    @Test
+    fun la_pulsacion_normal_en_la_fila_no_abre_el_dialogo_de_accion() {
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            esperarHastaFilas(scenario, 4)
+
+            pulsarFila(scenario, 0)
+
+            comprobarSinDialogoDeAccion()
+        }
+    }
+
+    @Test
+    fun el_switch_de_activos_reduce_la_tabla_y_los_conteos() {
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            esperarHastaFilas(scenario, 4)
+
+            onView(withId(R.id.switchActivos)).perform(click())
+            onView(withId(R.id.switchActivos)).check(matches(isChecked()))
+            esperarHastaFilas(scenario, 3)
+
+            scenario.onActivity { activity ->
+                val recycler = activity.findViewById<RecyclerView>(R.id.rvMarco)
+                assertEquals(3, recycler.adapter?.itemCount)
+            }
+            onView(withId(R.id.tvViviendas))
+                .check(matches(withText("Seleccionadas: 2 Reemplazos: 0")))
+        }
+    }
+
+    @Test
+    fun la_tabla_permite_desplazarse_hasta_la_ultima_fila() {
+        val conglome = "016340"
+        val db = database.openHelper.writableDatabase
+        db.execSQL(
+            "INSERT INTO CAMPO_CONGLOMERADO " +
+                "(CONGLOME, ANHO, MES, PERIODO, ESTRATO, TIPOSELECCION, ODEI) " +
+                "VALUES ('$conglome', '2026', '08', '1', '5', '3', '01')"
+        )
+        repeat(30) { indice ->
+            val vivienda = "%03d".format(indice + 1)
+            val numero = "%02d".format(indice + 1)
+            db.execSQL(
+                "INSERT INTO CAMPO_VIVIENDA_MARCO " +
+                    "(CONGLOME, VIVIENDA, NROVIVIENDA, TIPOVIVIENDA, activo) " +
+                    "VALUES ('$conglome', '$vivienda', '$numero', '1', 1)"
+            )
+        }
+        try {
+            ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+                onView(withId(R.id.etBusqueda)).perform(replaceText(conglome))
+                esperarDebounce()
+                esperarHastaFilas(scenario, 30)
+
+                onView(withId(R.id.rvMarco)).perform(scrollTo(), swipeUp())
+                InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+
+                var primeraVisible = 0
+                scenario.onActivity { activity ->
+                    val recycler = activity.findViewById<RecyclerView>(R.id.rvMarco)
+                    primeraVisible =
+                        (recycler.layoutManager as LinearLayoutManager)
+                            .findFirstVisibleItemPosition()
+                }
+                assertTrue(
+                    "La tabla no desplazó sus filas con el gesto vertical",
+                    primeraVisible > 0
+                )
+
+                onView(withId(R.id.rvMarco))
+                    .perform(RecyclerViewActions.scrollToPosition<RecyclerView.ViewHolder>(29))
+                onView(
+                    allOf(
+                        withText("30"),
+                        isDescendantOfA(withId(R.id.filaMarco))
+                    )
+                ).check(matches(isDisplayed()))
+
+                InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+                scenario.onActivity { activity ->
+                    val recycler = activity.findViewById<RecyclerView>(R.id.rvMarco)
+                    val alturaMaxima = activity.resources.getDimensionPixelSize(
+                        R.dimen.marco_tabla_alto_maximo
+                    )
+                    assertTrue(
+                        "La tabla superó la altura máxima y perdió el reciclaje",
+                        recycler.height <= alturaMaxima
+                    )
+                    assertArrayEquals(
+                        anchosCabecera(activity),
+                        anchosFila(activity, 29)
+                    )
+                }
+            }
+        } finally {
+            db.delete("CAMPO_VIVIENDA_MARCO", "CONGLOME = ?", arrayOf(conglome))
+            db.delete("CAMPO_CONGLOMERADO", "CONGLOME = ?", arrayOf(conglome))
+        }
+    }
+
+    @Test
+    fun las_filas_usan_el_color_segun_tipovivienda() {
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            esperarHastaFilas(scenario, 4)
+
+            scenario.onActivity { activity ->
+                val recycler = activity.findViewById<RecyclerView>(R.id.rvMarco)
+                val seleccionada = recycler.findViewHolderForAdapterPosition(0)?.itemView
+                val reemplazo = recycler.findViewHolderForAdapterPosition(2)?.itemView
+                val seleccionadaCuatro = recycler.findViewHolderForAdapterPosition(3)?.itemView
+                assertEquals(
+                    ContextCompat.getColor(activity, R.color.marcoFilaSinReemplazo),
+                    (seleccionada?.background as ColorDrawable).color
+                )
+                assertEquals(
+                    ContextCompat.getColor(activity, R.color.marcoFilaReemplazo),
+                    (reemplazo?.background as ColorDrawable).color
+                )
+                assertEquals(
+                    ContextCompat.getColor(activity, R.color.marcoFilaSinReemplazo),
+                    (seleccionadaCuatro?.background as ColorDrawable).color
+                )
+                assertEquals(
+                    activity.getString(R.string.marco_detalle_descripcion_fila, "01", "016335"),
+                    seleccionada?.findViewById<View>(R.id.btnDetalle)?.contentDescription
+                )
+            }
+        }
+    }
+
+    @Test
+    fun la_busqueda_sin_coincidencias_muestra_el_estado_vacio() {
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            esperarHastaFilas(scenario, 4)
+
+            onView(withId(R.id.etBusqueda)).perform(replaceText("ZZZ"))
+            esperarEstadoVisible(scenario)
+            onView(withId(R.id.tvEstado)).check(matches(isDisplayed()))
+            onView(withId(R.id.tvEstado))
+                .check(matches(withText(R.string.marco_sin_resultados)))
+        }
+    }
+
+    @Test
+    fun el_filtro_odei_restringe_la_tabla_y_permite_restaurarla() {
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            esperarHastaFilas(scenario, 4)
+
+            seleccionarOdei(scenario, "02-ANCASH")
+            onView(withId(R.id.spOdei)).check(matches(withText("02-ANCASH")))
+            esperarEstadoVisible(scenario)
+            onView(withId(R.id.tvEstado))
+                .check(matches(withText(R.string.marco_sin_resultados)))
+
+            seleccionarOdei(scenario, "01-AMAZONAS")
+            esperarHastaFilas(scenario, 4)
+        }
+    }
+
+    @Test
+    fun restaura_las_etiquetas_de_los_filtros_al_recrear_la_pantalla() {
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            esperarHastaFilas(scenario, 4)
+
+            seleccionarOdei(scenario, "01-AMAZONAS")
+            Thread.sleep(500)
+
+            scenario.recreate()
+
+            onView(withId(R.id.spOdei)).check(matches(withText("01-AMAZONAS")))
+            esperarHastaFilas(scenario, 4)
+        }
+    }
+
+    @Test
+    fun los_filtros_sin_seleccion_muestran_todas_las_opciones_al_recrear_la_pantalla() {
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            esperarHastaFilas(scenario, 4)
+
+            scenario.recreate()
+            esperarHastaFilas(scenario, 4)
+
+            listOf(
+                R.id.spOdei to "01-AMAZONAS",
+                R.id.spMes to "08-Agosto",
+                R.id.spPeriodo to "PERIODO 1",
+                R.id.spConglomerado to "016335->URBANO->PANEL"
+            ).forEach { (campo, etiqueta) ->
+                abrirMenu(scenario, campo)
+                onData(equalTo(etiqueta)).inRoot(isPlatformPopup()).check(matches(isDisplayed()))
+                cerrarMenu(scenario, campo)
+            }
+        }
+    }
+
+    @Test
+    fun los_filtros_con_seleccion_muestran_todas_las_opciones_al_recrear_la_pantalla() {
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            esperarHastaFilas(scenario, 4)
+
+            seleccionarOdei(scenario, "01-AMAZONAS")
+            seleccionarOpcion(scenario, R.id.spMes, "08-Agosto")
+            seleccionarOpcion(scenario, R.id.spPeriodo, "PERIODO 1")
+            seleccionarOpcion(scenario, R.id.spConglomerado, "016335->URBANO->PANEL")
+            esperarHastaFilas(scenario, 4)
+
+            scenario.recreate()
+
+            onView(withId(R.id.spOdei)).check(matches(withText("01-AMAZONAS")))
+            onView(withId(R.id.spMes)).check(matches(withText("08-Agosto")))
+            onView(withId(R.id.spPeriodo)).check(matches(withText("PERIODO 1")))
+            onView(withId(R.id.spConglomerado))
+                .check(matches(withText("016335->URBANO->PANEL")))
+
+            val seleccione = ApplicationProvider.getApplicationContext<Context>()
+                .getString(R.string.marco_seleccione)
+            listOf(
+                R.id.spOdei,
+                R.id.spMes,
+                R.id.spPeriodo,
+                R.id.spConglomerado
+            ).forEach { campo ->
+                abrirMenu(scenario, campo)
+                onData(equalTo(seleccione)).inRoot(isPlatformPopup()).check(matches(isDisplayed()))
+                cerrarMenu(scenario, campo)
+            }
+        }
+    }
+
+    @Test
+    fun abre_marco_desde_el_drawer_con_sesion_personal() {
+        runBlocking {
+            session.setSesionActiva(true)
+            session.setUltimoUsuario("marco_test")
+            session.setTipoAcceso("PERSONAL")
+        }
+
+        Intents.init()
+        try {
+            ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+                scenario.onActivity { activity ->
+                    activity.findViewById<DrawerLayout>(R.id.drawerLayout)
+                        .openDrawer(GravityCompat.START)
+                }
+                onView(withId(R.id.navigationView))
+                    .perform(NavigationViewActions.navigateTo(R.id.action_marco))
+                intended(hasComponent(MarcoActivity::class.java.name))
+            }
+        } finally {
+            Intents.release()
+        }
+    }
+
+    @Test
+    fun el_error_de_carga_muestra_mensaje_y_permite_reintentar() {
+        ActivityScenario.launch(MarcoActivity::class.java).use { scenario ->
+            esperarHastaFilas(scenario, 4)
+            database.close()
+
+            onView(withId(R.id.switchActivos)).perform(click())
+            esperarBotonReintentar(scenario)
+            onView(withId(R.id.btnReintentar)).check(matches(isDisplayed()))
+            onView(withId(R.id.tvEstado)).check(matches(withText(R.string.marco_error)))
+        }
+    }
+
+    private fun seleccionarOdei(
+        scenario: ActivityScenario<MarcoActivity>,
+        etiqueta: String
+    ) = seleccionarOpcion(scenario, R.id.spOdei, etiqueta)
+
+    private fun abrirMenu(
+        scenario: ActivityScenario<MarcoActivity>,
+        campoId: Int
+    ) {
+        scenario.onActivity { activity ->
+            activity.findViewById<MaterialAutoCompleteTextView>(campoId).showDropDown()
+        }
+        Thread.sleep(200)
+    }
+
+    private fun cerrarMenu(
+        scenario: ActivityScenario<MarcoActivity>,
+        campoId: Int
+    ) {
+        scenario.onActivity { activity ->
+            activity.findViewById<MaterialAutoCompleteTextView>(campoId).dismissDropDown()
+        }
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+    }
+
+    private fun seleccionarEnDialogo(campoId: Int, etiqueta: String) {
+        onView(withId(campoId)).inRoot(isDialog()).perform(clearText())
+        onView(withId(campoId)).inRoot(isDialog()).perform(click())
+        Thread.sleep(200)
+        onData(equalTo(etiqueta)).inRoot(isPlatformPopup()).perform(click())
+        Thread.sleep(300)
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+    }
+
+    private fun seleccionarOpcion(
+        scenario: ActivityScenario<MarcoActivity>,
+        campoId: Int,
+        etiqueta: String
+    ) {
+        var ultimoError: Throwable? = null
+        repeat(3) {
+            try {
+                Thread.sleep(200)
+                scenario.onActivity { activity ->
+                    val vista = activity.findViewById<MaterialAutoCompleteTextView>(campoId)
+                    vista.setText("", false)
+                    vista.showDropDown()
+                }
+                Thread.sleep(200)
+                onData(equalTo(etiqueta)).inRoot(isPlatformPopup()).perform(click())
+
+                var seleccion = ""
+                scenario.onActivity { activity ->
+                    seleccion = activity.findViewById<MaterialAutoCompleteTextView>(campoId)
+                        .text?.toString().orEmpty()
+                }
+                if (seleccion == etiqueta) return
+                ultimoError = AssertionError("Seleccionado: '$seleccion'")
+            } catch (error: Throwable) {
+                ultimoError = error
+            }
+        }
+        throw AssertionError("No se pudo seleccionar $etiqueta", ultimoError)
+    }
+
+    private fun esperarIndicadorConglomerados(
+        scenario: ActivityScenario<MarcoActivity>,
+        valor: String,
+        timeoutMs: Long = 5000
+    ) {
+        val limite = System.currentTimeMillis() + timeoutMs
+        while (System.currentTimeMillis() < limite) {
+            var texto = ""
+            scenario.onActivity { activity ->
+                texto = activity.findViewById<TextView>(R.id.tvConglomerados)
+                    ?.text?.toString().orEmpty()
+            }
+            if (texto == valor) return
+            Thread.sleep(100)
+        }
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+        throw AssertionError("N° Conglomerados esperado '$valor' no apareció")
+    }
+
+    private fun pulsarAccionDeFila(
+        scenario: ActivityScenario<MarcoActivity>,
+        posicion: Int,
+        boton: Int
+    ) {
+        scenario.onActivity { activity ->
+            val recycler = activity.findViewById<RecyclerView>(R.id.rvMarco)
+            val fila = recycler.findViewHolderForAdapterPosition(posicion)?.itemView
+                ?: throw AssertionError("No se encontró la fila $posicion")
+            val vista = fila.findViewById<View>(boton)
+                ?: throw AssertionError("No se encontró la acción en la fila $posicion")
+            vista.performClick()
+        }
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+    }
+
+    private fun mantenerPresionadaFila(
+        scenario: ActivityScenario<MarcoActivity>,
+        posicion: Int
+    ) {
+        scenario.onActivity { activity ->
+            val recycler = activity.findViewById<RecyclerView>(R.id.rvMarco)
+            val fila = recycler.findViewHolderForAdapterPosition(posicion)?.itemView
+                ?: throw AssertionError("No se encontró la fila $posicion")
+            fila.performLongClick()
+        }
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+    }
+
+    private fun mantenerPresionadaAccionDeFila(
+        scenario: ActivityScenario<MarcoActivity>,
+        posicion: Int,
+        boton: Int
+    ) {
+        scenario.onActivity { activity ->
+            val recycler = activity.findViewById<RecyclerView>(R.id.rvMarco)
+            val fila = recycler.findViewHolderForAdapterPosition(posicion)?.itemView
+                ?: throw AssertionError("No se encontró la fila $posicion")
+            val vista = fila.findViewById<View>(boton)
+                ?: throw AssertionError("No se encontró la acción en la fila $posicion")
+            vista.performLongClick()
+        }
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+    }
+
+    private fun pulsarFila(
+        scenario: ActivityScenario<MarcoActivity>,
+        posicion: Int
+    ) {
+        scenario.onActivity { activity ->
+            val recycler = activity.findViewById<RecyclerView>(R.id.rvMarco)
+            val fila = recycler.findViewHolderForAdapterPosition(posicion)?.itemView
+                ?: throw AssertionError("No se encontró la fila $posicion")
+            fila.performClick()
+        }
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+    }
+
+    private fun comprobarSinDialogoDeAccion() {
+        try {
+            onView(withId(R.id.btnCancelarAccion)).inRoot(isDialog()).check(doesNotExist())
+        } catch (_: NoMatchingRootException) {
+            return
+        }
+        throw AssertionError("Se abrió el diálogo de Acción")
+    }
+
+    private fun esperarHastaTexto(texto: String, timeoutMs: Long = 5000) {
+        val limite = System.currentTimeMillis() + timeoutMs
+        while (System.currentTimeMillis() < limite) {
+            try {
+                onView(withText(texto)).check(matches(isDisplayed()))
+                return
+            } catch (_: Throwable) {
+                Thread.sleep(100)
+            }
+        }
+        onView(withText(texto)).check(matches(isDisplayed()))
+    }
+
+    private fun esperarHastaFilas(
+        scenario: ActivityScenario<MarcoActivity>,
+        esperadas: Int,
+        timeoutMs: Long = 5000
+    ) {
+        val limite = System.currentTimeMillis() + timeoutMs
+        while (System.currentTimeMillis() < limite) {
+            var filas = 0
+            scenario.onActivity { activity ->
+                filas = activity.findViewById<RecyclerView>(R.id.rvMarco)?.adapter?.itemCount ?: 0
+            }
+            if (filas == esperadas) return
+            Thread.sleep(100)
+        }
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+    }
+
+    private fun esperarEstadoVisible(
+        scenario: ActivityScenario<MarcoActivity>,
+        timeoutMs: Long = 5000
+    ) {
+        val limite = System.currentTimeMillis() + timeoutMs
+        while (System.currentTimeMillis() < limite) {
+            var visible = false
+            scenario.onActivity { activity ->
+                visible = activity.findViewById<View>(R.id.tvEstado)?.visibility == View.VISIBLE
+            }
+            if (visible) return
+            Thread.sleep(100)
+        }
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+    }
+
+    private fun esperarBotonReintentar(
+        scenario: ActivityScenario<MarcoActivity>,
+        timeoutMs: Long = 5000
+    ) {
+        val limite = System.currentTimeMillis() + timeoutMs
+        while (System.currentTimeMillis() < limite) {
+            var visible = false
+            scenario.onActivity { activity ->
+                visible = activity.findViewById<View>(R.id.btnReintentar)?.visibility == View.VISIBLE
+            }
+            if (visible) return
+            Thread.sleep(100)
+        }
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+    }
+
+    private fun esperarDebounce() {
+        Thread.sleep(700)
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+    }
+
+    
+
+    private fun sinRecortes(celda: TextView): Boolean {
+        val layout = celda.layout ?: return false
+        return (0 until layout.lineCount).all { layout.getEllipsisCount(it) == 0 }
+    }
+
+    private fun anchosCabecera(activity: MarcoActivity): IntArray {
+        val cabecera = activity.findViewById<LinearLayout>(R.id.cabeceraMarco)
+        return IntArray(cabecera.childCount) { cabecera.getChildAt(it).width }
+    }
+
+    private fun anchosFila(activity: MarcoActivity, posicion: Int): IntArray {
+        val recycler = activity.findViewById<RecyclerView>(R.id.rvMarco)
+        val fila = recycler.findViewHolderForAdapterPosition(posicion)?.itemView as? ViewGroup
+            ?: throw AssertionError("No se encontró la fila $posicion")
+        return IntArray(fila.childCount) { fila.getChildAt(it).width }
+    }
+
+    private fun anchosMinimosPx(activity: MarcoActivity): IntArray {
+        val accion = activity.resources.getDimensionPixelSize(R.dimen.marco_col_accion_ancho)
+        return intArrayOf(
+            activity.resources.getDimensionPixelSize(R.dimen.marco_col_activo_ancho),
+            activity.resources.getDimensionPixelSize(R.dimen.marco_col_conglomerado_ancho),
+            activity.resources.getDimensionPixelSize(R.dimen.marco_col_numero_ancho),
+            activity.resources.getDimensionPixelSize(R.dimen.marco_col_seleccion_ancho),
+            activity.resources.getDimensionPixelSize(R.dimen.marco_col_hogar_ancho),
+            activity.resources.getDimensionPixelSize(R.dimen.marco_col_reemplazo_ancho),
+            activity.resources.getDimensionPixelSize(R.dimen.marco_col_resultado_ancho),
+            accion,
+            accion,
+            accion,
+            accion
+        )
+    }
+
+    private fun cambiarAnchoTabla(activity: MarcoActivity, anchoPx: Int) {
+        val scroll = activity.findViewById<HorizontalScrollView>(R.id.scrollTabla)
+        scroll.layoutParams = scroll.layoutParams.apply { width = anchoPx }
+        scroll.requestLayout()
+    }
+
+    private fun esTablet(): Boolean =
+        ApplicationProvider.getApplicationContext<Context>()
+            .resources.getBoolean(R.bool.marco_es_tablet)
+}
