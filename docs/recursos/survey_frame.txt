@@ -128,6 +128,10 @@
   - la encuesta que te comento y todos sus cuestionarios están en un aplicativo con java 6 y con una arquitectura que la hace muy lenta al deslizar cada pantalla. lo que estoy haciendo es crear una nueva arquitectura usando kotlin, MVVM y todo lo que te comenté. en este caso estoy desarrollando una nueva lógica o siguiendo tus recomendaciones que haces, pero te comento la información de tablas que contienen las respuestas del cuestionario se exporta al servidor generando un xml y enviándolo al servidor luego el backend resuleve y llena las tablas de la BASE DE DATOS SQL. mi pregunta es: debo usar la estructura o modelo de datos que ya se tiene YA QUE ESTA ESTRUCTURA SE USA EN PRODUCCION Y EN LA BASE DE DATOS SQL GENERAL DEL PROYECTO QUE ALIMENTA A OTROS SISTEMAS o genero mi propio modelo de datos para guardar las respuestas y luego adapta esto al xml que nesesita el backend para llenar la stablas sql.
  * si el script es una copia de todas las tablas que tiene la base de datos del sqlite que usa el aplicativo en java 6, te comento que hay columnas o campos que ya nose usan ya que durante los años se elimina preguntas en la interface pero los campos en las tablas se quedaron sin usar.
 
+
+
+* 702 debe ser una lista con la persona que cuando se presione  debera aparecer un item Menú con con las opciones de programas sociales (la edad condiciona si responde ) que se marcaron en la pregunta 701, luego al seleccionar un programa social debera mostrar un dialogo con preguntas (703,704,705,706,706A)
+* 711 debe ser una lista con la persona que cuando se presione  debera aparecer un item Menú con con las opciones de programas sociales no alimentarios (la edad condiciona si responde ) que se marcaron en la pregunta 701, luego al seleccionar un programa social debera mostrar un dialogo con preguntas (712,713)
 * Selección única:
 
   CERRADA_UNICA RadioGroup
