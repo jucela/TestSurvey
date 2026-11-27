@@ -186,28 +186,124 @@
 * una sección contiene un grupo de preguntas.
 ```text
 
-+-------------------------------------------------------+ <-- LinearLayout (vertical, padding 4dp)
-|  +-------------------------------------------------+  | <-- MaterialCardView (cornerRadius 12dp)
++-------------------------------------------------------+ <-- LinearLayout (id: lyContainer,vertical, padding 4dp)
+|  +-------------------------------------------------+  | <-- MaterialCardView (id: cardViewSection,cornerRadius 12dp,visibility:visible)
 |  |                   ACTIVIDADES                   |  | <-- TextView (id: tvSectionTitle, bold,TextSize:18sp)
 |  +-------------------------------------------------+  |
-|  +-------------------------------------------------+  | <-- MaterialCardView (cornerRadius 12dp)
+|  +-------------------------------------------------+  | <-- MaterialCardView (id: cardViewSubSection,cornerRadius 12dp,visibility:visible)
 |  |                Actividad Primaria               |  | <-- TextView (id: tvSubSectionTitle, bold,TextSize:16sp)
 |  +-------------------------------------------------+  |
 |                                                       |
-|  +-------------------------------------------------+  | <-- MaterialCardView (cornerRadius 12dp)
-|  |  +-------------------------------------------+  |  | <-- LinearLayout (vertical, padding 4dp)
+|  +-------------------------------------------------+  | <-- MaterialCardView (id: cardViewQuestions,cornerRadius 12dp)
+|  |  +-------------------------------------------+  |  | <-- LinearLayout (id: lyContainerQuestion,vertical, padding 4dp)
 |  |  | 501A. Cuanto gana Mensualmente en la      |  |  | <-- TextView (id: tvQuestionTitle, bold,TextSize:14sp)
 |  |  | actividad primaria que realiza?           |  |  | 
 |  |  | (Diga el monto en soles)                  |  |  | <-- TextView (id: tvQuestionSubTitle,TextSize:14sp))
 |  |  |                                           |  |  |
-|  |  | +---------------------------------------+ |  |  | <-- LinearLayout (vertical)
-|  |  | | +-----------------------------------+ | |  |  | <-- MaterialCardView (cornerRadius 12dp)
-|  |  | | | +-------------------------------+ | | |  |  | <-- LinearLayout (vertical u horizontal)
+|  |  | +---------------------------------------+ |  |  | <-- LinearLayout (id: lyContainerSubQuestions,vertical)
+|  |  | |                                       | |  |  | 
+|  |  | | +-----------------------------------+ | |  |  | <-- MaterialCardView (id: cardViewSubQuestions,cornerRadius 12dp)
+|  |  | | | +-------------------------------+ | | |  |  | <-- LinearLayout (vertical)
 |  |  | | | | Ingrese Monto                 | | | |  |  | <-- TextView (id: tvQuestionSubTitle, bold,TextSize:14sp) 
 |  |  | | | | S/.                           | | | |  |  | <-- TextView (id: tvSubQuestionSubTitle,TextSize:14sp) 
 |  |  | | | | +---------------------------+ | | | |  |  | <-- TextInputLayout (OutlinedBox)
 |  |  | | | | | Escriba Aquí              | | | | |  |  | <-- TextInputEditText (id: etAnswer)
 |  |  | | | | +---------------------------+ | | | |  |  |
+|  |  | | | +-------------------------------| | | |  |  |
+|  |  | | +-----------------------------------+ | |  |  | 
+|  |  | |                                       | |  |  |             
+|  |  | +---------------------------------------+ |  |  |
+|  |  +-------------------------------------------+  |  |
+|  +-------------------------------------------------+  |
+|                                                       | <-- MaterialCardView (cornerRadius 12dp,visibility:gone)
++-------------------------------------------------------+
+
++-------------------------------------------------------+ <-- LinearLayout (id: lyContainer,vertical, padding 4dp)
+|                                                       | <-- MaterialCardView (id: cardViewSection,cornerRadius 12dp,visibility:gone)
+|                                                       | <-- MaterialCardView (id: cardViewSubSection,cornerRadius 12dp,visibility:gone)
+|                                                       |
+|  +-------------------------------------------------+  | <-- MaterialCardView (id: cardViewQuestions,cornerRadius 12dp)
+|  |  +-------------------------------------------+  |  | <-- LinearLayout (id: lyContainerQuestion,vertical, padding 4dp)
+|  |  | 501                                       |  |  | <-- TextView (id: tvQuestionTitle, bold,TextSize:14sp)
+|  |  |                                           |  |  | <-- TextView (id: tvQuestionSubTitle,TextSize:14sp,visibility:gone)
+|  |  | +---------------------------------------+ |  |  | <-- LinearLayout (id: lyContainerSubQuestions,vertical)
+|  |  | |                                       | |  |  | 
+|  |  | | +-----------------------------------+ | |  |  | <-- MaterialCardView (id: cardViewSubQuestions,cornerRadius 12dp)
+|  |  | | | +-------------------------------+ | | |  |  | <-- LinearLayout (vertical)
+|  |  | | | | a) ¿CUÁL ES LA OCUPACIÓN 1?   | | | |  |  | <-- TextView (id: tvQuestionSubTitle, bold,TextSize:14sp) 
+|  |  | | | |                               | | | |  |  | <-- TextView (id: tvSubQuestionSubTitle,TextSize:14sp,visibility:gone) 
+|  |  | | | | +---------------------------+ | | | |  |  | <-- TextInputLayout (OutlinedBox)
+|  |  | | | | | Escriba Aquí              | | | | |  |  | <-- TextInputEditText (id: etAnswer)
+|  |  | | | | +---------------------------+ | | | |  |  |
+|  |  | | | +-------------------------------| | | |  |  |
+|  |  | | +-----------------------------------+ | |  |  | 
+|  |  | | +-----------------------------------+ | |  |  | <-- MaterialCardView (id: cardViewSubQuestions,cornerRadius 12dp)
+|  |  | | | +-------------------------------+ | | |  |  | <-- LinearLayout (vertical)
+|  |  | | | | b) ¿CUÁL ES LA OCUPACIÓN 2?   | | | |  |  | <-- TextView (id: tvQuestionSubTitle, bold,TextSize:14sp) 
+|  |  | | | |                               | | | |  |  | <-- TextView (id: tvSubQuestionSubTitle,TextSize:14sp,visibility:gone) 
+|  |  | | | | +---------------------------+ | | | |  |  | <-- TextInputLayout (OutlinedBox)
+|  |  | | | | | Escriba Aquí              | | | | |  |  | <-- TextInputEditText (id: etAnswer)
+|  |  | | | | +---------------------------+ | | | |  |  |
+|  |  | | | +-------------------------------| | | |  |  |
+|  |  | | +-----------------------------------+ | |  |  |
+|  |  | |                                       | |  |  |             
+|  |  | +---------------------------------------+ |  |  |
+|  |  +-------------------------------------------+  |  |
+|  +-------------------------------------------------+  |
+|                                                       | <-- MaterialCardView (cornerRadius 12dp,visibility:gone)
++-------------------------------------------------------+
+
++-------------------------------------------------------+ <-- LinearLayout (id: lyContainer,vertical, padding 4dp)
+|                                                       | <-- MaterialCardView (id: cardViewSection,cornerRadius 12dp,visibility:gone)
+|                                                       | <-- MaterialCardView (id: cardViewSubSection,cornerRadius 12dp,visibility:gone)
+|                                                       |
+|  +-------------------------------------------------+  | <-- MaterialCardView (id: cardViewQuestions,cornerRadius 12dp)
+|  |  +-------------------------------------------+  |  | <-- LinearLayout (id: lyContainerQuestion,vertical, padding 4dp)
+|  |  | 501B.¿CUÁNTO TIEMPO TRABAJA UD.           |  |  | <-- TextView (id: tvQuestionTitle, bold,TextSize:14sp)
+|  |  |                                           |  |  | <-- TextView (id: tvQuestionSubTitle,TextSize:14sp,visibility:gone)
+|  |  | +---------------------------------------+ |  |  | <-- LinearLayout (id: lyContainerSubQuestions,vertical)
+|  |  | |                                       | |  |  | 
+|  |  | | +-----------------------------------+ | |  |  | <-- MaterialCardView (id: cardViewSubQuestions,cornerRadius 12dp)
+|  |  | | | +-------------------------------+ | | |  |  | <-- LinearLayout (Horizontal) 
+|  |  | | | |       +---------------------+ | | | |  |  | <-- TextView (id: tvQuestionSubTitle, bold,TextSize:14sp) /TextView (id: tvSubQuestionSubTitle,TextSize:14sp,visibility:gone) /TextInputLayout (OutlinedBox)
+|  |  | | | | Años: | Escriba Aquí        | | | | |  |  | <-- TextInputEditText (id: etAnswer)
+|  |  | | | |       +---------------------+ | | | |  |  |
+|  |  | | | +-------------------------------| | | |  |  |
+|  |  | | +-----------------------------------+ | |  |  | 
+|  |  | | +-----------------------------------+ | |  |  | <-- MaterialCardView (id: cardViewSubQuestions,cornerRadius 12dp)
+|  |  | | | +-------------------------------+ | | |  |  | <-- LinearLayout (Horizontal) 
+|  |  | | | |       +---------------------+ | | | |  |  | <-- TextView (id: tvQuestionSubTitle, bold,TextSize:14sp) /TextView (id: tvSubQuestionSubTitle,TextSize:14sp,visibility:gone) /TextInputLayout (OutlinedBox)
+|  |  | | | | Meses:| Escriba Aquí        | | | | |  |  | <-- TextInputEditText (id: etAnswer)
+|  |  | | | |       +---------------------+ | | | |  |  |
+|  |  | | | +-------------------------------| | | |  |  |
+|  |  | | +-----------------------------------+ | |  |  |
+|  |  | |                                       | |  |  |             
+|  |  | +---------------------------------------+ |  |  |
+|  |  +-------------------------------------------+  |  |
+|  +-------------------------------------------------+  |
+|                                                       | <-- MaterialCardView (cornerRadius 12dp,visibility:gone)
++-------------------------------------------------------+
+
++-------------------------------------------------------+ <-- LinearLayout (vertical, padding 4dp)
+|  +-------------------------------------------------+  | <-- MaterialCardView (cornerRadius 12dp)
+|  |  +-------------------------------------------+  |  | <-- LinearLayout (vertical, padding 4dp)
+|  |  | 501B.¿CUÁNTAS HORAS TRABAJA UD.           |  |  | <-- TextView (id: tvQuestionTitle, bold,TextSize:14sp)
+|  |  |                                           |  |  | <-- TextView (id: tvQuestionSubTitle,TextSize:14sp,No visible)
+|  |  | +---------------------------------------+ |  |  | <-- LinearLayout (vertical)
+|  |  | | +-----------------------------------+ | |  |  | <-- MaterialCardView (cornerRadius 12dp)
+|  |  | | | +-------------------------------+ | | |  |  | <-- LinearLayout (horizontal)
+|  |  | | | |             +---------------+ | | | |  |  | <-- TextView (id: tvQuestionSubTitle, bold,TextSize:14sp) / TextView (id: tvSubQuestionSubTitle,TextSize:14sp,No visible) / TextInputLayout (OutlinedBox)
+|  |  | | | | Domingo:    | Escriba Aquí  | | | | |  |  | <-- TextInputEditText (id: etAnswer)
+|  |  | | | |             +---------------+ | | | |  |  |
+|  |  | | | +-------------------------------| | | |  |  |
+|  |  | | +-----------------------------------+ | |  |  |            
+|  |  | +---------------------------------------+ |  |  |
+|  |  | +---------------------------------------+ |  |  | <-- LinearLayout (vertical)
+|  |  | | +-----------------------------------+ | |  |  | <-- MaterialCardView (cornerRadius 12dp)
+|  |  | | | +-------------------------------+ | | |  |  | <-- LinearLayout (horizontal)
+|  |  | | | |             +---------------+ | | | |  |  | <-- TextView (id: tvQuestionSubTitle, bold,TextSize:14sp) / TextView (id: tvSubQuestionSubTitle,TextSize:14sp,No visible) / TextInputLayout (OutlinedBox)
+|  |  | | | | Lunes:      | Escriba Aquí  | | | | |  |  | <-- TextInputEditText (id: etAnswer)
+|  |  | | | |             +---------------+ | | | |  |  |
 |  |  | | | +-------------------------------| | | |  |  |
 |  |  | | +-----------------------------------+ | |  |  |            
 |  |  | +---------------------------------------+ |  |  |
@@ -215,6 +311,7 @@
 |  +-------------------------------------------------+  |
 |                                                       |
 +-------------------------------------------------------+
+
 +-------------------------------------------------------+ <-- LinearLayout (vertical, padding 4dp)
 |                                                       |
 |  +-------------------------------------------------+  | <-- MaterialCardView (cornerRadius 12dp)
@@ -253,3 +350,17 @@
 |  +-------------------------------------------------+  |
 +-------------------------------------------------------+
 ```
+
+| ID | Código | Código padre | Tipo de elemento | Nivel | Texto | Subtexto | Tipo respuesta | Componente | Orden | Orientación | Visible |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| Q-501A | 501A | — | Pregunta | Pregunta | ¿Cuánto gana mensualmente en la actividad primaria que realiza? | Diga el monto en soles | Abierta numérica | 1 | Vertical | Sí |
+| C-501A-01 | 501A-01 | 501A | Componente | Componente | Ingrese Monto | S/. | Numérico decimal | 1 | Vertical | Sí |
+| Q-502 | 502 | — | Pregunta | Pregunta | ¿Cuánto recibió por concepto de...? | — | Pregunta compuesta | 2 | Vertical | Sí |
+| Q-502-1 | 502_1 | 502 | Subpregunta | Subpregunta | Pensión de separación? | — | Cerrada única | 1 | Vertical | Sí |
+| C-502-1-01 | 502_1-01 | 502_1 | Componente | Componente | — | — | RadioGroup | 1 | Vertical | Sí |
+| Q-502-2 | 502_2 | 502 | Subpregunta | Subpregunta | Pensión de alimentos? | — | Cerrada única | 2 | Vertical | Sí |
+| C-502-2-01 | 502_2-01 | 502_2 | Componente | Componente | — | — | RadioGroup | 1 | Vertical | Sí |
+
+
+
+..........................
